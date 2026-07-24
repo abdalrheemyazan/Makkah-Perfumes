@@ -90,7 +90,7 @@ export default async function HomePage() {
           // generated assets are the defaults.
           stagePlate={heroBlock?.mediaUrl ?? '/generated/cinematic/hero-stage.webp'}
           posterDesktop={heroBlock?.posterUrl ?? '/generated/posters/hero-poster.webp'}
-          posterMobile={heroBlock?.mobileUrl ?? '/generated/posters/hero-poster-mobile.webp'}
+          stagePlateMobile="/generated/mobile/hero-stage-mobile.webp"
           productSrc={hero?.imageUrl ?? '/brand-reference/products/royal-leather.avif'}
           productAltHe={hero?.imageAltHe ?? 'בקבוק הבושם Royal Leather של מכה פרפיומס'}
           eyebrowHe="מורשת של בישום עומאני"

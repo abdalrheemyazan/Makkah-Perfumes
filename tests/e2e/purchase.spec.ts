@@ -19,8 +19,16 @@ test.describe('purchase flow', () => {
     // The official English name must appear exactly as printed on the bottle.
     await expect(page.getByText('Royal Leather', { exact: true }).first()).toBeVisible();
 
-    // The buy box is the first add-to-cart on the page; related products follow.
-    await page.getByRole('button', { name: 'הוספה לעגלה' }).first().click();
+    // Scope to the buy box — the container that also holds the <h1> — so the
+    // click can never land on a related product's add-to-cart button. Grabbing
+    // the page-wide `.first()` was fragile: if the hero product ran low on
+    // stock its own button disabled, and the first remaining button belonged to
+    // a related product.
+    const buyBox = page
+      .locator('div')
+      .filter({ has: page.getByRole('heading', { level: 1 }) })
+      .last();
+    await buyBox.getByRole('button', { name: 'הוספה לעגלה' }).click();
     await expect(page.getByText('נוסף לעגלה').first()).toBeVisible();
 
     // --- Cart -------------------------------------------------------------

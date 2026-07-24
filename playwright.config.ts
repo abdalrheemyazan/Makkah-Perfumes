@@ -25,6 +25,11 @@ export default defineConfig({
     locale: 'he-IL',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    // Chromium defaults to /dev/shm for shared memory, which is tiny in many
+    // headless/CI environments. Capturing full-page screenshots of the tall,
+    // animated homepage exhausted it and crashed the browser ("Target page …
+    // has been closed"). This flag routes shared memory to /tmp instead.
+    launchOptions: { args: ['--disable-dev-shm-usage'] },
   },
 
   projects: [
@@ -53,7 +58,8 @@ export default defineConfig({
     {
       name: 'mobile-admin',
       use: { ...devices['Pixel 7'], storageState: 'playwright/.auth/admin.json' },
-      testMatch: /admin\.spec\.ts/,
+      // Screenshots run here too, so every capture exists at both viewports.
+      testMatch: [/admin\.spec\.ts/, /screenshots\.spec\.ts/],
       dependencies: ['setup'],
     },
   ],

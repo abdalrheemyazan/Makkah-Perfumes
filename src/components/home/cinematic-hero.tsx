@@ -52,8 +52,8 @@ const DUST = [
 
 export function CinematicHero({
   posterDesktop,
-  posterMobile,
   stagePlate,
+  stagePlateMobile,
   productSrc,
   productAltHe,
   eyebrowHe,
@@ -65,8 +65,9 @@ export function CinematicHero({
   secondaryCtaHref,
 }: {
   posterDesktop: string;
-  posterMobile: string;
   stagePlate: string;
+  /** Portrait plate WITHOUT the product composited in. */
+  stagePlateMobile: string;
   productSrc: string;
   productAltHe: string;
   eyebrowHe: string;
@@ -143,24 +144,37 @@ export function CinematicHero({
     <section
       ref={sectionRef}
       aria-labelledby="hero-title"
-      className="relative flex min-h-svh items-center overflow-hidden pt-24 lg:pt-28"
+      // Mobile anchors the copy to the bottom so the bottle in the poster keeps
+      // the upper half to itself; desktop centres the two-column composition.
+      className="relative flex min-h-svh items-end overflow-hidden pt-24 lg:items-center lg:pt-28"
     >
       {/* ---- Layer 1: generated stage plate (still) ---- */}
       <div ref={stageRef} aria-hidden="true" className="absolute inset-0 will-change-transform">
         <Image
-          src={isNarrow ? posterMobile : stagePlate}
+          src={isNarrow ? stagePlateMobile : stagePlate}
           alt=""
           fill
           priority
           sizes="100vw"
           className="object-cover"
         />
-        {/* Deepen the side where the Hebrew copy sits so text keeps contrast. */}
+        {/* Scrims differ by axis because the composition does.
+            Desktop: bottle on the left, copy on the right — darken sideways.
+            Mobile: the poster already contains the bottle, and the copy sits
+            beneath it — darken upward instead, or the text would land on the
+            label. */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 hidden lg:block"
           style={{
             background:
               'linear-gradient(to left, var(--color-ink) 10%, color-mix(in oklab, var(--color-ink) 74%, transparent) 44%, transparent 80%)',
+          }}
+        />
+        <div
+          className="absolute inset-0 lg:hidden"
+          style={{
+            background:
+              'linear-gradient(to top, var(--color-ink) 32%, color-mix(in oklab, var(--color-ink) 70%, transparent) 58%, transparent 88%)',
           }}
         />
         <div
@@ -209,9 +223,9 @@ export function CinematicHero({
         ))}
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-[110rem] items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:px-12 lg:py-24">
+      <div className="relative mx-auto grid w-full max-w-[110rem] items-center gap-10 px-5 pb-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:px-12 lg:py-24">
         {/* ---- Layer 4: copy (first in DOM => right side in RTL) ---- */}
-        <div ref={copyRef} className="max-w-xl will-change-transform">
+        <div ref={copyRef} className="order-2 max-w-xl will-change-transform lg:order-1">
           <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
             {eyebrowHe}
           </p>
@@ -246,7 +260,7 @@ export function CinematicHero({
         {/* ---- Layer 3: the real product, never regenerated ---- */}
         <div
           ref={productRef}
-          className="relative mx-auto hidden w-full max-w-lg will-change-transform lg:block"
+          className="relative order-1 mx-auto w-full max-w-[15rem] will-change-transform sm:max-w-xs lg:order-2 lg:max-w-lg"
         >
           <div className="relative aspect-4/5">
             <Image

@@ -20,6 +20,24 @@ async function settle(page: Page) {
   await page.waitForTimeout(600);
 }
 
+/**
+ * Freezes all animation for capture.
+ *
+ * Screenshots are static, so continuous CSS animations add nothing — but the
+ * hero's large blurred, endlessly-animating ambient layers accumulate work in
+ * the headless software rasterizer and crash the desktop renderer over a
+ * multi-screenshot pass. Pinning every animation to its final frame removes
+ * that load and makes captures deterministic. Real users never see this style.
+ */
+async function freezeAnimation(page: Page) {
+  await page.addStyleTag({
+    content: `*, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }`,
+  });
+}
+
 test.beforeAll(async () => {
   await mkdir(OUT, { recursive: true });
 });
@@ -27,17 +45,40 @@ test.beforeAll(async () => {
 test.describe('storefront screenshots', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('capture public pages', async ({ page }, testInfo) => {
+  // A still frame cannot depict motion, so the hero is captured under reduced
+  // motion: every layer renders at its resting position — visually identical to
+  // a frozen frame of the live version — without the continuously animated,
+  // heavily blurred ambient layers that crash the headless desktop renderer
+  // when left running through the capture.
+  test('capture hero', async ({ page }, testInfo) => {
     const suffix = testInfo.project.name;
-
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await settle(page);
+    await freezeAnimation(page);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await page.screenshot({ path: `${OUT}/home-${suffix}.png` });
+  });
+
+  /**
+   * Section captures run under reduced motion, in their own test.
+   *
+   * Two reasons this is a separate, reduced-motion test rather than part of a
+   * long capture sequence:
+   *   - Reduced motion drops the ScrollTrigger pin, so the story renders in its
+   *     stacked form and the page is a normal, stable height. The static layout
+   *     is representative — shop/discovery/frankincense never animate anyway.
+   *   - A fresh page per test keeps cumulative renderer memory low. Capturing
+   *     everything in one page lifecycle crashed the desktop headless browser.
+   */
+  test('capture homepage sections', async ({ page }, testInfo) => {
+    const suffix = testInfo.project.name;
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await settle(page);
+    await freezeAnimation(page);
     await page.screenshot({ path: `${OUT}/home-full-${suffix}.png`, fullPage: true });
 
-    // Each section captured by scrolling its heading into view, so the shots
-    // stay correct if the section order changes again.
     for (const [anchor, name] of [
       ['#story-heading', 'home-story'],
       ['#featured-heading', 'home-shop'],
@@ -45,9 +86,13 @@ test.describe('storefront screenshots', () => {
       ['#frankincense-heading', 'home-frankincense'],
     ] as const) {
       await page.locator(anchor).scrollIntoViewIfNeeded();
-      await page.waitForTimeout(650);
+      await page.waitForTimeout(400);
       await page.screenshot({ path: `${OUT}/${name}-${suffix}.png` });
     }
+  });
+
+  test('capture shop and product', async ({ page }, testInfo) => {
+    const suffix = testInfo.project.name;
 
     await page.goto('/shop');
     await settle(page);

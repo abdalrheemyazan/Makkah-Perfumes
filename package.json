@@ -22,7 +22,8 @@
     "assets:derivatives": "node scripts/build-brand-derivatives.mjs",
     "assets:logo": "node scripts/build-logo-variants.mjs",
     "assets:generated": "node scripts/build-generated-assets.mjs",
-    "e2e:screenshots": "playwright test screenshots --project=desktop-admin"
+    "e2e:screenshots": "playwright test screenshots --project=desktop-admin",
+    "db:reset-test-stock": "node scripts/reset-test-stock.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
