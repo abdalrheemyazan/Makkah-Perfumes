@@ -1,0 +1,839 @@
+// MAKKAH PERFUMES — סכמת בסיס הנתונים
+//
+// כללי יסוד:
+//  1. כל סכום כסף נשמר כמספר שלם ב*אגורות* (ILS minor units). לעולם לא Float.
+//     100.50 ₪ => 10050. חישובים נעשים בשרת בלבד (src/lib/commerce/money.ts).
+//  2. `isDevelopmentData` מסמן ערכים שלא אומתו מול הלקוח. הם מוצגים עם אזהרה
+//     ומוחרגים מ-JSON-LD. ראו docs/MISSING_BUSINESS_DATA.md.
+//  3. סטטוסים הם enums של PostgreSQL — לא מחרוזות חופשיות.
+
+// Prisma 7: כתובת החיבור מוגדרת ב-prisma.config.ts דרך driver adapter,
+// ולא בקובץ הסכמה.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===========================================================================
+// ENUMS
+// ===========================================================================
+
+enum RoleName {
+  SUPER_ADMIN
+  ADMIN
+  CONTENT_MANAGER
+  ORDER_MANAGER
+  INVENTORY_MANAGER
+  SUPPORT_AGENT
+  CUSTOMER
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+  POSTER
+  MODEL_3D
+}
+
+enum NoteTier {
+  TOP
+  HEART
+  BASE
+}
+
+enum Concentration {
+  PARFUM
+  EAU_DE_PARFUM
+  EAU_DE_TOILETTE
+  EAU_DE_COLOGNE
+  ATTAR_OIL
+  INCENSE
+  UNSPECIFIED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  RETURNED
+}
+
+enum ShipmentStatus {
+  PENDING
+  LABEL_CREATED
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+  RETURNED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+enum InventoryMovementReason {
+  INITIAL_STOCK
+  MANUAL_ADJUSTMENT
+  ORDER_RESERVED
+  ORDER_RELEASED
+  ORDER_FULFILLED
+  RETURN_RESTOCK
+  DAMAGE_WRITE_OFF
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DeliveryMethod {
+  STANDARD_DELIVERY
+  EXPRESS_DELIVERY
+  STORE_PICKUP
+}
+
+enum AddressKind {
+  SHIPPING
+  BILLING
+}
+
+enum ContentBlockKind {
+  HERO
+  BRAND_STORY
+  BANNER
+  RICH_TEXT
+  FAQ
+  POLICY
+}
+
+// ===========================================================================
+// זהות והרשאות
+// ===========================================================================
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  firstName      String?
+  lastName       String?
+  phone          String?
+  acceptsMarketing Boolean @default(false)
+  isActive       Boolean  @default(true)
+  deletionRequestedAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  roles          UserRole[]
+  sessions       Session[]
+  addresses      Address[]
+  carts          Cart[]
+  wishlist       Wishlist?
+  orders         Order[]
+  reviews        Review[]
+  auditLogs      AuditLog[]
+  passwordResets PasswordResetToken[]
+
+  @@index([createdAt])
+}
+
+model Role {
+  id          String     @id @default(cuid())
+  name        RoleName   @unique
+  description String
+  users       UserRole[]
+}
+
+model UserRole {
+  userId     String
+  roleId     String
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Address {
+  id           String      @id @default(cuid())
+  userId       String?
+  kind         AddressKind @default(SHIPPING)
+  isDefault    Boolean     @default(false)
+  firstName    String
+  lastName     String
+  phone        String
+  street       String
+  houseNumber  String
+  apartment    String?
+  entrance     String?
+  floor        String?
+  city         String
+  postalCode   String?
+  country      String      @default("IL")
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user            User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shippingOrders  Order[] @relation("OrderShippingAddress")
+  billingOrders   Order[] @relation("OrderBillingAddress")
+
+  @@index([userId])
+}
+
+// ===========================================================================
+// קטלוג
+// ===========================================================================
+
+model Product {
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  /// שם התצוגה בעברית — נוצר על ידינו לצורך הממשק
+  nameHe           String
+  /// השם הרשמי באנגלית כפי שמופיע על הבקבוק. אין לשנות.
+  nameEn           String
+  /// תיאור שיווקי. ראו MISSING_BUSINESS_DATA — לא סופק תיאור רשמי.
+  descriptionHe    String?
+  storyHe          String?
+  usageHe          String?
+  ingredientsHe    String?
+  status           ProductStatus @default(DRAFT)
+  isFeatured       Boolean       @default(false)
+  isNewArrival     Boolean       @default(false)
+  publishedAt      DateTime?
+
+  categoryId          String?
+  fragranceFamilyId   String?
+
+  /// true כאשר תווי הניחוח אומתו מול הלקוח. כל עוד false — הפירמידה לא מוצגת.
+  notesVerified       Boolean @default(false)
+  /// true כאשר המחיר אומת. כל עוד false — המחיר מסומן כ"מחיר לדוגמה" ומוחרג מ-JSON-LD.
+  pricingVerified     Boolean @default(false)
+  /// דגל-על: כל נתוני המוצר שלא מגיעים מהתצלום הרשמי הם נתוני פיתוח.
+  isDevelopmentData   Boolean @default(true)
+
+  seoTitleHe       String?
+  seoDescriptionHe String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category        Category?              @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  fragranceFamily FragranceFamily?       @relation(fields: [fragranceFamilyId], references: [id], onDelete: SetNull)
+  variants        ProductVariant[]
+  images          ProductImage[]
+  media           ProductMedia[]
+  models          ProductModel[]
+  collections     ProductCollection[]
+  notes           ProductFragranceNote[]
+  reviews         Review[]
+  wishlistItems   WishlistItem[]
+
+  relatedTo   ProductRelation[] @relation("RelationSource")
+  relatedFrom ProductRelation[] @relation("RelationTarget")
+
+  @@index([status, publishedAt])
+  @@index([categoryId])
+  @@index([fragranceFamilyId])
+  @@index([isFeatured])
+}
+
+model ProductRelation {
+  sourceId String
+  targetId String
+  position Int    @default(0)
+
+  source Product @relation("RelationSource", fields: [sourceId], references: [id], onDelete: Cascade)
+  target Product @relation("RelationTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@id([sourceId, targetId])
+  @@index([targetId])
+}
+
+model ProductVariant {
+  id        String @id @default(cuid())
+  productId String
+  /// מק״ט. כרגע נוצר אוטומטית — ראו MISSING_BUSINESS_DATA §1.2.
+  sku       String @unique
+  /// נפח במיליליטר. null כאשר לא צוין על התווית.
+  volumeMl  Int?
+  concentration Concentration @default(UNSPECIFIED)
+  /// מחיר באגורות. לעולם לא לסמוך על מחיר שמגיע מהדפדפן.
+  priceAgorot        Int
+  /// מחיר "לפני הנחה" באגורות. null = אין מבצע.
+  compareAtAgorot    Int?
+  barcode   String?
+  isDefault Boolean @default(false)
+  isActive  Boolean @default(true)
+  position  Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem?
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  /// נתיב יחסי תחת /public
+  url       String
+  /// טקסט חלופי בעברית — חובה לנגישות.
+  altHe     String
+  width     Int
+  height    Int
+  position  Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductMedia {
+  id         String    @id @default(cuid())
+  productId  String
+  kind       MediaKind
+  url        String
+  posterUrl  String?
+  mobileUrl  String?
+  altHe      String
+  /// מודל ופרומפט הג'נרציה — לתיעוד מקור הנכס.
+  sourceModel  String?
+  sourcePrompt String?
+  position   Int       @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductModel {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  posterUrl String?
+  /// true רק כאשר המודל הוא סריקה/מודל רשמי מאושר של המוצר האמיתי.
+  /// אין להציג קירוב שנוצר ב-AI כמודל תלת-ממד מדויק.
+  isApproved Boolean @default(false)
+  fileSizeKb Int?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model Category {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  nameHe        String
+  descriptionHe String?
+  position      Int     @default(0)
+
+  products Product[]
+}
+
+model Collection {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  nameHe        String
+  descriptionHe String?
+  heroImageUrl  String?
+  isPublished   Boolean @default(false)
+  position      Int     @default(0)
+
+  products ProductCollection[]
+}
+
+model ProductCollection {
+  productId    String
+  collectionId String
+  position     Int    @default(0)
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+  @@index([collectionId])
+}
+
+model FragranceFamily {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  nameHe        String
+  descriptionHe String?
+  /// צבע מייצג לשימוש בממשק (hex).
+  accentColor   String?
+  position      Int     @default(0)
+
+  products Product[]
+}
+
+model FragranceNote {
+  id     String @id @default(cuid())
+  slug   String @unique
+  nameHe String
+  nameEn String
+
+  products ProductFragranceNote[]
+}
+
+model ProductFragranceNote {
+  productId String
+  noteId    String
+  tier      NoteTier
+  position  Int      @default(0)
+
+  product Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  note    FragranceNote @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@id([productId, noteId, tier])
+  @@index([noteId])
+}
+
+// ===========================================================================
+// מלאי
+// ===========================================================================
+
+model InventoryItem {
+  id                String @id @default(cuid())
+  variantId         String @unique
+  /// כמות פיזית בפועל.
+  quantityOnHand    Int    @default(0)
+  /// כמות משוריינת להזמנות שטרם מולאו.
+  quantityReserved  Int    @default(0)
+  lowStockThreshold Int    @default(5)
+  /// האם לאפשר הזמנה כשאין מלאי.
+  allowBackorder    Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  variant   ProductVariant      @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  movements InventoryMovement[]
+}
+
+model InventoryMovement {
+  id              String                  @id @default(cuid())
+  inventoryItemId String
+  /// חיובי = כניסה למלאי, שלילי = יציאה.
+  delta           Int
+  reason          InventoryMovementReason
+  orderId         String?
+  note            String?
+  createdByUserId String?
+  createdAt       DateTime                @default(now())
+
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@index([inventoryItemId, createdAt])
+  @@index([orderId])
+}
+
+// ===========================================================================
+// עגלה ומועדפים
+// ===========================================================================
+
+model Cart {
+  id        String   @id @default(cuid())
+  /// מזהה אנונימי בעוגייה — מאפשר עגלה לאורח.
+  token     String   @unique
+  userId    String?
+  couponId  String?
+  convertedToOrderId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coupon Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  items  CartItem[]
+
+  @@index([userId])
+  @@index([updatedAt])
+}
+
+model CartItem {
+  id        String @id @default(cuid())
+  cartId    String
+  variantId String
+  quantity  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@index([variantId])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  productId  String
+  createdAt  DateTime @default(now())
+
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@index([productId])
+}
+
+// ===========================================================================
+// הזמנות
+// ===========================================================================
+
+model Order {
+  id          String @id @default(cuid())
+  /// מספר הזמנה קריא ללקוח, למשל MK-2026-000123
+  orderNumber String @unique
+  /// מפתח ייחודי למניעת יצירת הזמנה כפולה בלחיצה חוזרת.
+  idempotencyKey String @unique
+
+  userId      String?
+  guestEmail  String?
+  guestPhone  String?
+
+  status            OrderStatus       @default(PENDING)
+  paymentStatus     PaymentStatus     @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+
+  shippingAddressId String?
+  billingAddressId  String?
+  deliveryMethod    DeliveryMethod @default(STANDARD_DELIVERY)
+
+  // כל הסכומים באגורות, מחושבים בשרת בלבד.
+  subtotalAgorot    Int
+  discountAgorot    Int @default(0)
+  shippingAgorot    Int @default(0)
+  taxAgorot         Int @default(0)
+  totalAgorot       Int
+
+  couponId       String?
+  couponCode     String?
+  customerNote   String?
+  internalNote   String?
+  /// true כאשר ההזמנה נוצרה במצב תשלום פיתוח (ללא חיוב אמיתי).
+  isDevelopmentOrder Boolean @default(false)
+
+  placedAt    DateTime  @default(now())
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  shippingAddress Address?  @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  billingAddress  Address?  @relation("OrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  coupon          Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+  items       OrderItem[]
+  payments    Payment[]
+  shipments   Shipment[]
+  events      OrderEvent[]
+  redemptions CouponRedemption[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([placedAt])
+  @@index([guestEmail])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  variantId String?
+
+  // צילום מצב בזמן הרכישה — נשמר כדי שההזמנה לא תשתנה כשהמוצר מתעדכן.
+  productNameHe String
+  productNameEn String
+  productSlug   String
+  variantSku    String
+  variantLabel  String
+  imageUrl      String?
+
+  unitPriceAgorot Int
+  quantity        Int
+  lineTotalAgorot Int
+
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  /// מזהה קריא לסוג האירוע, למשל "order.created", "payment.paid"
+  type      String
+  messageHe String
+  actorId   String?
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  orderId   String
+  provider  String
+  /// מזהה העסקה אצל הספק. לעולם לא נשמרים פרטי כרטיס.
+  providerReference String?
+  status    PaymentStatus @default(PENDING)
+  amountAgorot Int
+  refundedAgorot Int @default(0)
+  failureReason String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  orderId        String
+  carrier        String?
+  trackingNumber String?
+  trackingUrl    String?
+  status         ShipmentStatus @default(PENDING)
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+// ===========================================================================
+// קופונים
+// ===========================================================================
+
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  descriptionHe String?
+  discountType  DiscountType
+  /// באחוזים (1-100) כאשר PERCENTAGE, או באגורות כאשר FIXED_AMOUNT.
+  discountValue Int
+  minSubtotalAgorot Int?
+  maxDiscountAgorot Int?
+  usageLimit        Int?
+  usageCount        Int      @default(0)
+  perUserLimit      Int?
+  startsAt          DateTime?
+  endsAt            DateTime?
+  isActive          Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  carts       Cart[]
+  orders      Order[]
+  redemptions CouponRedemption[]
+}
+
+model CouponRedemption {
+  id             String   @id @default(cuid())
+  couponId       String
+  orderId        String
+  userId         String?
+  discountAgorot Int
+  createdAt      DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, orderId])
+  @@index([userId])
+}
+
+// ===========================================================================
+// תוכן
+// ===========================================================================
+
+model Review {
+  id        String       @id @default(cuid())
+  productId String
+  userId    String?
+  /// מאומת מול רשומת הזמנה אמיתית בלבד. אין תג "רכישה מאומתת" ללא הזמנה.
+  orderId   String?
+  rating    Int
+  titleHe   String?
+  bodyHe    String
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId, status])
+}
+
+model Branch {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  nameHe        String
+  addressHe     String
+  cityHe        String
+  phone         String?
+  openingHoursHe String?
+  latitude      Float?
+  longitude     Float?
+  accessibilityHe String?
+  isPublished   Boolean @default(false)
+  position      Int     @default(0)
+}
+
+model JournalPost {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  titleHe       String
+  excerptHe     String?
+  bodyHe        String
+  coverImageUrl String?
+  coverAltHe    String?
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  authorName    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isPublished, publishedAt])
+}
+
+model ContentBlock {
+  id        String           @id @default(cuid())
+  key       String           @unique
+  kind      ContentBlockKind
+  titleHe   String?
+  bodyHe    String?
+  mediaUrl  String?
+  posterUrl String?
+  mobileUrl String?
+  ctaLabelHe String?
+  ctaHref    String?
+  isPublished Boolean @default(true)
+  position   Int     @default(0)
+
+  updatedAt DateTime @updatedAt
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  /// הסכמה מפורשת — נדרש לפי חוק הספאם הישראלי.
+  consentedAt    DateTime
+  consentSource  String
+  ipAddress      String?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  /// JSON מסודר עם לפני/אחרי. לא נשמרים סודות או פרטי תשלום.
+  metadata   String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+}
