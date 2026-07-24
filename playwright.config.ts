@@ -3,8 +3,13 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright configuration.
  *
- * `reuseExistingServer` keeps local runs fast when `npm run dev` is already up,
- * while CI always starts its own server.
+ * Projects:
+ *   setup            — logs in once and stores the admin session
+ *   desktop / mobile — storefront specs, signed out
+ *   *-admin          — admin specs, reusing the stored session
+ *
+ * Splitting the admin projects out means the app's real login rate limiter is
+ * exercised once rather than fought on every test.
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -23,11 +28,34 @@ export default defineConfig({
   },
 
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    // Pixel 7 is Chromium-based, so mobile layout and touch behaviour are
-    // covered by the browser that is already installed. iOS Safari still needs
-    // a manual pass — see docs/TESTING.md.
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: [/admin\.spec\.ts/, /screenshots\.spec\.ts/, /auth\.setup\.ts/],
+    },
+    {
+      // Pixel 7 is Chromium-based, so mobile layout and touch behaviour are
+      // covered by the browser that is already installed. iOS Safari still
+      // needs a manual pass — see docs/TESTING.md.
+      name: 'mobile',
+      use: { ...devices['Pixel 7'] },
+      testIgnore: [/admin\.spec\.ts/, /screenshots\.spec\.ts/, /auth\.setup\.ts/],
+    },
+
+    {
+      name: 'desktop-admin',
+      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin.json' },
+      testMatch: [/admin\.spec\.ts/, /screenshots\.spec\.ts/],
+      dependencies: ['setup'],
+    },
+    {
+      name: 'mobile-admin',
+      use: { ...devices['Pixel 7'], storageState: 'playwright/.auth/admin.json' },
+      testMatch: /admin\.spec\.ts/,
+      dependencies: ['setup'],
+    },
   ],
 
   webServer: {

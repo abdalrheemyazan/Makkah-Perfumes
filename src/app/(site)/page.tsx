@@ -1,4 +1,4 @@
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { db } from '@/lib/db';
@@ -6,7 +6,59 @@ import { getFeaturedProducts, getFragranceFamilies } from '@/lib/catalog';
 import { ProductCard } from '@/components/product/product-card';
 import { ButtonLink } from '@/components/ui/button';
 import { ScrollCue } from '@/components/home/scroll-cue';
-import { BrandStory } from '@/components/home/brand-story';
+import { CinematicHero } from '@/components/home/cinematic-hero';
+import { StorySequence, type StoryChapter } from '@/components/home/story-sequence';
+
+/**
+ * Story chapters.
+ *
+ * Each image is a real generated asset that exists on disk — no placeholder
+ * paths. The copy describes materials and process, and makes no unverifiable
+ * claim about the brand's history.
+ */
+const STORY_CHAPTERS: StoryChapter[] = [
+  {
+    id: 'resin',
+    eyebrowHe: 'חומר הגלם',
+    titleHe: 'שרף הלבונה',
+    bodyHe:
+      'הכול מתחיל בשרף שנאסף מגזע עץ הבוסוואליה ומתקשה באוויר לטיפות ענבריות, חלקן שקופות וחלקן מכוסות אבקה עדינה.',
+    image: '/generated/cinematic/scene-frankincense.webp',
+    imageMobile: '/generated/mobile/scene-frankincense-mobile.webp',
+    altHe: 'תקריב של שרף לבונה טבעי בגוונים ענבריים על אבן שחורה, מואר באור צד חם',
+  },
+  {
+    id: 'smoke',
+    eyebrowHe: 'העשן',
+    titleHe: 'הריח העולה',
+    bodyHe:
+      'על גחלת נמוכה השרף נפתח לריח יבש והדרי, ומתייצב לעומק שרפי וחם — הבסיס של שפת הבישום של דרום ערב.',
+    image: '/generated/cinematic/scene-incense.webp',
+    imageMobile: '/generated/mobile/scene-incense-mobile.webp',
+    altHe: 'מבער קטורת מפליז על לוח אבן שחורה, עם סרט עשן דק העולה בקרן אור ענברית',
+  },
+  {
+    id: 'craft',
+    eyebrowHe: 'המלאכה',
+    titleHe: 'שמן הבושם',
+    bodyHe:
+      'טיפה אחר טיפה נמזגת התמצית ונבנית לפורמולה. כל תו נמדד, נבדק ומותאם עד שהאיזון מתייצב.',
+    image: '/generated/cinematic/scene-craft.webp',
+    imageMobile: '/generated/mobile/scene-craft-mobile.webp',
+    altHe: 'פיפטת זכוכית מטפטפת טיפת שמן בושם ענברית לכלי זכוכית שקוף על שולחן עץ כהה',
+  },
+  {
+    id: 'bottle',
+    eyebrowHe: 'התוצאה',
+    titleHe: 'הבקבוק',
+    bodyHe:
+      'זכוכית מסותתת, פליז מוברש ותווית שנושאת את השם. שלוש עשרה יצירות שמרכיבות את שפת הבית.',
+    image: '/generated/posters/hero-poster.webp',
+    imageMobile: '/generated/posters/hero-poster-mobile.webp',
+    altHe:
+      'בקבוק הבושם Royal Leather עומד על כן אבן שחורה מלוטשת, מואר באור ענברי חם על רקע כהה',
+  },
+];
 
 export default async function HomePage() {
   const [featured, families, heroBlock, storyBlock] = await Promise.all([
@@ -16,84 +68,33 @@ export default async function HomePage() {
     db.contentBlock.findUnique({ where: { key: 'home.brand-story' } }),
   ]);
 
-  const hero = featured[0] ?? null;
+  const hero = featured.find((product) => product.slug === 'royal-leather') ?? featured[0] ?? null;
 
   return (
     <>
       {/* ================= HERO ================= */}
-      <section className="relative flex min-h-svh items-center overflow-hidden pt-18">
-        {/* Lighting stage. Purely decorative — no information lives here. */}
-        <div aria-hidden="true" className="absolute inset-0">
-          <div className="absolute inset-0 bg-ink" />
-          <div
-            className="absolute start-[-10%] top-1/2 h-[85vh] w-[85vh] -translate-y-1/2 rounded-full opacity-70 blur-3xl"
-            style={{
-              background:
-                'radial-gradient(circle, color-mix(in oklab, var(--color-amber) 55%, transparent) 0%, transparent 65%)',
-            }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 h-1/3"
-            style={{ background: 'linear-gradient(to top, var(--color-ink), transparent)' }}
-          />
-        </div>
-
-        <div className="container-editorial relative grid items-center gap-12 py-20 lg:grid-cols-2 lg:gap-8">
-          {/* Copy — first in DOM, so it lands on the right in RTL */}
-          <div className="max-w-xl">
-            <p className="text-sm tracking-[0.2em] text-gold uppercase">
-              מורשת של בישום עומאני
-            </p>
-
-            <h1 className="mt-6 font-serif text-5xl leading-[1.08] text-ivory sm:text-6xl lg:text-7xl">
-              {heroBlock?.titleHe ?? 'ניחוח שנשאר איתך'}
-            </h1>
-
-            <p className="mt-6 max-w-md text-base leading-relaxed text-cream/85 sm:text-lg">
-              {heroBlock?.bodyHe ??
-                'בשמי יוקרה, לבונה וקטורת שנוצרו מתוך מסורת, חומרי גלם ואהבה לפרטים.'}
-            </p>
-
-            <div className="mt-10 flex flex-wrap gap-3">
-              <ButtonLink href="/shop" size="lg">
-                לגלות את הקולקציה
-              </ButtonLink>
-              <ButtonLink href="/fragrance-finder" variant="secondary" size="lg">
-                למציאת הניחוח שלך
-              </ButtonLink>
-            </div>
-          </div>
-
-          {/* Hero product — the real packshot, unaltered */}
-          {hero?.imageUrl && (
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="relative aspect-4/5">
-                <Image
-                  src={hero.imageUrl}
-                  alt={hero.imageAltHe}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 80vw, 45vw"
-                  className="object-contain drop-shadow-[0_35px_60px_rgba(0,0,0,0.85)]"
-                />
-              </div>
-              <p className="mt-4 text-center text-sm text-muted">
-                <Link href={`/shop/${hero.slug}`} className="hover:text-ivory">
-                  {hero.nameHe}
-                  <span className="mx-2 text-faint" aria-hidden="true">
-                    ·
-                  </span>
-                  <span dir="ltr" lang="en">
-                    {hero.nameEn}
-                  </span>
-                </Link>
-              </p>
-            </div>
-          )}
-        </div>
-
+      <div className="relative">
+        <CinematicHero
+          // Media paths are editable from the admin content screen; the
+          // generated assets are the defaults.
+          stagePlate={heroBlock?.mediaUrl ?? '/generated/cinematic/hero-stage.webp'}
+          posterDesktop={heroBlock?.posterUrl ?? '/generated/posters/hero-poster.webp'}
+          posterMobile={heroBlock?.mobileUrl ?? '/generated/posters/hero-poster-mobile.webp'}
+          productSrc={hero?.imageUrl ?? '/brand-reference/products/royal-leather.avif'}
+          productAltHe={hero?.imageAltHe ?? 'בקבוק הבושם Royal Leather של מכה פרפיומס'}
+          eyebrowHe="מורשת של בישום עומאני"
+          titleHe={heroBlock?.titleHe ?? 'ניחוח שנשאר איתך'}
+          bodyHe={
+            heroBlock?.bodyHe ??
+            'בשמי יוקרה, לבונה וקטורת שנוצרו מתוך מסורת, חומרי גלם ואהבה לפרטים.'
+          }
+          primaryCtaHe={heroBlock?.ctaLabelHe ?? 'לגלות את הקולקציה'}
+          primaryCtaHref={heroBlock?.ctaHref ?? '/shop'}
+          secondaryCtaHe="למציאת הניחוח שלך"
+          secondaryCtaHref="/fragrance-finder"
+        />
         <ScrollCue />
-      </section>
+      </div>
 
       {/* ================= FEATURED ================= */}
       <section aria-labelledby="featured-heading" className="container-editorial py-24">
@@ -169,10 +170,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ================= BRAND STORY ================= */}
-      <BrandStory
-        titleHe={storyBlock?.titleHe ?? 'מהמסורת העומאנית אל הניחוח המודרני'}
-        bodyHe={storyBlock?.bodyHe ?? ''}
+      {/* ================= BRAND STORY (scroll-scrubbed) ================= */}
+      <StorySequence
+        headingHe={storyBlock?.titleHe ?? 'מהמסורת העומאנית אל הניחוח המודרני'}
+        introHe={storyBlock?.bodyHe ?? ''}
+        chapters={STORY_CHAPTERS}
       />
 
       {/* ================= FRANKINCENSE ================= */}

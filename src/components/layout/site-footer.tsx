@@ -12,15 +12,14 @@ export function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-[1.2fr_2fr]">
           {/* Brand + newsletter */}
           <div>
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="inline-flex items-center">
               <Image
-                src="/brand-reference/logo/logo.webp"
-                alt=""
-                width={40}
-                height={40}
-                className="h-10 w-10 object-contain brightness-0 invert"
+                src="/brand-reference/logo/logo-ivory.png"
+                alt={SITE.nameEn}
+                width={512}
+                height={438}
+                className="h-14 w-auto object-contain"
               />
-              <span className="font-serif text-lg text-ivory">{SITE.nameHe}</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
               {SITE.descriptionHe}

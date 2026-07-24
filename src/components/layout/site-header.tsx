@@ -71,19 +71,23 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
         )}
       >
         <div className="container-editorial flex h-18 items-center justify-between gap-4">
-          {/* Logo — right edge in RTL */}
-          <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={`${SITE.nameHe} — לעמוד הבית`}>
+          {/* Logo — right edge in RTL.
+              The ivory variant is a real cutout (see scripts/build-logo-variants.mjs);
+              the original logo.webp has an opaque white background and cannot be
+              filtered onto a dark surface. */}
+          <Link
+            href="/"
+            className="flex shrink-0 items-center"
+            aria-label={`${SITE.nameHe} — לעמוד הבית`}
+          >
             <Image
-              src="/brand-reference/logo/logo.webp"
+              src="/brand-reference/logo/logo-ivory.png"
               alt=""
-              width={44}
-              height={44}
+              width={512}
+              height={438}
               priority
-              className="h-10 w-10 object-contain brightness-0 invert"
+              className="h-11 w-auto object-contain"
             />
-            <span className="hidden font-serif text-lg tracking-wide text-ivory sm:block">
-              {SITE.nameHe}
-            </span>
           </Link>
 
           {/* Desktop navigation */}

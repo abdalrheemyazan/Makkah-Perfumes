@@ -28,7 +28,19 @@
 | `.webp` | גיבוי לדפדפנים ללא תמיכת AVIF |
 | `.png` | קלט לכלי עיבוד וג'נרציה שאינם קוראים AVIF (למשל Higgsfield) |
 
-פקודת ההמרה מתועדת ב־[GENERATION_LOG.md](./GENERATION_LOG.md).
+הנגזרות נוצרות ומאומתות על ידי `scripts/build-brand-derivatives.mjs`, שנכשל אם
+ערוץ האלפא אבד. **שקיפות נבדקה ואומתה בכל 13 המוצרים בשני הפורמטים.**
+היסטוריית התקלה מתועדת ב-[GENERATION_LOG.md](./GENERATION_LOG.md) §1.1.
+
+### גרסאות לוגו
+
+| קובץ | תיאור |
+|---|---|
+| `logo.webp` | המקור כפי שסופק — ציור שחור על רקע לבן **אטום** |
+| `logo-ivory.png` | חיתוך שקוף בגוון שנהב — לשימוש על הרקע הכהה |
+| `logo-ink.png` | חיתוך שקוף כהה — למשטחים בהירים ולהדפסה |
+
+הציור לא שורטט מחדש; רק הרקע הלבן הוסר. ראו [GENERATION_LOG.md](./GENERATION_LOG.md) §1.2.
 
 ---
 
@@ -114,13 +126,26 @@
 |---|---|
 | `public/brand-reference/logo/` | לוגו רשמי (webp + png) |
 | `public/brand-reference/products/` | 13 מוצרים × 3 פורמטים = 39 קבצים |
-| `public/generated/cinematic/` | וידאו קולנועי (דסקטופ) |
-| `public/generated/mobile/` | גרסאות וידאו למובייל |
-| `public/generated/posters/` | פוסטרים סטטיים / נפילה חיננית |
-| `public/generated/products/` | סצנות מוצר שנוצרו |
-| `public/generated/social/` | תמונות Open Graph |
-| `public/generated/textures/` | טקסטורות ל־WebGL |
-| `public/models/` | מודלי GLB/GLTF (ריק — ראו MISSING_PRODUCT_ASSETS) |
+| `public/generated/cinematic/` | 4 סצנות קולנועיות (2048×1143 WebP) |
+| `public/generated/mobile/` | 4 גרסאות דיוקן למובייל (1080×1350) |
+| `public/generated/posters/` | פוסטר ה-hero (הרכבה) + גרסת מובייל |
+| `public/generated/social/` | `og-home.jpg` (1200×630) |
+| `public/generated/products/` | ריק — לא נוצרו סצנות מוצר נפרדות |
+| `public/generated/textures/` | ריק — אין WebGL בזמן אמת כרגע |
+| `public/models/` | ריק — ראו MISSING_PRODUCT_ASSETS |
+
+### נכסים שנוצרו — מקור וזהות
+
+| נכס | מקור | זהות מוצר |
+|---|---|---|
+| `hero-stage.webp` | Higgsfield, במה ריקה | אין מוצר בתמונה |
+| `scene-frankincense.webp` | Higgsfield | אין מוצר |
+| `scene-craft.webp` | Higgsfield | אין מוצר |
+| `scene-incense.webp` | Higgsfield | אין מוצר |
+| `hero-poster.webp` | **הרכבה** — במה שנוצרה + תצלום אמיתי | **התצלום המקורי, ללא שינוי** |
+
+אף נכס שנוצר אינו מכיל בקבוק שצויר על ידי מודל. כל בקבוק הנראה באתר הוא
+התצלום הרשמי של הלקוח. הסיבה לכך מתועדת ב-[GENERATION_LOG.md](./GENERATION_LOG.md) §2.4.
 
 ---
 
