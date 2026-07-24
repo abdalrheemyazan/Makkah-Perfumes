@@ -119,7 +119,7 @@ export function AdminShell({
 
       <div className="lg:grid lg:grid-cols-[16rem_1fr]">
         {/* Desktop sidebar */}
-        <aside className="hidden border-inline-end border-gold/15 bg-charcoal p-6 lg:flex lg:h-svh lg:flex-col lg:sticky lg:top-0 lg:overflow-y-auto">
+        <aside className="hidden border-e border-gold/15 bg-charcoal p-6 lg:flex lg:h-svh lg:flex-col lg:sticky lg:top-0 lg:overflow-y-auto">
           <Link href="/admin" className="font-serif text-lg text-ivory">
             מכה פרפיומס
             <span className="mt-0.5 block text-xs tracking-wide text-gold">לוח ניהול</span>
@@ -143,7 +143,7 @@ export function AdminShell({
               role="dialog"
               aria-modal="true"
               aria-label="תפריט ניהול"
-              className="absolute inset-block-0 inset-inline-start-0 flex w-[min(19rem,86vw)] flex-col overflow-y-auto border-inline-end border-gold/20 bg-charcoal p-6"
+              className="absolute inset-y-0 start-0 flex w-[min(19rem,86vw)] flex-col overflow-y-auto border-e border-gold/20 bg-charcoal p-6"
             >
               <div className="flex items-center justify-between">
                 <span className="font-serif text-base text-ivory">ניהול</span>

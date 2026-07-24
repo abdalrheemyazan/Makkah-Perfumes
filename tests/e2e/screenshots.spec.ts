@@ -36,10 +36,18 @@ test.describe('storefront screenshots', () => {
     await page.screenshot({ path: `${OUT}/home-${suffix}.png` });
     await page.screenshot({ path: `${OUT}/home-full-${suffix}.png`, fullPage: true });
 
-    // Mid-scroll, so the scroll-driven story sequence is visible in frame.
-    await page.evaluate(() => window.scrollTo(0, window.innerHeight * 2.4));
-    await page.waitForTimeout(700);
-    await page.screenshot({ path: `${OUT}/home-story-${suffix}.png` });
+    // Each section captured by scrolling its heading into view, so the shots
+    // stay correct if the section order changes again.
+    for (const [anchor, name] of [
+      ['#story-heading', 'home-story'],
+      ['#featured-heading', 'home-shop'],
+      ['#discovery-heading', 'home-discovery'],
+      ['#frankincense-heading', 'home-frankincense'],
+    ] as const) {
+      await page.locator(anchor).scrollIntoViewIfNeeded();
+      await page.waitForTimeout(650);
+      await page.screenshot({ path: `${OUT}/${name}-${suffix}.png` });
+    }
 
     await page.goto('/shop');
     await settle(page);

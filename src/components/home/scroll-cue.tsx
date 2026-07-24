@@ -19,8 +19,9 @@ export function ScrollCue() {
 
   return (
     <a
-      href="#featured-heading"
-      className={`absolute inset-inline-0 bottom-8 mx-auto flex w-fit flex-col items-center gap-2 text-xs tracking-[0.2em] text-cream/70 transition-opacity duration-500 hover:text-gold ${
+      // Points at the story, which now follows the hero.
+      href="#story-heading"
+      className={`absolute inset-x-0 bottom-8 mx-auto flex w-fit flex-col items-center gap-2 text-xs tracking-[0.2em] text-cream/70 transition-opacity duration-500 hover:text-gold ${
         visible ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >

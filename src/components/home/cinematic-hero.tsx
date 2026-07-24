@@ -10,25 +10,46 @@ import { useIsNarrowerThan, usePrefersReducedMotion } from '@/lib/hooks';
  *
  * Built as separate 2.5D layers rather than one flat picture:
  *
- *   stage plate  — generated backdrop (stone, rim light, smoke)
+ *   stage plate  — generated backdrop (stone, rim light)
+ *   atmosphere   — drifting light, haze and dust (ambient, not scroll-driven)
  *   product      — the real client packshot, unmodified
  *   copy         — real HTML text
  *
  * Keeping the product on its own layer is what makes the parallax possible, and
  * it is also why the bottle is pixel-exact: it is the client's photograph, not a
  * render. An earlier attempt to have the model draw the bottle misspelled the
- * label (see docs/GENERATION_LOG.md), so identity now always comes from the
- * real asset.
+ * label (see docs/GENERATION_LOG.md), so identity always comes from the real asset.
  *
  * Motion contract:
- *   - Scroll *drives* the layers (scrub), it is never hijacked. Wheel and
+ *   - The STONE DOES NOT MOVE. An earlier version slid the pedestal 12% and
+ *     scaled it 8% on scroll; a heavy solid object sliding under a static
+ *     bottle reads as a glitch rather than as depth. The plate now only
+ *     breathes (≤2% scale) while light, haze and dust carry the life.
+ *   - Ambient motion is continuous and slow (26–40s periods), independent of
+ *     scroll, so the scene feels alive even when the visitor is still.
+ *   - Scroll *drives* the parallax (scrub), it is never hijacked. Wheel and
  *     touch behave natively; there is no scroll-jacking library.
  *   - The copy and CTAs are real HTML, present and clickable on first paint,
  *     regardless of whether GSAP ever loads.
- *   - prefers-reduced-motion: no animation code is imported at all.
- *   - Narrow screens get the portrait asset and no parallax — pinning and
- *     mobile scrolling fight each other.
+ *   - prefers-reduced-motion: no animation code is imported and every ambient
+ *     layer is frozen by the global reduced-motion rule.
  */
+
+/**
+ * Dust motes. Positions are hard-coded rather than random so the server and
+ * client render identical markup — a Math.random() here would hydrate-mismatch.
+ */
+const DUST = [
+  { left: '12%', bottom: '18%', size: 3, duration: '24s', delay: '0s', opacity: 0.5 },
+  { left: '19%', bottom: '32%', size: 2, duration: '31s', delay: '-6s', opacity: 0.35 },
+  { left: '26%', bottom: '12%', size: 4, duration: '27s', delay: '-13s', opacity: 0.45 },
+  { left: '31%', bottom: '44%', size: 2, duration: '35s', delay: '-3s', opacity: 0.3 },
+  { left: '38%', bottom: '24%', size: 3, duration: '29s', delay: '-18s', opacity: 0.4 },
+  { left: '44%', bottom: '38%', size: 2, duration: '33s', delay: '-9s', opacity: 0.28 },
+  { left: '16%', bottom: '52%', size: 2, duration: '38s', delay: '-22s', opacity: 0.32 },
+  { left: '35%', bottom: '58%', size: 3, duration: '26s', delay: '-15s', opacity: 0.36 },
+] as const;
+
 export function CinematicHero({
   posterDesktop,
   posterMobile,
@@ -60,7 +81,7 @@ export function CinematicHero({
   const stageRef = useRef<HTMLDivElement>(null);
   const productRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
+  const atmosphereRef = useRef<HTMLDivElement>(null);
 
   const reducedMotion = usePrefersReducedMotion();
   const isNarrow = useIsNarrowerThan(1024);
@@ -90,16 +111,20 @@ export function CinematicHero({
             trigger: section,
             start: 'top top',
             end: 'bottom top',
-            scrub: 0.6,
+            // A longer scrub trails the scroll slightly, which reads as weight.
+            scrub: 1.1,
           },
         });
 
-        // Layers move at different rates — that difference is the depth cue.
         timeline
-          .to(stageRef.current, { yPercent: 12, scale: 1.08, ease: 'none' }, 0)
-          .to(glowRef.current, { yPercent: 18, opacity: 0.35, ease: 'none' }, 0)
-          .to(productRef.current, { yPercent: -6, scale: 1.03, ease: 'none' }, 0)
-          .to(copyRef.current, { yPercent: -18, opacity: 0, ease: 'none' }, 0);
+          // The plate only breathes; it never slides.
+          .to(stageRef.current, { scale: 1.02, ease: 'none' }, 0)
+          // Atmosphere drifts a touch further than the plate for depth.
+          .to(atmosphereRef.current, { yPercent: 5, opacity: 0.5, ease: 'none' }, 0)
+          // The bottle lifts fractionally — enough to separate from the stone.
+          .to(productRef.current, { yPercent: -5, ease: 'none' }, 0)
+          // Copy leaves first, so the artwork is what carries you into the story.
+          .to(copyRef.current, { yPercent: -14, opacity: 0, ease: 'none' }, 0);
       }, section);
 
       // Layout shifts once the Hebrew webfonts swap in.
@@ -118,9 +143,9 @@ export function CinematicHero({
     <section
       ref={sectionRef}
       aria-labelledby="hero-title"
-      className="relative flex min-h-svh items-center overflow-hidden pt-18"
+      className="relative flex min-h-svh items-center overflow-hidden pt-24 lg:pt-28"
     >
-      {/* ---- Layer 1: generated stage plate ---- */}
+      {/* ---- Layer 1: generated stage plate (still) ---- */}
       <div ref={stageRef} aria-hidden="true" className="absolute inset-0 will-change-transform">
         <Image
           src={isNarrow ? posterMobile : stagePlate}
@@ -135,52 +160,83 @@ export function CinematicHero({
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to left, var(--color-ink) 8%, color-mix(in oklab, var(--color-ink) 72%, transparent) 42%, transparent 78%)',
+              'linear-gradient(to left, var(--color-ink) 10%, color-mix(in oklab, var(--color-ink) 74%, transparent) 44%, transparent 80%)',
           }}
         />
         <div
-          className="absolute inset-x-0 bottom-0 h-40"
+          className="absolute inset-x-0 bottom-0 h-48"
           style={{ background: 'linear-gradient(to top, var(--color-ink), transparent)' }}
         />
       </div>
 
-      {/* ---- Layer 2: warm light bloom ---- */}
-      <div
-        ref={glowRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute start-[-6%] top-[6%] h-[60vh] w-[60vh] rounded-full opacity-60 blur-3xl will-change-transform"
-        style={{
-          background:
-            'radial-gradient(circle, color-mix(in oklab, var(--color-amber) 45%, transparent) 0%, transparent 68%)',
-        }}
-      />
+      {/* ---- Layer 2: ambient atmosphere ---- */}
+      <div ref={atmosphereRef} aria-hidden="true" className="pointer-events-none absolute inset-0">
+        {/* Warm key light, drifting slowly */}
+        <div
+          className="ambient-light absolute start-[-8%] top-[2%] h-[62vh] w-[62vh] rounded-full blur-3xl"
+          style={{
+            background:
+              'radial-gradient(circle, color-mix(in oklab, var(--color-amber) 42%, transparent) 0%, transparent 68%)',
+          }}
+        />
+        {/* Cool counter-haze, drifting the other way for slow cross-motion */}
+        <div
+          className="ambient-haze absolute start-[18%] top-[24%] h-[46vh] w-[70vh] rounded-full blur-3xl"
+          style={{
+            background:
+              'radial-gradient(ellipse, color-mix(in oklab, var(--color-cream) 14%, transparent) 0%, transparent 70%)',
+          }}
+        />
+        {/* Dust motes rising through the beam */}
+        {DUST.map((mote, index) => (
+          <span
+            key={index}
+            className="ambient-dust absolute rounded-full"
+            style={
+              {
+                left: mote.left,
+                bottom: mote.bottom,
+                width: mote.size,
+                height: mote.size,
+                opacity: mote.opacity,
+                background:
+                  'radial-gradient(circle, color-mix(in oklab, var(--color-gold) 85%, transparent), transparent 70%)',
+                '--dust-duration': mote.duration,
+                '--dust-delay': mote.delay,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
 
-      <div className="container-editorial relative grid items-center gap-10 py-20 lg:grid-cols-2">
+      <div className="relative mx-auto grid w-full max-w-[110rem] items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:px-12 lg:py-24">
         {/* ---- Layer 4: copy (first in DOM => right side in RTL) ---- */}
         <div ref={copyRef} className="max-w-xl will-change-transform">
-          <p className="text-sm tracking-[0.2em] text-gold uppercase">{eyebrowHe}</p>
+          <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
+            {eyebrowHe}
+          </p>
 
           <h1
             id="hero-title"
-            className="mt-6 font-serif text-5xl leading-[1.08] text-ivory sm:text-6xl lg:text-7xl"
+            className="mt-7 font-serif text-5xl leading-[1.05] text-ivory sm:text-6xl lg:text-7xl"
           >
             {titleHe}
           </h1>
 
-          <p className="mt-6 max-w-md text-base leading-relaxed text-cream/85 sm:text-lg">
+          <p className="mt-7 max-w-md text-base leading-[1.85] text-cream/80 sm:text-lg">
             {bodyHe}
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="mt-11 flex flex-wrap gap-3">
             <Link
               href={primaryCtaHref}
-              className="inline-flex h-13 items-center rounded-sm bg-gold px-7 text-base font-medium text-ink transition-colors duration-200 hover:bg-cream"
+              className="inline-flex h-13 items-center rounded-sm bg-gold px-8 text-base font-medium text-ink transition-colors duration-200 hover:bg-cream"
             >
               {primaryCtaHe}
             </Link>
             <Link
               href={secondaryCtaHref}
-              className="inline-flex h-13 items-center rounded-sm border border-gold/45 px-7 text-base text-cream transition-colors duration-200 hover:border-gold hover:text-ivory"
+              className="inline-flex h-13 items-center rounded-sm border border-gold/45 px-8 text-base text-cream transition-colors duration-200 hover:border-gold hover:text-ivory"
             >
               {secondaryCtaHe}
             </Link>
@@ -190,7 +246,7 @@ export function CinematicHero({
         {/* ---- Layer 3: the real product, never regenerated ---- */}
         <div
           ref={productRef}
-          className="relative mx-auto hidden w-full max-w-md will-change-transform lg:block"
+          className="relative mx-auto hidden w-full max-w-lg will-change-transform lg:block"
         >
           <div className="relative aspect-4/5">
             <Image

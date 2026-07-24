@@ -22,6 +22,22 @@ test.describe('Hebrew RTL and layout integrity', () => {
     }
   });
 
+  test('the header spans the full viewport on every page', async ({ page }) => {
+    // Regression guard: the header previously used `inset-inline-0`, which is
+    // not a Tailwind utility and generated no CSS. A `position: fixed` element
+    // with no inset shrinks to its content, so the bar covered only part of the
+    // page. Measure the real box rather than trusting the class list.
+    for (const route of ROUTES) {
+      await page.goto(route);
+      const viewport = page.viewportSize()!.width;
+      const box = await page.locator('header').first().boundingBox();
+
+      expect(box, `header missing on ${route}`).not.toBeNull();
+      expect(Math.round(box!.width), `header width on ${route}`).toBe(viewport);
+      expect(Math.round(box!.x), `header offset on ${route}`).toBe(0);
+    }
+  });
+
   test('no page scrolls horizontally', async ({ page }) => {
     for (const route of ROUTES) {
       await page.goto(route);

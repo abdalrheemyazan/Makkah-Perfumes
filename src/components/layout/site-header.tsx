@@ -15,8 +15,17 @@ import { cn } from '@/lib/utils';
  * RTL notes:
  *  - The logo is first in DOM order, so in `dir="rtl"` it lands on the right
  *    and the utility icons on the left. No manual flipping is involved.
- *  - The mobile drawer slides in from the right (`inset-inline-end: 0`), which
- *    is the near edge in Hebrew.
+ *  - The mobile drawer uses `start-0`, which Tailwind maps to
+ *    `inset-inline-start` — the right edge in Hebrew, i.e. the near edge.
+ *
+ * Layout: the bar spans the full viewport and its contents run to a wide
+ * 110rem measure, deliberately wider than the 80rem editorial column. A
+ * navigation constrained to the text column reads as a floating island rather
+ * than a top bar.
+ *
+ * Over the homepage hero the bar has no fill — just a soft top-down scrim that
+ * keeps the links legible against the artwork. Past the fold it settles into a
+ * blurred, bordered bar and loses a little height.
  */
 export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wishlistCount: number }) {
   const pathname = usePathname();
@@ -57,20 +66,38 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:inset-inline-start-4 focus:top-4 focus:z-100 focus:rounded-sm focus:bg-gold focus:px-4 focus:py-2 focus:text-ink"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-100 focus:rounded-sm focus:bg-gold focus:px-4 focus:py-2 focus:text-ink"
       >
         דילוג לתוכן הראשי
       </a>
 
       <header
         className={cn(
-          'fixed inset-inline-0 top-0 z-50 transition-colors duration-500 ease-[var(--ease-editorial)]',
+          'fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 ease-[var(--ease-editorial)]',
           solid
-            ? 'border-b border-gold/15 bg-ink/85 backdrop-blur-xl'
+            ? 'border-b border-gold/15 bg-ink/80 backdrop-blur-xl backdrop-saturate-150'
             : 'border-b border-transparent bg-transparent',
         )}
       >
-        <div className="container-editorial flex h-18 items-center justify-between gap-4">
+        {/* Scrim: legibility over the hero without committing to a solid bar. */}
+        <div
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute inset-x-0 top-0 h-32 transition-opacity duration-500',
+            solid ? 'opacity-0' : 'opacity-100',
+          )}
+          style={{
+            background:
+              'linear-gradient(to bottom, color-mix(in oklab, var(--color-ink) 78%, transparent), transparent)',
+          }}
+        />
+
+        <div
+          className={cn(
+            'relative mx-auto flex w-full max-w-[110rem] items-center justify-between gap-6 px-5 transition-[height] duration-500 ease-[var(--ease-editorial)] sm:px-8 lg:px-12',
+            solid ? 'h-16' : 'h-20 lg:h-24',
+          )}
+        >
           {/* Logo — right edge in RTL.
               The ivory variant is a real cutout (see scripts/build-logo-variants.mjs);
               the original logo.webp has an opaque white background and cannot be
@@ -86,13 +113,16 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
               width={512}
               height={438}
               priority
-              className="h-11 w-auto object-contain"
+              className={cn(
+                'w-auto object-contain transition-[height] duration-500 ease-[var(--ease-editorial)]',
+                solid ? 'h-10' : 'h-12 lg:h-14',
+              )}
             />
           </Link>
 
-          {/* Desktop navigation */}
-          <nav aria-label="ניווט ראשי" className="hidden lg:block">
-            <ul className="flex items-center gap-7">
+          {/* Desktop navigation — centred, so the bar reads as one balanced unit */}
+          <nav aria-label="ניווט ראשי" className="hidden flex-1 justify-center lg:flex">
+            <ul className="flex items-center gap-8 xl:gap-10">
               {MAIN_NAV.map((item) => {
                 const active =
                   item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
@@ -102,8 +132,11 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
                       href={item.href}
                       aria-current={active ? 'page' : undefined}
                       className={cn(
-                        'text-sm tracking-wide transition-colors duration-200',
-                        active ? 'text-gold' : 'text-cream/80 hover:text-ivory',
+                        // A hairline that grows from the centre on hover — quieter
+                        // than a colour flash and it never shifts the layout.
+                        'relative py-2 text-[0.9rem] tracking-wide whitespace-nowrap transition-colors duration-200',
+                        'after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:h-px after:w-0 after:bg-gold after:transition-[width] after:duration-300 hover:after:w-full',
+                        active ? 'text-gold after:w-full' : 'text-cream/85 hover:text-ivory',
                       )}
                     >
                       {item.labelHe}
@@ -159,7 +192,7 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
             role="dialog"
             aria-modal="true"
             aria-label="תפריט ניווט"
-            className="absolute inset-block-0 inset-inline-start-0 flex w-[min(20rem,85vw)] flex-col border-inline-end border-gold/20 bg-charcoal p-6 shadow-2xl"
+            className="absolute inset-y-0 start-0 flex w-[min(20rem,85vw)] flex-col border-e border-gold/20 bg-charcoal p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <span className="font-serif text-lg text-ivory">תפריט</span>
@@ -213,7 +246,7 @@ function IconLink({
     >
       {children}
       {badge != null && badge > 0 && (
-        <span className="ltr-nums absolute inset-block-start-1 inset-inline-start-1 grid h-4 min-w-4 place-items-center rounded-full bg-gold px-1 text-[0.6rem] font-semibold text-ink">
+        <span className="ltr-nums absolute top-1 start-1 grid h-4 min-w-4 place-items-center rounded-full bg-gold px-1 text-[0.6rem] font-semibold text-ink">
           {badge > 99 ? '99+' : badge}
         </span>
       )}

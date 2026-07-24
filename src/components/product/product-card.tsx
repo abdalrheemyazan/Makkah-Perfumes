@@ -40,7 +40,7 @@ export function ProductCard({
           </div>
         </Link>
 
-        <div className="absolute inset-block-start-3 inset-inline-start-3 flex flex-col gap-1.5">
+        <div className="absolute top-3 start-3 flex flex-col gap-1.5">
           {product.isNewArrival && (
             <span className="rounded-sm bg-gold px-2 py-0.5 text-[0.65rem] font-medium text-ink">
               חדש
@@ -53,7 +53,7 @@ export function ProductCard({
           )}
         </div>
 
-        <div className="absolute inset-block-start-3 inset-inline-end-3">
+        <div className="absolute top-3 end-3">
           <WishlistButton productId={product.id} productNameHe={product.nameHe} />
         </div>
       </div>

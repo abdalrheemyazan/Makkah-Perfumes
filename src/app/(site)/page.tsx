@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { db } from '@/lib/db';
@@ -8,14 +7,26 @@ import { ButtonLink } from '@/components/ui/button';
 import { ScrollCue } from '@/components/home/scroll-cue';
 import { CinematicHero } from '@/components/home/cinematic-hero';
 import { StorySequence, type StoryChapter } from '@/components/home/story-sequence';
+import { FragranceDiscovery } from '@/components/home/fragrance-discovery';
 
 /**
- * Story chapters.
+ * Homepage.
  *
- * Each image is a real generated asset that exists on disk — no placeholder
- * paths. The copy describes materials and process, and makes no unverifiable
- * claim about the brand's history.
+ * Section order is deliberate: the visitor meets the product, then learns where
+ * it comes from, and only then is asked to shop. Selling before the story made
+ * the page read as a catalogue with a banner on top.
+ *
+ *   1. Hero            — the product, in its light
+ *   2. Story           — scroll-scrubbed origin sequence
+ *   3. Shop            — featured products
+ *   4. Discovery       — guided route into the catalogue
+ *   5. Frankincense    — heritage context
+ *   6. Reviews/Stores  — one quiet honest band
+ *
+ * Sections alternate between the base ink surface and the raised charcoal
+ * surface so the eye gets a rhythm instead of one long dark scroll.
  */
+
 const STORY_CHAPTERS: StoryChapter[] = [
   {
     id: 'resin',
@@ -72,7 +83,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ================= HERO ================= */}
+      {/* ===== 1 · HERO ===== */}
       <div className="relative">
         <CinematicHero
           // Media paths are editable from the admin content screen; the
@@ -96,18 +107,33 @@ export default async function HomePage() {
         <ScrollCue />
       </div>
 
-      {/* ================= FEATURED ================= */}
-      <section aria-labelledby="featured-heading" className="container-editorial py-24">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm tracking-[0.2em] text-gold uppercase">הקולקציה</p>
-            <h2 id="featured-heading" className="mt-3 font-serif text-4xl text-ivory sm:text-5xl">
+      {/* ===== 2 · STORY ===== */}
+      <StorySequence
+        headingHe={storyBlock?.titleHe ?? 'מהמסורת העומאנית אל הניחוח המודרני'}
+        introHe={storyBlock?.bodyHe ?? ''}
+        chapters={STORY_CHAPTERS}
+      />
+
+      {/* ===== 3 · SHOP ===== */}
+      <section
+        aria-labelledby="featured-heading"
+        className="mx-auto w-full max-w-[110rem] px-5 py-28 sm:px-8 lg:px-12 lg:py-36"
+      >
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-xl">
+            <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
+              הקולקציה
+            </p>
+            <h2
+              id="featured-heading"
+              className="mt-5 font-serif text-4xl leading-[1.12] text-ivory sm:text-5xl"
+            >
               בשמים נבחרים
             </h2>
           </div>
           <Link
             href="/shop"
-            className="group inline-flex items-center gap-2 text-sm text-cream hover:text-gold"
+            className="group inline-flex items-center gap-2 pb-2 text-sm text-cream transition-colors hover:text-gold"
           >
             לכל הבשמים
             <ArrowLeft
@@ -118,214 +144,156 @@ export default async function HomePage() {
         </div>
 
         {featured.length > 0 ? (
-          <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-14 lg:grid-cols-3 lg:gap-x-8 xl:grid-cols-4">
             {featured.map((product, index) => (
               <ProductCard key={product.id} product={product} priority={index < 2} />
             ))}
           </div>
         ) : (
-          <p className="mt-12 text-muted">הקטלוג יתעדכן בקרוב.</p>
+          <p className="mt-14 text-muted">הקטלוג יתעדכן בקרוב.</p>
         )}
       </section>
 
-      {/* ================= SCENT FAMILIES ================= */}
-      <section aria-labelledby="families-heading" className="border-y border-gold/10 bg-charcoal py-24">
-        <div className="container-editorial">
-          <p className="text-sm tracking-[0.2em] text-gold uppercase">משפחות ניחוח</p>
-          <h2 id="families-heading" className="mt-3 max-w-xl font-serif text-4xl text-ivory sm:text-5xl">
-            למצוא את השפה שמדברת אליכם
-          </h2>
-
-          <ul className="mt-12 grid gap-px overflow-hidden rounded-sm border border-gold/15 bg-gold/15 sm:grid-cols-2 lg:grid-cols-3">
-            {families.map((family) => (
-              <li key={family.id}>
-                <Link
-                  href={`/shop?family=${family.slug}`}
-                  className="group flex h-full flex-col justify-between bg-charcoal p-7 transition-colors duration-300 hover:bg-stone"
-                >
-                  <div>
-                    <span
-                      aria-hidden="true"
-                      className="block h-8 w-8 rounded-full"
-                      style={{
-                        background: `radial-gradient(circle at 30% 30%, ${
-                          family.accentColor ?? '#B38A52'
-                        }, transparent 70%)`,
-                      }}
-                    />
-                    <h3 className="mt-5 font-serif text-2xl text-ivory">{family.nameHe}</h3>
-                    {family.descriptionHe && (
-                      <p className="mt-2 text-sm leading-relaxed text-muted">
-                        {family.descriptionHe}
-                      </p>
-                    )}
-                  </div>
-                  <p className="mt-6 text-xs text-faint">
-                    <span className="ltr-nums">{family._count.products}</span> בשמים
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* ================= BRAND STORY (scroll-scrubbed) ================= */}
-      <StorySequence
-        headingHe={storyBlock?.titleHe ?? 'מהמסורת העומאנית אל הניחוח המודרני'}
-        introHe={storyBlock?.bodyHe ?? ''}
-        chapters={STORY_CHAPTERS}
+      {/* ===== 4 · DISCOVERY ===== */}
+      <FragranceDiscovery
+        families={families.map((family) => ({
+          id: family.id,
+          slug: family.slug,
+          nameHe: family.nameHe,
+          descriptionHe: family.descriptionHe,
+          accentColor: family.accentColor,
+          count: family._count.products,
+        }))}
       />
 
-      {/* ================= FRANKINCENSE ================= */}
+      {/* ===== 5 · FRANKINCENSE ===== */}
       <section
         aria-labelledby="frankincense-heading"
-        className="relative overflow-hidden border-y border-gold/10 bg-charcoal py-28"
+        className="relative overflow-hidden py-28 lg:py-36"
       >
         <div
           aria-hidden="true"
-          className="absolute inset-0 opacity-45"
+          className="absolute inset-0 opacity-40"
           style={{
             background:
-              'radial-gradient(ellipse at 75% 40%, color-mix(in oklab, var(--color-amber) 40%, transparent), transparent 60%)',
+              'radial-gradient(ellipse 55% 80% at 78% 45%, color-mix(in oklab, var(--color-amber) 34%, transparent), transparent 68%)',
           }}
         />
-        <div className="container-editorial relative max-w-2xl">
-          <p className="text-sm tracking-[0.2em] text-gold uppercase">לבונה וקטורת</p>
-          <h2 id="frankincense-heading" className="mt-3 font-serif text-4xl text-ivory sm:text-5xl">
-            עולם הלבונה והקטורת
-          </h2>
-          <p className="mt-6 text-base leading-relaxed text-cream/85">
-            שרף הלבונה נאסף מגזעי עצי בוסוואליה ומשמש בבישום מזה אלפי שנים.
-            הוא עומד בבסיס שפת הריח של דרום ערב — עשן יבש, הדרי בפתיחה ושרפי בעומק.
-          </p>
-          <div className="mt-9">
-            <ButtonLink href="/frankincense-and-incense" variant="secondary" size="lg">
-              לגלות את עולם הלבונה והקטורת
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= FRAGRANCE FINDER ================= */}
-      <section aria-labelledby="finder-heading" className="container-editorial py-24">
-        <div className="grid gap-10 rounded-sm border border-gold/15 bg-charcoal p-10 lg:grid-cols-[1.4fr_1fr] lg:items-center lg:p-14">
-          <div>
-            <p className="text-sm tracking-[0.2em] text-gold uppercase">התאמה אישית</p>
-            <h2 id="finder-heading" className="mt-3 font-serif text-4xl text-ivory">
-              לא בטוחים איזה ניחוח מתאים לכם?
-            </h2>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/85">
-              ענו על חמש שאלות קצרות ונציע לכם בשמים מתוך הקטלוג — עם הסבר
-              למה כל אחד מהם מתאים לכם.
+        <div className="relative mx-auto w-full max-w-[110rem] px-5 sm:px-8 lg:px-12">
+          <div className="max-w-2xl">
+            <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
+              לבונה וקטורת
             </p>
-          </div>
-          <div className="lg:justify-self-end">
-            <ButtonLink href="/fragrance-finder" size="lg">
-              להתחלת ההתאמה
-            </ButtonLink>
+            <h2
+              id="frankincense-heading"
+              className="mt-5 font-serif text-4xl leading-[1.12] text-ivory sm:text-5xl"
+            >
+              עולם הלבונה והקטורת
+            </h2>
+            <p className="mt-7 text-base leading-[1.9] text-cream/80">
+              שרף הלבונה נאסף מגזעי עצי בוסוואליה ומשמש בבישום מזה אלפי שנים.
+              הוא עומד בבסיס שפת הריח של דרום ערב — עשן יבש, הדרי בפתיחה ושרפי בעומק.
+            </p>
+            <div className="mt-10">
+              <ButtonLink href="/frankincense-and-incense" variant="secondary" size="lg">
+                לגלות את עולם הלבונה והקטורת
+              </ButtonLink>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ================= REVIEWS ================= */}
-      <ReviewsSection />
-
-      {/* ================= BRANCHES ================= */}
-      <BranchesSection />
+      {/* ===== 6 · REVIEWS + STORES ===== */}
+      <CommunityBand />
     </>
   );
 }
 
 /**
- * Only approved, real reviews are ever shown. There are none yet, and inventing
- * testimonials is forbidden — so this renders an honest empty state.
+ * Reviews and branches, side by side.
+ *
+ * Both are honest empty states — there are no approved reviews and no verified
+ * branch addresses yet, and neither will be invented. As two full-width
+ * sections they read as two apologies in a row; paired in one quiet band they
+ * read as a single status note and the page stops feeling stacked.
  */
-async function ReviewsSection() {
-  const reviews = await db.review.findMany({
-    where: { status: 'APPROVED' },
-    take: 3,
-    orderBy: { createdAt: 'desc' },
-    include: { product: { select: { nameHe: true, slug: true } } },
-  });
+async function CommunityBand() {
+  const [reviews, branches] = await Promise.all([
+    db.review.findMany({
+      where: { status: 'APPROVED' },
+      take: 2,
+      orderBy: { createdAt: 'desc' },
+      include: { product: { select: { nameHe: true, slug: true } } },
+    }),
+    db.branch.findMany({ where: { isPublished: true }, orderBy: { position: 'asc' }, take: 3 }),
+  ]);
 
   return (
-    <section aria-labelledby="reviews-heading" className="border-t border-gold/10 py-24">
-      <div className="container-editorial">
-        <h2 id="reviews-heading" className="font-serif text-4xl text-ivory">
-          מה אומרים הלקוחות
-        </h2>
-
-        {reviews.length === 0 ? (
-          <p className="mt-6 max-w-xl text-muted">
-            עדיין אין ביקורות שאושרו לפרסום. ביקורות יופיעו כאן לאחר רכישה ואישור.
-          </p>
-        ) : (
-          <ul className="mt-10 grid gap-6 md:grid-cols-3">
-            {reviews.map((review) => (
-              <li key={review.id} className="rounded-sm border border-gold/15 bg-charcoal p-6">
-                <p className="ltr-nums text-gold" aria-label={`דירוג ${review.rating} מתוך 5`}>
-                  {'★'.repeat(review.rating)}
-                </p>
-                {review.titleHe && (
-                  <h3 className="mt-3 font-serif text-lg text-ivory">{review.titleHe}</h3>
-                )}
-                <p className="mt-2 text-sm leading-relaxed text-cream/80">{review.bodyHe}</p>
-                <Link
-                  href={`/shop/${review.product.slug}`}
-                  className="mt-4 inline-block text-xs text-gold hover:text-cream"
-                >
-                  {review.product.nameHe}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/** Verified branches only. No invented addresses — see docs/MISSING_BUSINESS_DATA.md §3. */
-async function BranchesSection() {
-  const branches = await db.branch.findMany({
-    where: { isPublished: true },
-    orderBy: { position: 'asc' },
-    take: 4,
-  });
-
-  return (
-    <section aria-labelledby="branches-heading" className="border-t border-gold/10 py-24">
-      <div className="container-editorial">
-        <h2 id="branches-heading" className="font-serif text-4xl text-ivory">
-          הסניפים שלנו
-        </h2>
-
-        {branches.length === 0 ? (
-          <div className="mt-6 max-w-xl">
-            <p className="text-muted">
-              פרטי הסניפים יתעדכנו בקרוב. בינתיים נשמח לענות על כל שאלה.
+    <section className="border-t border-gold/10 bg-charcoal py-24 lg:py-28">
+      <div className="mx-auto grid w-full max-w-[110rem] gap-14 px-5 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:px-12">
+        {/* Reviews */}
+        <div>
+          <h2 id="reviews-heading" className="font-serif text-2xl text-ivory sm:text-3xl">
+            מה אומרים הלקוחות
+          </h2>
+          {reviews.length === 0 ? (
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
+              עדיין אין ביקורות שאושרו לפרסום. ביקורות יופיעו כאן לאחר רכישה ואישור —
+              לא נכתבו כאן המלצות לדוגמה.
             </p>
-            <div className="mt-6">
-              <ButtonLink href="/contact" variant="secondary">
+          ) : (
+            <ul className="mt-6 flex flex-col gap-5">
+              {reviews.map((review) => (
+                <li key={review.id}>
+                  <p className="ltr-nums text-gold" aria-label={`דירוג ${review.rating} מתוך 5`}>
+                    {'★'.repeat(review.rating)}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-cream/80">{review.bodyHe}</p>
+                  <Link
+                    href={`/shop/${review.product.slug}`}
+                    className="mt-2 inline-block text-xs text-gold hover:text-cream"
+                  >
+                    {review.product.nameHe}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Branches */}
+        <div className="lg:border-s lg:border-gold/10 lg:ps-20">
+          <h2 id="branches-heading" className="font-serif text-2xl text-ivory sm:text-3xl">
+            הסניפים שלנו
+          </h2>
+          {branches.length === 0 ? (
+            <>
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
+                פרטי הסניפים יתעדכנו בקרוב. בינתיים נשמח לענות על כל שאלה.
+              </p>
+              <Link
+                href="/contact"
+                className="mt-6 inline-flex h-11 items-center rounded-sm border border-gold/40 px-5 text-sm text-cream transition-colors hover:border-gold hover:text-ivory"
+              >
                 ליצירת קשר
-              </ButtonLink>
-            </div>
-          </div>
-        ) : (
-          <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {branches.map((branch) => (
-              <li key={branch.id} className="rounded-sm border border-gold/15 bg-charcoal p-6">
-                <h3 className="font-serif text-xl text-ivory">{branch.nameHe}</h3>
-                <p className="mt-2 text-sm text-muted">{branch.addressHe}</p>
-                <p className="text-sm text-muted">{branch.cityHe}</p>
-                {branch.openingHoursHe && (
-                  <p className="mt-3 text-xs text-faint">{branch.openingHoursHe}</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+              </Link>
+            </>
+          ) : (
+            <ul className="mt-6 flex flex-col gap-5">
+              {branches.map((branch) => (
+                <li key={branch.id}>
+                  <h3 className="font-serif text-lg text-ivory">{branch.nameHe}</h3>
+                  <p className="mt-1 text-sm text-muted">
+                    {branch.addressHe}, {branch.cityHe}
+                  </p>
+                  {branch.openingHoursHe && (
+                    <p className="text-xs text-faint">{branch.openingHoursHe}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </section>
   );

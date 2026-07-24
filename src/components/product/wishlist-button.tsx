@@ -27,7 +27,7 @@ export function WishlistButton({
       <Toggle saved={saved} productNameHe={productNameHe} />
 
       {state.status === 'error' && (
-        <p role="alert" className="absolute inset-inline-end-0 mt-1 w-40 rounded-sm bg-ink/95 p-2 text-end text-[0.7rem] text-danger">
+        <p role="alert" className="absolute end-0 mt-1 w-40 rounded-sm bg-ink/95 p-2 text-end text-[0.7rem] text-danger">
           {state.messageHe}
         </p>
       )}

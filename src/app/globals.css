@@ -127,6 +127,78 @@
 }
 
 /* ==========================================================================
+   Ambient hero atmosphere
+
+   Slow, continuous, decorative motion for the hero. Deliberately long periods
+   (18–40s) and tiny amplitudes: the scene should feel like it is breathing,
+   not sliding. Only transform and opacity animate, so this stays on the
+   compositor and costs no layout work.
+
+   The stone pedestal itself never moves — moving a heavy solid object reads as
+   a mechanical glitch. Light, smoke and dust move instead.
+   ========================================================================== */
+
+@keyframes drift-light {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(2.5%, -2%, 0) scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+@keyframes drift-haze {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.28;
+  }
+  50% {
+    transform: translate3d(-3%, 1.5%, 0);
+    opacity: 0.44;
+  }
+}
+
+/* Dust rises slowly, fading in and out so there is no hard loop seam. */
+@keyframes float-dust {
+  0% {
+    transform: translate3d(0, 12%, 0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  82% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(2%, -34%, 0);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  .ambient-light {
+    animation: drift-light 26s var(--ease-editorial) infinite;
+    will-change: transform, opacity;
+  }
+
+  .ambient-haze {
+    animation: drift-haze 34s var(--ease-editorial) infinite;
+    will-change: transform, opacity;
+  }
+
+  .ambient-dust {
+    animation: float-dust var(--dust-duration, 22s) linear infinite;
+    animation-delay: var(--dust-delay, 0s);
+    will-change: transform, opacity;
+  }
+}
+
+/* ==========================================================================
    Reduced motion — every animation degrades to a static, complete state.
    ========================================================================== */
 

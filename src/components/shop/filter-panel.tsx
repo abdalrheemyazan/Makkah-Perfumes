@@ -174,7 +174,7 @@ export function ShopFilterPanel({ facets, filters }: { facets: Facets; filters: 
             role="dialog"
             aria-modal="true"
             aria-label="מסנני קטלוג"
-            className="absolute inset-block-0 inset-inline-start-0 flex w-[min(22rem,88vw)] flex-col overflow-y-auto border-inline-end border-gold/20 bg-charcoal p-6"
+            className="absolute inset-y-0 start-0 flex w-[min(22rem,88vw)] flex-col overflow-y-auto border-e border-gold/20 bg-charcoal p-6"
           >
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-lg text-ivory">סינון</h2>
