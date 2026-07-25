@@ -1,6 +1,7 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
+import { CATALOG_TAGS } from '@/lib/catalog';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { requireCapability } from '@/lib/auth';
@@ -427,6 +428,7 @@ export async function adjustInventory(
   revalidatePath('/admin/inventory');
   revalidatePath('/admin/products');
   revalidatePath('/shop');
+  updateTag(CATALOG_TAGS.products);
 
   return {
     status: 'success',

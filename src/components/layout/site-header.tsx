@@ -20,6 +20,7 @@ import {
 import { MAIN_NAV, SITE } from '@/lib/site';
 import { logout } from '@/app/actions/auth';
 import { useScrolledPast } from '@/lib/hooks';
+import { useCartCountStore } from '@/lib/commerce/cart-count-store';
 import { cn } from '@/lib/utils';
 
 /**
@@ -51,6 +52,16 @@ export function SiteHeader({
 }) {
   const pathname = usePathname();
   const scrolled = useScrolledPast(24);
+
+  // After hydration the client store owns the badge so add-to-cart can update it
+  // instantly; until then (and on a full reload) the server-rendered count seeds
+  // it, so there is never a flash of "0".
+  const storeCount = useCartCountStore((s) => s.count);
+  const hydrateCartCount = useCartCountStore((s) => s.hydrate);
+  useEffect(() => {
+    hydrateCartCount(cartCount);
+  }, [cartCount, hydrateCartCount]);
+  const liveCartCount = storeCount ?? cartCount;
   const [openedOnPath, setOpenedOnPath] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -177,7 +188,7 @@ export function SiteHeader({
               </Link>
             )}
 
-            <IconLink href="/cart" label="עגלת הקניות" badge={cartCount}>
+            <IconLink href="/cart" label="עגלת הקניות" badge={liveCartCount}>
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </IconLink>
 

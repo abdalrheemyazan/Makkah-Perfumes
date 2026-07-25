@@ -1,7 +1,24 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
 import type { Prisma } from '@/generated/prisma/client';
 import { variantLabel } from '@/lib/commerce/labels';
+
+/**
+ * Cache tags for public, non-user-specific catalogue data. Admin product
+ * mutations call `revalidateTag(CATALOG_TAGS.products)` to drop these caches;
+ * the modest `revalidate` window means card-level stock display also self-heals
+ * on its own without needing an admin action. Purchase validation never reads
+ * these caches — `addToCart` and `createOrder` always query live inventory.
+ */
+export const CATALOG_TAGS = {
+  products: 'products',
+  fragranceFamilies: 'fragrance-families',
+} as const;
+
+export function productTag(slug: string): string {
+  return `product:${slug}`;
+}
 
 /**
  * Catalogue read model.
@@ -89,29 +106,40 @@ function toCard(row: CardRow): ProductCard | null {
   };
 }
 
+const featuredProductsCached = unstable_cache(
+  async (limit: number): Promise<ProductCard[]> => {
+    const rows = await db.product.findMany({
+      where: { status: 'PUBLISHED', isFeatured: true },
+      select: cardSelect,
+      take: limit,
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map(toCard).filter((card): card is ProductCard => card !== null);
+  },
+  ['featured-products'],
+  { tags: [CATALOG_TAGS.products], revalidate: 300 },
+);
+
 export async function getFeaturedProducts(limit = 6): Promise<ProductCard[]> {
-  const rows = await db.product.findMany({
-    where: { status: 'PUBLISHED', isFeatured: true },
-    select: cardSelect,
-    take: limit,
-    orderBy: { createdAt: 'asc' },
-  });
-  return rows.map(toCard).filter((card): card is ProductCard => card !== null);
+  return featuredProductsCached(limit);
 }
 
-export async function getFragranceFamilies() {
-  return db.fragranceFamily.findMany({
-    orderBy: { position: 'asc' },
-    select: {
-      id: true,
-      slug: true,
-      nameHe: true,
-      descriptionHe: true,
-      accentColor: true,
-      _count: { select: { products: { where: { status: 'PUBLISHED' } } } },
-    },
-  });
-}
+export const getFragranceFamilies = unstable_cache(
+  async () =>
+    db.fragranceFamily.findMany({
+      orderBy: { position: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        nameHe: true,
+        descriptionHe: true,
+        accentColor: true,
+        _count: { select: { products: { where: { status: 'PUBLISHED' } } } },
+      },
+    }),
+  ['fragrance-families'],
+  { tags: [CATALOG_TAGS.products, CATALOG_TAGS.fragranceFamilies], revalidate: 600 },
+);
 
 export { cardSelect, toCard };
 export type { CardRow };

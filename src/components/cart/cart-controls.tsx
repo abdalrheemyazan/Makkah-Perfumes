@@ -1,10 +1,21 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { removeCartItem, updateCartItem } from '@/app/actions/cart';
-import { CART_ACTION_INITIAL } from '@/lib/action-state';
+import { CART_ACTION_INITIAL, type CartActionState } from '@/lib/action-state';
+import { useCartCountStore } from '@/lib/commerce/cart-count-store';
+
+/** Keeps the navbar badge in sync with a cart mutation's returned count. */
+function useReconcileBadge(state: CartActionState) {
+  const setCount = useCartCountStore((s) => s.setCount);
+  useEffect(() => {
+    if (state.status === 'success' && typeof state.itemCount === 'number') {
+      setCount(state.itemCount);
+    }
+  }, [state, setCount]);
+}
 
 /**
  * Quantity stepper.
@@ -25,6 +36,7 @@ export function CartQuantityControl({
   productNameHe: string;
 }) {
   const [state, formAction] = useActionState(updateCartItem, CART_ACTION_INITIAL);
+  useReconcileBadge(state);
 
   return (
     <div>
@@ -95,7 +107,8 @@ export function RemoveCartItem({
   itemId: string;
   productNameHe: string;
 }) {
-  const [, formAction] = useActionState(removeCartItem, CART_ACTION_INITIAL);
+  const [state, formAction] = useActionState(removeCartItem, CART_ACTION_INITIAL);
+  useReconcileBadge(state);
 
   return (
     <form action={formAction}>

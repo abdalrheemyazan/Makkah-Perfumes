@@ -15,10 +15,24 @@ const addSchema = z.object({
   quantity: z.coerce.number().int().min(1).max(MAX_PER_LINE),
 });
 
+/**
+ * Revalidate only the surfaces that actually render the full cart. The navbar
+ * badge is driven client-side from the count these actions return, so there is
+ * no need to revalidate the whole `/` layout (which would re-run the entire
+ * shell and every server component on the current route).
+ */
 function revalidateCartSurfaces() {
-  revalidatePath('/', 'layout');
   revalidatePath('/cart');
   revalidatePath('/checkout');
+}
+
+/** Total item quantity in a cart — the one number the navbar badge needs. */
+async function cartItemCount(cartId: string): Promise<number> {
+  const result = await db.cartItem.aggregate({
+    where: { cartId },
+    _sum: { quantity: true },
+  });
+  return result._sum.quantity ?? 0;
 }
 
 /**
@@ -89,7 +103,11 @@ export async function addToCart(
   await db.cart.update({ where: { id: cart.id }, data: { updatedAt: new Date() } });
 
   revalidateCartSurfaces();
-  return { status: 'success', messageHe: 'נוסף לעגלה' };
+  return {
+    status: 'success',
+    messageHe: 'נוסף לעגלה',
+    itemCount: await cartItemCount(cart.id),
+  };
 }
 
 const updateSchema = z.object({
@@ -118,7 +136,11 @@ export async function updateCartItem(
   if (quantity === 0) {
     await db.cartItem.delete({ where: { id: itemId } });
     revalidateCartSurfaces();
-    return { status: 'success', messageHe: 'הפריט הוסר מהעגלה' };
+    return {
+      status: 'success',
+      messageHe: 'הפריט הוסר מהעגלה',
+      itemCount: await cartItemCount(item.cartId),
+    };
   }
 
   const inventory = item.variant.inventoryItem;
@@ -132,7 +154,11 @@ export async function updateCartItem(
 
   await db.cartItem.update({ where: { id: itemId }, data: { quantity } });
   revalidateCartSurfaces();
-  return { status: 'success', messageHe: 'הכמות עודכנה' };
+  return {
+    status: 'success',
+    messageHe: 'הכמות עודכנה',
+    itemCount: await cartItemCount(item.cartId),
+  };
 }
 
 export async function removeCartItem(
@@ -142,9 +168,17 @@ export async function removeCartItem(
   const itemId = String(formData.get('itemId') ?? '');
   if (!itemId) return { status: 'error', messageHe: 'הבקשה אינה תקינה.' };
 
+  const item = await db.cartItem.findUnique({
+    where: { id: itemId },
+    select: { cartId: true },
+  });
   await db.cartItem.deleteMany({ where: { id: itemId } });
   revalidateCartSurfaces();
-  return { status: 'success', messageHe: 'הפריט הוסר מהעגלה' };
+  return {
+    status: 'success',
+    messageHe: 'הפריט הוסר מהעגלה',
+    itemCount: item ? await cartItemCount(item.cartId) : 0,
+  };
 }
 
 export async function applyCoupon(

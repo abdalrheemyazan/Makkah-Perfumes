@@ -1,6 +1,7 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
+import { CATALOG_TAGS, productTag } from '@/lib/catalog';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/lib/db';
@@ -187,6 +188,8 @@ export async function createProduct(
 
   revalidatePath('/admin/products');
   revalidatePath('/shop');
+  updateTag(CATALOG_TAGS.products);
+  updateTag(productTag(slug));
   redirect(`/admin/products/${productId}?created=1`);
 }
 
@@ -300,6 +303,9 @@ export async function updateProduct(
   revalidatePath(`/admin/products/${productId}`);
   revalidatePath(`/shop/${slug}`);
   revalidatePath('/shop');
+  updateTag(CATALOG_TAGS.products);
+  updateTag(productTag(slug));
+  if (slug !== existing.slug) updateTag(productTag(existing.slug));
 
   return { status: 'success', messageHe: 'המוצר נשמר.', errors: {} };
 }
@@ -341,6 +347,8 @@ export async function setProductStatus(
   revalidatePath('/admin/products');
   revalidatePath(`/admin/products/${productId}`);
   revalidatePath('/shop');
+  updateTag(CATALOG_TAGS.products);
+  updateTag(productTag(existing.slug));
 
   return { status: 'success', messageHe: 'הסטטוס עודכן.', errors: {} };
 }
@@ -438,5 +446,6 @@ export async function duplicateProduct(
   });
 
   revalidatePath('/admin/products');
+  updateTag(CATALOG_TAGS.products);
   redirect(`/admin/products/${newId}?duplicated=1`);
 }

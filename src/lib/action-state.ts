@@ -38,6 +38,8 @@ export const CONTACT_INITIAL: ContactState = { status: 'idle', messageHe: '', er
 export type CartActionState = {
   status: FormStatus;
   messageHe: string;
+  /** Server-authoritative total item quantity, for reconciling the badge. */
+  itemCount?: number;
 };
 
 export const CART_ACTION_INITIAL: CartActionState = { status: 'idle', messageHe: '' };

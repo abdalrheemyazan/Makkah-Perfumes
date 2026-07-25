@@ -172,6 +172,34 @@ export function projectCart(
   };
 }
 
+export type CartSummary = {
+  token: string | null;
+  itemCount: number;
+};
+
+const EMPTY_SUMMARY: CartSummary = { token: null, itemCount: 0 };
+
+/**
+ * Reads only what the global header needs: the total item quantity.
+ *
+ * This is deliberately cheap — a single aggregate over `CartItem.quantity` with
+ * no variant, product, image, inventory or coupon joins — because it runs on
+ * *every* navigation to render the navbar badge. The full `readCart()` (with all
+ * relations and price/stock recomputation) is reserved for `/cart` and checkout.
+ */
+export async function readCartSummary(): Promise<CartSummary> {
+  const store = await cookies();
+  const token = store.get(CART_COOKIE)?.value;
+  if (!token) return EMPTY_SUMMARY;
+
+  const result = await db.cartItem.aggregate({
+    where: { cart: { token } },
+    _sum: { quantity: true },
+  });
+
+  return { token, itemCount: result._sum.quantity ?? 0 };
+}
+
 /**
  * Reads the current cart. Safe to call from Server Components — it never writes
  * a cookie, so a visitor without a cart simply gets the empty view.
