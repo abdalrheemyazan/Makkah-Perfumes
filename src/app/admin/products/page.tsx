@@ -163,11 +163,6 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                   <span className="ltr-nums">
                     {variant ? formatPrice(variant.priceAgorot) : '—'}
                   </span>
-                  {!product.pricingVerified && (
-                    <span className="ms-2">
-                      <Badge tone="warning">לא מאומת</Badge>
-                    </span>
-                  )}
                 </Cell>
                 <Cell labelHe="מלאי">
                   <Badge

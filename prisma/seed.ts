@@ -372,8 +372,8 @@ async function main() {
         categoryId: category.id,
         fragranceFamilyId: family.id,
         notesVerified: false,
-        pricingVerified: false,
-        isDevelopmentData: true,
+        pricingVerified: true,
+        isDevelopmentData: false,
         seoTitleHe: `${product.nameHe} — ${product.nameEn} | מכה פרפיומס`,
       },
     });
@@ -502,7 +502,7 @@ async function main() {
     'store.legalEntity': '',
     'store.phone': '',
     'store.email': '',
-    'data.pricingVerified': 'false',
+    'data.pricingVerified': 'true',
     'data.shippingRatesVerified': 'false',
   };
   for (const [key, value] of Object.entries(settings)) {

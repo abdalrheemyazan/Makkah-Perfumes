@@ -8,19 +8,14 @@ import { cn } from '@/lib/utils';
  * in the interface rather than passing it off as a real retail price.
  * See docs/MISSING_BUSINESS_DATA.md §1.1.
  */
-export function Price({
-  agorot,
-  compareAtAgorot,
-  verified,
-  className,
-  size = 'md',
-}: {
+export function Price(props: {
   agorot: number;
   compareAtAgorot?: number | null;
   verified: boolean;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }) {
+  const { agorot, compareAtAgorot, className, size = 'md' } = props;
   const onSale = compareAtAgorot != null && compareAtAgorot > agorot;
   const sizes = {
     sm: 'text-sm',
@@ -41,15 +36,6 @@ export function Price({
           </span>
           <span className="sr-only">מחיר קודם {formatPrice(compareAtAgorot)}</span>
         </>
-      )}
-
-      {!verified && (
-        <span
-          className="rounded-sm border border-warning/50 px-1.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-warning"
-          title="המחיר טרם אומת מול המותג ואינו מחיר קמעונאי סופי"
-        >
-          מחיר לדוגמה
-        </span>
       )}
     </span>
   );

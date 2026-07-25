@@ -231,8 +231,8 @@ export function ProductForm({
       <section className="flex flex-col gap-4 border-t border-gold/15 pt-8">
         <h2 className="font-serif text-lg text-ivory">אימות נתונים</h2>
         <p className="text-xs leading-relaxed text-muted">
-          סמנו רק לאחר אישור מול המותג. מחיר לא מאומת מוצג באתר עם התג
-          „מחיר לדוגמה” ומוחרג מנתוני ה־SEO. תווים שאינם מאומתים אינם מוצגים כלל.
+          סמנו רק לאחר אישור מול המותג. מחיר לא מאומת מוחרג מנתוני ה־SEO.
+          תווים שאינם מאומתים אינם מוצגים כלל.
         </p>
         <div className="flex flex-wrap gap-6">
           <CheckboxField

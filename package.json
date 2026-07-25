@@ -15,6 +15,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:status": "prisma migrate status",
     "db:seed": "tsx prisma/seed.ts",
+    "db:verify-production-prices": "tsx scripts/verify-production-prices.ts",
     "db:backup": "tsx scripts/db-backup.ts",
     "db:cleanup-test-products": "tsx scripts/cleanup-test-products.mjs",
     "db:test-setup": "node scripts/setup-test-db.mjs",
