@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/commerce/money';
 import { formatDateHe } from '@/lib/utils';
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from '@/lib/commerce/labels';
 import { ButtonLink } from '@/components/ui/button';
+import { PageIdentity } from '@/components/layout/page-identity';
 
 export const metadata: Metadata = { title: 'ההזמנות שלי', robots: { index: false } };
 
@@ -22,11 +23,19 @@ export default async function AccountOrdersPage() {
   });
 
   return (
-    <div className="container-editorial pt-32 pb-24">
-      <h1 className="font-serif text-4xl text-ivory">ההזמנות שלי</h1>
+    <>
+      <PageIdentity
+        titleHe="ההזמנות שלי"
+        breadcrumb={[
+          { labelHe: 'בית', href: '/' },
+          { labelHe: 'החשבון שלי', href: '/account' },
+          { labelHe: 'ההזמנות שלי' },
+        ]}
+      />
+      <div className="container-editorial pt-10 pb-24">
 
       {orders.length === 0 ? (
-        <div className="mt-10 rounded-sm border border-gold/15 bg-charcoal p-10 text-center">
+        <div className="rounded-lg border border-gold/15 bg-charcoal p-10 text-center">
           <p className="font-serif text-xl text-ivory">אין עדיין הזמנות</p>
           <p className="mt-2 text-sm text-muted">כשתבצעו הזמנה, היא תופיע כאן.</p>
           <div className="mt-6">
@@ -34,9 +43,9 @@ export default async function AccountOrdersPage() {
           </div>
         </div>
       ) : (
-        <ul className="mt-10 flex flex-col gap-4">
+        <ul className="flex flex-col gap-4">
           {orders.map((order) => (
-            <li key={order.id} className="rounded-sm border border-gold/15 bg-charcoal p-6">
+            <li key={order.id} className="rounded-lg border border-gold/15 bg-charcoal p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <Link
@@ -82,6 +91,7 @@ export default async function AccountOrdersPage() {
           ))}
         </ul>
       )}
-    </div>
+      </div>
+    </>
   );
 }

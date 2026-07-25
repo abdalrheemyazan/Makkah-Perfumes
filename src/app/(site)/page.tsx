@@ -86,11 +86,9 @@ export default async function HomePage() {
       {/* ===== 1 · HERO ===== */}
       <div className="relative">
         <CinematicHero
-          // Media paths are editable from the admin content screen; the
-          // generated assets are the defaults.
-          stagePlate={heroBlock?.mediaUrl ?? '/generated/cinematic/hero-stage.webp'}
+          // The stage is now composed in CSS; only the poster (a last-resort
+          // no-JS fallback) and the real packshot remain as media.
           posterDesktop={heroBlock?.posterUrl ?? '/generated/posters/hero-poster.webp'}
-          stagePlateMobile="/generated/mobile/hero-stage-mobile.webp"
           productSrc={hero?.imageUrl ?? '/brand-reference/products/royal-leather.avif'}
           productAltHe={hero?.imageAltHe ?? 'בקבוק הבושם Royal Leather של מכה פרפיומס'}
           eyebrowHe="מורשת של בישום עומאני"
@@ -121,7 +119,7 @@ export default async function HomePage() {
       >
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-xl">
-            <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
+            <p className="text-xs tracking-[0.16em] text-gold/90 sm:text-sm">
               הקולקציה
             </p>
             <h2
@@ -181,7 +179,7 @@ export default async function HomePage() {
         />
         <div className="relative mx-auto w-full max-w-[110rem] px-5 sm:px-8 lg:px-12">
           <div className="max-w-2xl">
-            <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
+            <p className="text-xs tracking-[0.16em] text-gold/90 sm:text-sm">
               לבונה וקטורת
             </p>
             <h2

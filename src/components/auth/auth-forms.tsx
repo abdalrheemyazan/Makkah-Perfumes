@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from 'react';
 import Link from 'next/link';
+import { LogOut } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { login, register, requestPasswordReset } from '@/app/actions/auth';
 import { AUTH_INITIAL } from '@/lib/action-state';
@@ -188,8 +189,9 @@ export function LogoutButton({ action }: { action: () => Promise<void> }) {
     <form action={action}>
       <button
         type="submit"
-        className="text-sm text-muted underline underline-offset-2 transition-colors hover:text-danger"
+        className="inline-flex h-11 items-center gap-2 rounded-sm border border-gold/35 px-5 text-sm font-medium text-cream transition-colors hover:border-gold hover:text-ivory focus-visible:border-gold"
       >
+        <LogOut className="h-4 w-4" aria-hidden="true" />
         התנתקות
       </button>
     </form>

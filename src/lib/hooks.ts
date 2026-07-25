@@ -52,6 +52,29 @@ export function useScrolledPast(threshold: number): boolean {
   );
 }
 
+/**
+ * True when the visitor has switched on "עצירת אנימציות" in the accessibility
+ * panel. Backed by a class on <html> so a blocking init script can apply it
+ * before first paint; the panel dispatches `a11y-change` when it toggles.
+ *
+ * Motion-driving components (the hero's GSAP scroll timeline, any decorative
+ * video) read this alongside `usePrefersReducedMotion` and stand down when
+ * either is true. Purely-CSS ambient motion is frozen by the `.a11y-stop-motion`
+ * stylesheet rule and needs no JS.
+ */
+export function useA11yMotionStopped(): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener('a11y-change', onChange);
+      return () => window.removeEventListener('a11y-change', onChange);
+    },
+    () => document.documentElement.classList.contains('a11y-stop-motion'),
+    // Server + first client snapshot: assume stopped, so no motion is ever part
+    // of the initial paint. The real value resolves on mount.
+    () => true,
+  );
+}
+
 /** True below the given viewport width. Used to pick mobile media variants. */
 export function useIsNarrowerThan(width: number): boolean {
   return useSyncExternalStore(

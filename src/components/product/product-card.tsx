@@ -20,9 +20,13 @@ export function ProductCard({
 }) {
   return (
     <article className="group relative flex flex-col">
-      <div className="relative overflow-hidden rounded-sm border border-gold/10 bg-charcoal">
+      <div className="relative overflow-hidden rounded-sm border border-gold/10 bg-charcoal transition-shadow duration-500 group-hover:shadow-xl group-hover:shadow-black/40">
         <Link href={`/shop/${product.slug}`} className="block">
-          <div className="relative aspect-3/4">
+          {/* Fixed, responsive media height (not a tall aspect ratio) with generous
+              padding, so the bottle is ~15% smaller than before and sits with real
+              breathing room. object-contain keeps every bottle's true proportions;
+              nothing is cropped or stretched. See CLAUDE.md §product identity. */}
+          <div className="relative h-60 sm:h-[290px] lg:h-[330px]">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -30,7 +34,7 @@ export function ProductCard({
                 fill
                 priority={priority}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-contain p-6 transition-transform duration-700 ease-[var(--ease-editorial)] motion-safe:group-hover:scale-[1.04]"
+                className="object-contain p-6 transition-transform duration-700 ease-[var(--ease-editorial)] motion-safe:group-hover:scale-[1.02]"
               />
             ) : (
               <div className="grid h-full place-items-center text-sm text-faint">

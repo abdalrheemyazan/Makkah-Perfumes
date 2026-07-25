@@ -21,28 +21,28 @@ export function SiteFooter() {
                 className="h-14 w-auto object-contain"
               />
             </Link>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-cream/70">
               {SITE.descriptionHe}
             </p>
 
             <div className="mt-8">
-              <h2 className="font-serif text-xl text-ivory">הניחוחות החדשים, לפני כולם</h2>
+              <h2 className="text-xl font-semibold text-ivory">הניחוחות החדשים, לפני כולם</h2>
               <NewsletterForm />
             </div>
           </div>
 
-          {/* Link columns */}
+          {/* Link columns — DOM order flows right-to-left under dir="rtl". */}
           <nav aria-label="ניווט תחתון">
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
               {FOOTER_NAV.map((group) => (
                 <div key={group.titleHe}>
-                  <h2 className="font-serif text-sm tracking-wide text-gold">{group.titleHe}</h2>
-                  <ul className="mt-4 flex flex-col gap-2.5">
+                  <h2 className="text-sm font-semibold tracking-wide text-gold">{group.titleHe}</h2>
+                  <ul className="mt-4 flex flex-col gap-3">
                     {group.items.map((item) => (
                       <li key={item.href}>
                         <Link
                           href={item.href}
-                          className="text-sm text-muted transition-colors hover:text-ivory"
+                          className="text-sm text-cream/70 transition-colors hover:text-ivory"
                         >
                           {item.labelHe}
                         </Link>

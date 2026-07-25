@@ -3,57 +3,59 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useIsNarrowerThan, usePrefersReducedMotion } from '@/lib/hooks';
+import {
+  useA11yMotionStopped,
+  useIsNarrowerThan,
+  usePrefersReducedMotion,
+} from '@/lib/hooks';
 
 /**
  * Cinematic hero.
  *
- * Built as separate 2.5D layers rather than one flat picture:
+ * The scene is composed live in the browser rather than baked into one picture,
+ * so the product stays pixel-exact (it is the client's transparent packshot,
+ * never a render — an earlier attempt to have the model draw the bottle
+ * misspelled the label; see docs/GENERATION_LOG.md) and every atmospheric
+ * element can respond to motion preferences.
  *
- *   stage plate  — generated backdrop (stone, rim light)
- *   atmosphere   — drifting light, haze and dust (ambient, not scroll-driven)
- *   product      — the real client packshot, unmodified
- *   copy         — real HTML text
+ *   background    — near-black studio with a warm amber key light (still-ish)
+ *   smoke         — three drifting frankincense plumes, behind the bottle
+ *   pedestal      — a LOW monolithic stone surface, built in CSS
+ *   contact shadow— grounds the bottle onto that surface
+ *   product       — the real packshot, standing on the pedestal
+ *   copy          — real HTML text
  *
- * Keeping the product on its own layer is what makes the parallax possible, and
- * it is also why the bottle is pixel-exact: it is the client's photograph, not a
- * render. An earlier attempt to have the model draw the bottle misspelled the
- * label (see docs/GENERATION_LOG.md), so identity always comes from the real asset.
+ * Grounding contract (this is the whole point of the redesign):
+ *   - The bottle's base (96.8% down its transparent cutout) meets the pedestal
+ *     top. A soft contact shadow + ambient-occlusion core sit directly beneath
+ *     it, and the pedestal's front edge catches the key light — so the bottle
+ *     reads as STANDING ON the surface, not floating above a cube.
+ *   - On scroll the bottle and its pedestal move together as one grounded unit
+ *     (never separated); only the smoke fades and the copy leaves.
  *
  * Motion contract:
- *   - The STONE DOES NOT MOVE. An earlier version slid the pedestal 12% and
- *     scaled it 8% on scroll; a heavy solid object sliding under a static
- *     bottle reads as a glitch rather than as depth. The plate now only
- *     breathes (≤2% scale) while light, haze and dust carry the life.
- *   - Ambient motion is continuous and slow (26–40s periods), independent of
- *     scroll, so the scene feels alive even when the visitor is still.
- *   - Scroll *drives* the parallax (scrub), it is never hijacked. Wheel and
- *     touch behave natively; there is no scroll-jacking library.
- *   - The copy and CTAs are real HTML, present and clickable on first paint,
- *     regardless of whether GSAP ever loads.
- *   - prefers-reduced-motion: no animation code is imported and every ambient
- *     layer is frozen by the global reduced-motion rule.
+ *   - Ambient smoke/light are slow CSS animations (15–34s). They pause when the
+ *     hero scrolls off-screen (IntersectionObserver → `.hero-paused`), freeze
+ *     under prefers-reduced-motion, and stop when the visitor picks
+ *     "עצירת אנימציות" (`.a11y-stop-motion`). A static plume replaces them so
+ *     the stage is never empty.
+ *   - The GSAP scroll timeline is scrubbed, never scroll-jacking, and is not
+ *     even imported when motion is disabled or on narrow screens.
+ *   - Copy and CTAs are real HTML, present and clickable on first paint whether
+ *     or not GSAP loads.
  */
 
-/**
- * Dust motes. Positions are hard-coded rather than random so the server and
- * client render identical markup — a Math.random() here would hydrate-mismatch.
- */
+/** Dust motes. Hard-coded so server and client render identical markup. */
 const DUST = [
-  { left: '12%', bottom: '18%', size: 3, duration: '24s', delay: '0s', opacity: 0.5 },
-  { left: '19%', bottom: '32%', size: 2, duration: '31s', delay: '-6s', opacity: 0.35 },
-  { left: '26%', bottom: '12%', size: 4, duration: '27s', delay: '-13s', opacity: 0.45 },
-  { left: '31%', bottom: '44%', size: 2, duration: '35s', delay: '-3s', opacity: 0.3 },
-  { left: '38%', bottom: '24%', size: 3, duration: '29s', delay: '-18s', opacity: 0.4 },
-  { left: '44%', bottom: '38%', size: 2, duration: '33s', delay: '-9s', opacity: 0.28 },
-  { left: '16%', bottom: '52%', size: 2, duration: '38s', delay: '-22s', opacity: 0.32 },
-  { left: '35%', bottom: '58%', size: 3, duration: '26s', delay: '-15s', opacity: 0.36 },
+  { left: '14%', bottom: '22%', size: 3, duration: '24s', delay: '0s', opacity: 0.45 },
+  { left: '22%', bottom: '40%', size: 2, duration: '31s', delay: '-6s', opacity: 0.32 },
+  { left: '30%', bottom: '16%', size: 3, duration: '27s', delay: '-13s', opacity: 0.4 },
+  { left: '18%', bottom: '54%', size: 2, duration: '35s', delay: '-3s', opacity: 0.28 },
+  { left: '38%', bottom: '30%', size: 2, duration: '29s', delay: '-18s', opacity: 0.34 },
 ] as const;
 
 export function CinematicHero({
   posterDesktop,
-  stagePlate,
-  stagePlateMobile,
   productSrc,
   productAltHe,
   eyebrowHe,
@@ -65,9 +67,6 @@ export function CinematicHero({
   secondaryCtaHref,
 }: {
   posterDesktop: string;
-  stagePlate: string;
-  /** Portrait plate WITHOUT the product composited in. */
-  stagePlateMobile: string;
   productSrc: string;
   productAltHe: string;
   eyebrowHe: string;
@@ -80,14 +79,31 @@ export function CinematicHero({
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const productRef = useRef<HTMLDivElement>(null);
+  const productStageRef = useRef<HTMLDivElement>(null);
+  const smokeRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const atmosphereRef = useRef<HTMLDivElement>(null);
 
   const reducedMotion = usePrefersReducedMotion();
+  const motionStopped = useA11yMotionStopped();
   const isNarrow = useIsNarrowerThan(1024);
-  const animate = !reducedMotion && !isNarrow;
+  const animate = !reducedMotion && !motionStopped && !isNarrow;
 
+  // Pause every ambient/smoke animation while the hero is off-screen.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        section.classList.toggle('hero-paused', !entry?.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  // Scroll-scrubbed parallax. The bottle + pedestal move as one grounded unit.
   useEffect(() => {
     if (!animate) return;
     const section = sectionRef.current;
@@ -96,7 +112,6 @@ export function CinematicHero({
     let cleanup: (() => void) | undefined;
     let cancelled = false;
 
-    // Dynamic import: pages that never render the hero pay nothing for GSAP.
     void (async () => {
       const [{ gsap }, { ScrollTrigger }] = await Promise.all([
         import('gsap'),
@@ -112,25 +127,24 @@ export function CinematicHero({
             trigger: section,
             start: 'top top',
             end: 'bottom top',
-            // A longer scrub trails the scroll slightly, which reads as weight.
             scrub: 1.1,
           },
         });
 
         timeline
-          // The plate only breathes; it never slides.
-          .to(stageRef.current, { scale: 1.02, ease: 'none' }, 0)
-          // Atmosphere drifts a touch further than the plate for depth.
-          .to(atmosphereRef.current, { yPercent: 5, opacity: 0.5, ease: 'none' }, 0)
-          // The bottle lifts fractionally — enough to separate from the stone.
-          .to(productRef.current, { yPercent: -5, ease: 'none' }, 0)
-          // Copy leaves first, so the artwork is what carries you into the story.
+          // Background breathes only; it never slides.
+          .to(stageRef.current, { scale: 1.03, ease: 'none' }, 0)
+          // Atmosphere drifts and dims a touch for depth.
+          .to(atmosphereRef.current, { yPercent: 6, opacity: 0.45, ease: 'none' }, 0)
+          // Smoke fades gently as we leave.
+          .to(smokeRef.current, { opacity: 0.15, ease: 'none' }, 0)
+          // Bottle + pedestal rise together — grounded, never separated.
+          .to(productStageRef.current, { yPercent: -4, ease: 'none' }, 0)
+          // Copy leaves first, so the artwork carries you into the story.
           .to(copyRef.current, { yPercent: -14, opacity: 0, ease: 'none' }, 0);
       }, section);
 
-      // Layout shifts once the Hebrew webfonts swap in.
       void document.fonts?.ready.then(() => ScrollTrigger.refresh());
-
       cleanup = () => context.revert();
     })();
 
@@ -144,64 +158,50 @@ export function CinematicHero({
     <section
       ref={sectionRef}
       aria-labelledby="hero-title"
-      // Mobile anchors the copy to the bottom so the bottle in the poster keeps
-      // the upper half to itself; desktop centres the two-column composition.
       className="relative flex min-h-svh items-end overflow-hidden pt-24 lg:items-center lg:pt-28"
     >
-      {/* ---- Layer 1: generated stage plate (still) ---- */}
+      {/* ---- Background: near-black studio + warm key light ---- */}
       <div ref={stageRef} aria-hidden="true" className="absolute inset-0 will-change-transform">
-        <Image
-          src={isNarrow ? stagePlateMobile : stagePlate}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        {/* Scrims differ by axis because the composition does.
-            Desktop: bottle on the left, copy on the right — darken sideways.
-            Mobile: the poster already contains the bottle, and the copy sits
-            beneath it — darken upward instead, or the text would land on the
-            label. */}
+        <div className="absolute inset-0 bg-ink" />
+        {/* Warm key beam from the top inline-start corner (right in RTL is start). */}
         <div
-          className="absolute inset-0 hidden lg:block"
+          className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to left, var(--color-ink) 10%, color-mix(in oklab, var(--color-ink) 74%, transparent) 44%, transparent 80%)',
+              'radial-gradient(120% 90% at 84% -8%, color-mix(in oklab, var(--color-amber) 30%, transparent) 0%, transparent 46%)',
           }}
         />
+        {/* Cool depth on the far side. */}
         <div
-          className="absolute inset-0 lg:hidden"
+          className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to top, var(--color-ink) 32%, color-mix(in oklab, var(--color-ink) 70%, transparent) 58%, transparent 88%)',
+              'radial-gradient(90% 80% at 6% 110%, color-mix(in oklab, var(--color-ink-raised) 90%, transparent) 0%, transparent 60%)',
           }}
         />
+        {/* Grounding vignette so the base of the scene reads as floor. */}
         <div
-          className="absolute inset-x-0 bottom-0 h-48"
+          className="absolute inset-x-0 bottom-0 h-1/3"
           style={{ background: 'linear-gradient(to top, var(--color-ink), transparent)' }}
         />
       </div>
 
-      {/* ---- Layer 2: ambient atmosphere ---- */}
+      {/* ---- Ambient atmosphere: drifting light + dust ---- */}
       <div ref={atmosphereRef} aria-hidden="true" className="pointer-events-none absolute inset-0">
-        {/* Warm key light, drifting slowly */}
         <div
-          className="ambient-light absolute start-[-8%] top-[2%] h-[62vh] w-[62vh] rounded-full blur-3xl"
+          className="ambient-light absolute end-[6%] top-[-6%] h-[58vh] w-[58vh] rounded-full blur-3xl"
           style={{
             background:
-              'radial-gradient(circle, color-mix(in oklab, var(--color-amber) 42%, transparent) 0%, transparent 68%)',
+              'radial-gradient(circle, color-mix(in oklab, var(--color-amber) 40%, transparent) 0%, transparent 68%)',
           }}
         />
-        {/* Cool counter-haze, drifting the other way for slow cross-motion */}
         <div
-          className="ambient-haze absolute start-[18%] top-[24%] h-[46vh] w-[70vh] rounded-full blur-3xl"
+          className="ambient-haze absolute start-[14%] top-[26%] h-[44vh] w-[64vh] rounded-full blur-3xl"
           style={{
             background:
-              'radial-gradient(ellipse, color-mix(in oklab, var(--color-cream) 14%, transparent) 0%, transparent 70%)',
+              'radial-gradient(ellipse, color-mix(in oklab, var(--color-cream) 12%, transparent) 0%, transparent 70%)',
           }}
         />
-        {/* Dust motes rising through the beam */}
         {DUST.map((mote, index) => (
           <span
             key={index}
@@ -214,7 +214,7 @@ export function CinematicHero({
                 height: mote.size,
                 opacity: mote.opacity,
                 background:
-                  'radial-gradient(circle, color-mix(in oklab, var(--color-gold) 85%, transparent), transparent 70%)',
+                  'radial-gradient(circle, color-mix(in oklab, var(--color-gold) 82%, transparent), transparent 70%)',
                 '--dust-duration': mote.duration,
                 '--dust-delay': mote.delay,
               } as React.CSSProperties
@@ -223,25 +223,21 @@ export function CinematicHero({
         ))}
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-[110rem] items-center gap-10 px-5 pb-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:px-12 lg:py-24">
-        {/* ---- Layer 4: copy (first in DOM => right side in RTL) ---- */}
+      <div className="relative mx-auto grid w-full max-w-[110rem] items-center gap-10 px-5 pb-16 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:px-12 lg:py-24">
+        {/* ---- Copy (first in DOM => right side in RTL) ---- */}
         <div ref={copyRef} className="order-2 max-w-xl will-change-transform lg:order-1">
-          <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
-            {eyebrowHe}
-          </p>
+          <p className="text-xs tracking-[0.16em] text-gold/90 sm:text-sm">{eyebrowHe}</p>
 
           <h1
             id="hero-title"
-            className="mt-7 font-serif text-5xl leading-[1.05] text-ivory sm:text-6xl lg:text-7xl"
+            className="mt-6 text-5xl leading-[1.05] font-bold text-ivory sm:text-6xl lg:text-7xl"
           >
             {titleHe}
           </h1>
 
-          <p className="mt-7 max-w-md text-base leading-[1.85] text-cream/80 sm:text-lg">
-            {bodyHe}
-          </p>
+          <p className="mt-6 max-w-md text-base leading-[1.85] text-cream/80 sm:text-lg">{bodyHe}</p>
 
-          <div className="mt-11 flex flex-wrap gap-3">
+          <div className="mt-10 flex flex-wrap gap-3">
             <Link
               href={primaryCtaHref}
               className="inline-flex h-13 items-center rounded-sm bg-gold px-8 text-base font-medium text-ink transition-colors duration-200 hover:bg-cream"
@@ -257,19 +253,101 @@ export function CinematicHero({
           </div>
         </div>
 
-        {/* ---- Layer 3: the real product, never regenerated ---- */}
+        {/* ---- Product stage: bottle standing on a low stone pedestal ----
+            The cutout's base sits at ~96.8% of the box, so the pedestal and its
+            shadow are anchored near `bottom-[3%]` and the slab extends a little
+            below the box. Everything here shares one parallax unit, so the
+            bottle and its pedestal never separate. */}
         <div
-          ref={productRef}
-          className="relative order-1 mx-auto w-full max-w-[15rem] will-change-transform sm:max-w-xs lg:order-2 lg:max-w-lg"
+          ref={productStageRef}
+          className="relative order-1 flex w-full items-end justify-center will-change-transform lg:order-2"
         >
-          <div className="relative aspect-4/5">
+          <div className="relative aspect-3/4 w-full max-w-[15rem] sm:max-w-[17rem] lg:max-w-[21rem]">
+            {/* Smoke — behind the bottle, rising from the pedestal */}
+            <div
+              ref={smokeRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-[3%] top-[-8%] z-[1]"
+            >
+              <span className="hero-smoke hero-smoke--a" />
+              <span className="hero-smoke hero-smoke--b" />
+              <span className="hero-smoke hero-smoke--c" />
+              <span className="hero-smoke-static" />
+            </div>
+
+            {/* Pedestal body — a low monolithic slab, extending just below the box. */}
+            <div
+              aria-hidden="true"
+              className="absolute z-[2] h-[11%]"
+              style={{
+                insetInline: '-14%',
+                bottom: '-5%',
+                borderRadius: '42% 42% 16% 16% / 64% 64% 22% 22%',
+                background:
+                  'linear-gradient(to bottom, color-mix(in oklab, var(--color-stone) 88%, black) 0%, color-mix(in oklab, var(--color-ink) 94%, black) 60%, var(--color-ink) 100%)',
+                boxShadow: '0 26px 50px rgba(0,0,0,0.6)',
+              }}
+            />
+            {/* Pedestal top plane — subtle lit stone surface right at the base. */}
+            <div
+              aria-hidden="true"
+              className="absolute z-[3] h-[7%]"
+              style={{
+                insetInline: '-11%',
+                bottom: '1%',
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(ellipse at 60% 30%, color-mix(in oklab, var(--color-stone) 96%, transparent) 0%, color-mix(in oklab, var(--color-ink) 92%, transparent) 55%, transparent 80%)',
+                filter: 'blur(2px)',
+              }}
+            />
+            {/* Front rim — the pedestal edge catching the warm key light. */}
+            <div
+              aria-hidden="true"
+              className="absolute z-[4] h-[1.4%]"
+              style={{
+                insetInline: '-6%',
+                bottom: '3.4%',
+                borderRadius: '50%',
+                background:
+                  'linear-gradient(to left, transparent, color-mix(in oklab, var(--color-gold) 50%, transparent) 42%, color-mix(in oklab, var(--color-cream) 28%, transparent) 62%, transparent)',
+                filter: 'blur(1px)',
+              }}
+            />
+            {/* Contact shadow — grounds the bottle onto the surface. */}
+            <div
+              aria-hidden="true"
+              className="absolute z-[6] h-[5%]"
+              style={{
+                insetInline: '15%',
+                bottom: '1.5%',
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(ellipse at center, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.46) 46%, transparent 74%)',
+                filter: 'blur(6px)',
+              }}
+            />
+            {/* Ambient-occlusion core — the darkest touch right under the base. */}
+            <div
+              aria-hidden="true"
+              className="absolute z-[7] h-[2.4%]"
+              style={{
+                insetInline: '30%',
+                bottom: '2.6%',
+                borderRadius: '50%',
+                background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.9) 0%, transparent 70%)',
+                filter: 'blur(3px)',
+              }}
+            />
+
+            {/* The real product — standing on the pedestal, never regenerated. */}
             <Image
               src={productSrc}
               alt={productAltHe}
               fill
               priority
-              sizes="(max-width: 1024px) 70vw, 42vw"
-              className="object-contain drop-shadow-[0_40px_70px_rgba(0,0,0,0.9)]"
+              sizes="(max-width: 1024px) 60vw, 26vw"
+              className="relative z-10 object-contain"
             />
           </div>
         </div>
@@ -277,13 +355,7 @@ export function CinematicHero({
 
       {/* Static poster for print and as an absolute last-resort visual. */}
       <noscript>
-        <Image
-          src={posterDesktop}
-          alt={productAltHe}
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
+        <Image src={posterDesktop} alt={productAltHe} fill sizes="100vw" className="object-cover" />
       </noscript>
     </section>
   );

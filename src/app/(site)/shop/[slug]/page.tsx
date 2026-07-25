@@ -125,7 +125,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           {product.fragranceFamily && (
             <Link
               href={`/shop?family=${product.fragranceFamily.slug}`}
-              className="text-sm tracking-[0.15em] text-gold uppercase hover:text-cream"
+              className="text-sm tracking-[0.15em] text-gold hover:text-cream"
             >
               {product.fragranceFamily.nameHe}
             </Link>

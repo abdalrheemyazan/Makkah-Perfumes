@@ -52,7 +52,7 @@ export function AdminShell({
     <nav aria-label="ניווט ניהול" className="flex flex-col gap-7">
       {nav.map((group) => (
         <div key={group.titleHe}>
-          <h2 className="text-[0.7rem] tracking-[0.15em] text-gold/70 uppercase">
+          <h2 className="text-[0.7rem] tracking-[0.15em] text-gold/70">
             {group.titleHe}
           </h2>
           <ul className="mt-2.5 flex flex-col gap-0.5">

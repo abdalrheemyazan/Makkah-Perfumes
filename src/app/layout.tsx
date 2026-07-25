@@ -1,26 +1,28 @@
 import type { Metadata, Viewport } from 'next';
-import { Frank_Ruhl_Libre, Heebo } from 'next/font/google';
+import { Heebo } from 'next/font/google';
 import { SITE } from '@/lib/site';
 import './globals.css';
 
 /**
  * Hebrew typography.
- *  - Frank Ruhl Libre: an elegant Hebrew serif, used for display headings.
- *  - Heebo: a high-quality Hebrew sans, used for all interface text.
- * Both are SIL Open Font License and self-hosted by next/font at build time,
- * so there is no runtime request to Google and no layout shift.
+ *
+ * Heebo — a clean, highly readable Hebrew sans — is now the single family for
+ * the entire site: navigation, headings, body, forms, admin. The decorative
+ * serif (Frank Ruhl Libre) was removed because at display sizes its thin strokes
+ * and heavy contrast hurt Hebrew legibility, and it read as ornamental rather
+ * than premium.
+ *
+ * Both the `--font-body` and `--font-display` variables resolve to Heebo, so
+ * every `font-serif`/`font-sans` utility already in the codebase renders in the
+ * one family without touching each call site. Weight, not family, now carries
+ * the hierarchy (body 400 · controls 500 · section headings 600 · page titles
+ * 700). Self-hosted by next/font at build time — no runtime request, no layout
+ * shift. SIL Open Font License.
  */
-const display = Frank_Ruhl_Libre({
-  variable: '--font-display',
-  subsets: ['hebrew', 'latin'],
-  weight: ['400', '500', '700'],
-  display: 'swap',
-});
-
-const body = Heebo({
+const heebo = Heebo({
   variable: '--font-body',
   subsets: ['hebrew', 'latin'],
-  weight: ['300', '400', '500', '700'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   display: 'swap',
 });
 
@@ -56,9 +58,20 @@ export default function RootLayout({
     <html
       lang="he"
       dir="rtl"
-      className={`${display.variable} ${body.variable} h-full antialiased`}
+      className={`${heebo.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-ink text-ivory">{children}</body>
+      <body className="flex min-h-full flex-col bg-ink text-ivory">
+        {/* Applies persisted accessibility preferences before first paint, so a
+            returning visitor never sees a flash of the default styling. Mirrors
+            AccessibilitySettings' own class/font-size logic. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var s=JSON.parse(localStorage.getItem('makkah-a11y')||'{}');var e=document.documentElement;if(s.contrast)e.classList.add('a11y-contrast');if(s.links)e.classList.add('a11y-links');if(s.stopMotion)e.classList.add('a11y-stop-motion');if(s.readable)e.classList.add('a11y-readable');if(s.fontScale&&s.fontScale!==100)e.style.fontSize=s.fontScale+'%';}catch(_){}})();",
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

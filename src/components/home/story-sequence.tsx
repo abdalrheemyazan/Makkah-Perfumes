@@ -120,7 +120,7 @@ export function StorySequence({
     return (
       <section aria-labelledby="story-heading" className="border-y border-gold/10 bg-charcoal py-20">
         <div className="container-editorial">
-          <p className="text-sm tracking-[0.2em] text-gold uppercase">הסיפור</p>
+          <p className="text-sm tracking-[0.15em] text-gold">הסיפור</p>
           <h2 id="story-heading" className="mt-3 max-w-xl font-serif text-4xl text-ivory sm:text-5xl">
             {headingHe}
           </h2>
@@ -138,7 +138,7 @@ export function StorySequence({
                     className="object-cover"
                   />
                 </div>
-                <p className="mt-5 text-xs tracking-[0.2em] text-gold uppercase">
+                <p className="mt-5 text-xs tracking-[0.15em] text-gold">
                   {chapter.eyebrowHe}
                 </p>
                 <h3 className="mt-2 font-serif text-2xl text-ivory">{chapter.titleHe}</h3>
@@ -190,7 +190,7 @@ export function StorySequence({
 
         <div className="container-editorial relative flex h-full items-center">
           <div className="max-w-xl">
-            <p className="text-sm tracking-[0.2em] text-gold uppercase">הסיפור</p>
+            <p className="text-sm tracking-[0.15em] text-gold">הסיפור</p>
             <h2
               id="story-heading"
               className="mt-3 font-serif text-4xl leading-tight text-ivory sm:text-5xl"

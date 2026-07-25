@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
+import { PageIdentity } from '@/components/layout/page-identity';
 
 export const metadata: Metadata = { title: 'הפרופיל שלי', robots: { index: false } };
 
@@ -9,10 +10,18 @@ export default async function ProfilePage() {
   if (!user) redirect('/login');
 
   return (
-    <div className="container-editorial pt-32 pb-24">
-      <div className="mx-auto max-w-xl">
-        <h1 className="font-serif text-4xl text-ivory">הפרופיל שלי</h1>
-        <dl className="mt-8 flex flex-col gap-4 rounded-sm border border-gold/15 bg-charcoal p-6 text-sm">
+    <>
+      <PageIdentity
+        titleHe="הפרטים שלי"
+        breadcrumb={[
+          { labelHe: 'בית', href: '/' },
+          { labelHe: 'החשבון שלי', href: '/account' },
+          { labelHe: 'פרטים אישיים' },
+        ]}
+      />
+      <div className="container-editorial pt-10 pb-24">
+        <div className="mx-auto max-w-xl">
+        <dl className="flex flex-col gap-4 rounded-lg border border-gold/15 bg-charcoal p-6 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-muted">שם</dt>
             <dd className="text-cream">
@@ -35,7 +44,8 @@ export default async function ProfilePage() {
         <p className="mt-6 text-xs text-faint">
           עריכת פרטים ובקשת מחיקת חשבון יתווספו בשלב הבא.
         </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

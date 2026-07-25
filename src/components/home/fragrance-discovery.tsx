@@ -43,7 +43,7 @@ export function FragranceDiscovery({ families }: { families: DiscoveryFamily[] }
       <div className="relative mx-auto w-full max-w-[110rem] px-5 sm:px-8 lg:px-12">
         {/* ---- Statement ---- */}
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs tracking-[0.28em] text-gold/90 uppercase sm:text-sm">
+          <p className="text-xs tracking-[0.16em] text-gold/90 sm:text-sm">
             התאמת ניחוח
           </p>
           <h2

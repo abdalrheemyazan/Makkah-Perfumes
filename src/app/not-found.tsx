@@ -5,7 +5,7 @@ export default function NotFound() {
     <html lang="he" dir="rtl">
       <body className="flex min-h-screen items-center justify-center bg-[#0b0a08] text-[#f2ebdd]">
         <div className="mx-auto max-w-md px-6 text-center">
-          <p className="text-sm tracking-[0.2em] text-[#b38a52] uppercase">שגיאה 404</p>
+          <p className="text-sm tracking-[0.15em] text-[#b38a52]">שגיאה 404</p>
           <h1 className="mt-4 text-4xl" style={{ fontFamily: 'Georgia, serif' }}>
             העמוד לא נמצא
           </h1>

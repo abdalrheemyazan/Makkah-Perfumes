@@ -34,7 +34,7 @@ export default async function FragranceFinderPage({
   return (
     <div className="container-editorial pt-32 pb-24">
       <div className="max-w-2xl">
-        <p className="text-sm tracking-[0.2em] text-gold uppercase">התאמה אישית</p>
+        <p className="text-sm tracking-[0.15em] text-gold">התאמה אישית</p>
         <h1 className="mt-3 font-serif text-4xl text-ivory sm:text-5xl">התאמת ניחוח</h1>
         <p className="mt-4 text-base leading-relaxed text-cream/85">
           ענו על חמש שאלות ונציע בשמים מתוך הקטלוג, עם הסבר למה כל אחד מהם מתאים.

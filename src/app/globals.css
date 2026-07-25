@@ -31,8 +31,11 @@
   --color-warning: #b3823a;
   --color-danger: #a4453f;
 
-  /* --- Type --- */
-  --font-serif: var(--font-display), 'Frank Ruhl Libre', Georgia, serif;
+  /* --- Type ---
+     One family, Heebo, for the whole site. `--font-serif` is retained as a
+     token only so the existing `font-serif` utilities keep resolving; it now
+     points at the same sans as `--font-sans`. Hierarchy comes from weight. */
+  --font-serif: var(--font-body), 'Heebo', system-ui, sans-serif;
   --font-sans: var(--font-body), 'Heebo', system-ui, sans-serif;
 
   /* --- Motion: slow and premium. See docs/MOTION_SYSTEM.md --- */
@@ -63,18 +66,37 @@
     background-color: var(--color-ink);
     color: var(--color-ivory);
     font-family: var(--font-sans);
+    /* Comfortable default measure for Hebrew body copy; components tighten it
+       for large display text where needed. */
+    line-height: 1.65;
+    font-weight: 400;
     font-feature-settings: 'kern';
     /* Guards against any child blowing out the viewport in RTL. */
     overflow-x: clip;
   }
 
+  /* Headings: weight, not a second family, carries the hierarchy now.
+     Hebrew sans display text reads best with near-normal tracking — the old
+     serif's negative letter-spacing pinched the glyphs, so it is gone. */
   h1,
   h2,
   h3 {
     font-family: var(--font-serif);
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  h1 {
+    font-weight: 700;
+    line-height: 1.12;
+  }
+
+  /* Latin product names / technical strings should not inherit Hebrew-tuned
+     spacing; keep them crisp. */
+  [lang='en'],
+  [dir='ltr'] {
+    letter-spacing: 0;
   }
 
   /* Visible focus everywhere — never removed, only restyled. */
@@ -198,6 +220,169 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   Frankincense smoke
+
+   Thin plumes that rise from behind the bottle base, drift sideways, morph and
+   dissolve. Three layers with different periods and paths so there is no
+   obvious loop seam and it never reads as a flat transparent PNG. `screen`
+   blending lets the pale plume lighten the near-black scene like real smoke.
+   Only transform/opacity animate, so it stays on the compositor.
+
+   The plumes are anchored to the pedestal and kept narrow, so they stay behind
+   the bottle and never cross the cap, the label or the Hebrew heading.
+   -------------------------------------------------------------------------- */
+
+@keyframes smoke-a {
+  0% {
+    transform: translate3d(-50%, 6%, 0) scale(0.82) rotate(0deg);
+    opacity: 0;
+  }
+  16% {
+    opacity: 0.5;
+  }
+  60% {
+    transform: translate3d(-58%, -34%, 0) scale(1.05) rotate(-4deg);
+    opacity: 0.34;
+  }
+  86% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate3d(-46%, -70%, 0) scale(1.28) rotate(3deg);
+    opacity: 0;
+  }
+}
+
+@keyframes smoke-b {
+  0% {
+    transform: translate3d(-50%, 8%, 0) scale(0.7) rotate(0deg);
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.42;
+  }
+  64% {
+    transform: translate3d(-42%, -40%, 0) scale(1) rotate(5deg);
+    opacity: 0.28;
+  }
+  88% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: translate3d(-52%, -74%, 0) scale(1.24) rotate(-3deg);
+    opacity: 0;
+  }
+}
+
+@keyframes smoke-c {
+  0% {
+    transform: translate3d(-50%, 4%, 0) scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.3;
+  }
+  58% {
+    transform: translate3d(-54%, -30%, 0) scale(1.12) rotate(-2deg);
+    opacity: 0.2;
+  }
+  90% {
+    opacity: 0.08;
+  }
+  100% {
+    transform: translate3d(-48%, -64%, 0) scale(1.32) rotate(4deg);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  .hero-smoke {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 50%;
+    inline-size: clamp(90px, 12vw, 150px);
+    block-size: clamp(280px, 42vh, 460px);
+    border-radius: 46% 54% 50% 50% / 62% 60% 40% 38%;
+    background: radial-gradient(
+      60% 70% at 50% 78%,
+      color-mix(in oklab, var(--color-cream) 46%, transparent) 0%,
+      color-mix(in oklab, var(--color-cream) 20%, transparent) 34%,
+      transparent 72%
+    );
+    filter: blur(16px);
+    mix-blend-mode: screen;
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+
+  .hero-smoke--a {
+    animation: smoke-a 15s ease-in-out infinite;
+  }
+  .hero-smoke--b {
+    inline-size: clamp(70px, 9vw, 118px);
+    animation: smoke-b 19s ease-in-out infinite;
+    animation-delay: -6s;
+  }
+  .hero-smoke--c {
+    inline-size: clamp(110px, 14vw, 176px);
+    animation: smoke-c 24s ease-in-out infinite;
+    animation-delay: -11s;
+    opacity: 0.7;
+  }
+
+  /* Pause every ambient/smoke layer while the hero is off-screen — no
+     compositor work is spent animating something nobody is looking at. */
+  .hero-paused .ambient-light,
+  .hero-paused .ambient-haze,
+  .hero-paused .ambient-dust,
+  .hero-paused .hero-smoke {
+    animation-play-state: paused;
+  }
+
+  /* Static smoke: a single calm plume shown only when motion is disabled, so
+     reduced-motion and "עצירת אנימציות" still get a refined smoke composition
+     rather than an empty stage (the animated plumes freeze to opacity 0). */
+  .hero-smoke-static {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 50%;
+    inline-size: clamp(100px, 13vw, 160px);
+    block-size: clamp(260px, 40vh, 440px);
+    border-radius: 46% 54% 50% 50% / 62% 60% 40% 38%;
+    background: radial-gradient(
+      58% 68% at 50% 80%,
+      color-mix(in oklab, var(--color-cream) 34%, transparent) 0%,
+      color-mix(in oklab, var(--color-cream) 14%, transparent) 36%,
+      transparent 72%
+    );
+    filter: blur(18px);
+    mix-blend-mode: screen;
+    transform: translate3d(-52%, -14%, 0) scale(1.02) rotate(-2deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* When motion is off, hide the (frozen, invisible) animated plumes and reveal
+   the static one instead. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-smoke {
+    display: none;
+  }
+  .hero-smoke-static {
+    opacity: 1;
+  }
+}
+
+:root.a11y-stop-motion .hero-smoke {
+  display: none;
+}
+:root.a11y-stop-motion .hero-smoke-static {
+  opacity: 1;
+}
+
 /* ==========================================================================
    Reduced motion — every animation degrades to a static, complete state.
    ========================================================================== */
@@ -210,4 +395,68 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ==========================================================================
+   Accessibility preferences
+
+   Each rule is driven by a class the accessibility panel toggles on <html>
+   (and a blocking init script re-applies before first paint). The effects live
+   here, in CSS, so they survive navigation and apply even if the panel island
+   has not hydrated. See src/components/a11y/accessibility-settings.tsx.
+   ========================================================================== */
+
+/* High contrast — re-map the warm palette to a maximally legible one. Because
+   every colour utility resolves a CSS variable, overriding the tokens on the
+   root recolours the whole site, buttons and forms included. */
+:root.a11y-contrast {
+  --color-ink: #000000;
+  --color-ink-raised: #050505;
+  --color-charcoal: #0b0b0b;
+  --color-charcoal-soft: #131313;
+  --color-stone: #1c1c1c;
+  --color-ivory: #ffffff;
+  --color-cream: #ffffff;
+  --color-muted: #e8dfd2;
+  --color-faint: #ccc1b0;
+  --color-gold: #ffce7a;
+  --color-gold-dim: #e6b978;
+  --color-amber: #d8935a;
+}
+
+/* Links visibly underlined regardless of surrounding styling. */
+:root.a11y-links a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 3px;
+}
+
+/* Stop animations — same freeze as reduced-motion, on demand. JS-driven motion
+   (the hero's scroll timeline) reads this class via useA11yMotionStopped and
+   stands down separately. */
+:root.a11y-stop-motion *,
+:root.a11y-stop-motion *::before,
+:root.a11y-stop-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Readable font — a familiar system sans with generous Hebrew spacing. Uses
+   only local fonts, so it never contacts a remote origin (CSP-safe). */
+:root.a11y-readable {
+  --font-sans: 'Arial', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: 'Arial', 'Segoe UI', system-ui, sans-serif;
+}
+:root.a11y-readable body {
+  letter-spacing: 0.01em;
+  word-spacing: 0.06em;
+  line-height: 1.85;
+}
+:root.a11y-readable h1,
+:root.a11y-readable h2,
+:root.a11y-readable h3 {
+  line-height: 1.35;
 }

@@ -1,13 +1,18 @@
 import type { Metadata } from 'next';
+import { PageIdentity } from '@/components/layout/page-identity';
 
 export const metadata: Metadata = { title: 'הסיפור שלנו' };
 
 export default function Page() {
   return (
-    <div className="container-editorial pt-32 pb-24">
+    <>
+      <PageIdentity
+        titleHe="הסיפור שלנו"
+        breadcrumb={[{ labelHe: 'בית', href: '/' }, { labelHe: 'הסיפור שלנו' }]}
+      />
+      <div className="container-editorial pt-10 pb-24">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-serif text-4xl text-ivory sm:text-5xl">הסיפור שלנו</h1>
-        <p className="mt-6 text-base leading-relaxed text-cream/85">
+        <p className="text-base leading-relaxed text-cream/85">
           מכה פרפיומס נושאת על התוויות שלה את הכיתוב <span dir="ltr">SINCE 1976</span>.
           שפת הבישום שלה נשענת על חומרי הגלם הקלאסיים של דרום ערב — לבונה, עוד,
           ענבר ועצים.
@@ -20,6 +25,7 @@ export default function Page() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

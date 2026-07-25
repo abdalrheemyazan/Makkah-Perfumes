@@ -66,7 +66,7 @@ function Forbidden() {
   return (
     <div className="grid min-h-svh place-items-center">
       <div className="mx-auto max-w-md px-6 text-center">
-        <p className="text-sm tracking-[0.2em] text-warning uppercase">שגיאה 403</p>
+        <p className="text-sm tracking-[0.15em] text-warning">שגיאה 403</p>
         <h1 className="mt-4 font-serif text-3xl text-ivory">אין לכם הרשאה</h1>
         <p className="mt-4 text-sm text-muted">
           החשבון שלכם אינו כולל הרשאת גישה ללוח הניהול. אם לדעתכם זו טעות, פנו

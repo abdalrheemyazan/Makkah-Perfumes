@@ -53,6 +53,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The dev-mode indicator sits in the bottom-inline-start corner — exactly
+  // where the fixed accessibility button lives — and overlaps it during
+  // development. It has no presence in production; turning it off keeps the
+  // corner clear for the real control.
+  devIndicators: false,
+
   images: {
     // The site serves only local assets; no remote patterns are allowed.
     formats: ['image/avif', 'image/webp'],

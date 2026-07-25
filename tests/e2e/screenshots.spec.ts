@@ -133,6 +133,58 @@ test.describe('storefront screenshots', () => {
       fullPage: true,
     });
   });
+
+  test('capture featured collection', async ({ page }, testInfo) => {
+    const suffix = testInfo.project.name;
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await settle(page);
+    await freezeAnimation(page);
+    await page.locator('#featured-heading').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: `${OUT}/featured-collection-${suffix}.png` });
+  });
+
+  test('capture accessibility statement and panel', async ({ page }, testInfo) => {
+    const suffix = testInfo.project.name;
+
+    await page.goto('/accessibility');
+    await settle(page);
+    await page.screenshot({ path: `${OUT}/accessibility-statement-${suffix}.png`, fullPage: true });
+
+    // Open the accessibility panel over the homepage and capture it.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await settle(page);
+    await freezeAnimation(page);
+    await page.getByRole('button', { name: 'פתיחת תפריט נגישות' }).click();
+    await expect(page.getByRole('dialog', { name: 'אפשרויות נגישות' })).toBeVisible();
+    await page.screenshot({ path: `${OUT}/accessibility-panel-${suffix}.png` });
+
+    // Turn on high contrast, close the panel, and capture the page.
+    await page.getByRole('button', { name: 'ניגודיות גבוהה' }).click();
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: `${OUT}/high-contrast-${suffix}.png` });
+  });
+});
+
+/**
+ * Account dashboard — captured signed IN.
+ *
+ * This describe deliberately does NOT reset storageState, so under the
+ * *-admin projects it inherits the authenticated session from the setup
+ * project. The admin is a normal user, so /account renders their real
+ * (currently empty) dashboard — no data is invented.
+ */
+test.describe('account screenshots', () => {
+  test('capture account dashboard', async ({ page }, testInfo) => {
+    const suffix = testInfo.project.name;
+    await page.goto('/account');
+    await settle(page);
+    await expect(page.getByRole('heading', { level: 1, name: 'החשבון שלי' })).toBeVisible();
+    await page.screenshot({ path: `${OUT}/account-${suffix}.png`, fullPage: true });
+  });
 });
 
 test.describe('admin screenshots', () => {
