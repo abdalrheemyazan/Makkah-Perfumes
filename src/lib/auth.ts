@@ -150,6 +150,7 @@ export const CAPABILITIES = {
   'orders.write': ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'],
   'orders.read': ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER', 'SUPPORT_AGENT'],
   'customers.read': ['SUPER_ADMIN', 'ADMIN', 'SUPPORT_AGENT'],
+  'messages.read': ['SUPER_ADMIN', 'ADMIN', 'SUPPORT_AGENT'],
   'content.write': ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'],
   'coupons.write': ['SUPER_ADMIN', 'ADMIN'],
   'reviews.moderate': ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'],

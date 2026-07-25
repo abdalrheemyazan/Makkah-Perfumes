@@ -165,6 +165,7 @@ model User {
   reviews        Review[]
   auditLogs      AuditLog[]
   passwordResets PasswordResetToken[]
+  contactMessages ContactMessage[]
 
   @@index([createdAt])
 }
@@ -819,6 +820,32 @@ model SiteSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  RESOLVED
+}
+
+/// פניות מטופס "יצירת קשר". נשמרות לתיבת הפניות של הניהול.
+model ContactMessage {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  adminNote String?
+  /// מקושר לחשבון הלקוח אם הפנייה נשלחה בזמן התחברות.
+  userId    String?
+  user      User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([status, createdAt])
 }
 
 model AuditLog {

@@ -168,3 +168,12 @@ export const ContentBlockKind = {
 } as const
 
 export type ContentBlockKind = (typeof ContentBlockKind)[keyof typeof ContentBlockKind]
+
+
+export const ContactMessageStatus = {
+  NEW: 'NEW',
+  READ: 'READ',
+  RESOLVED: 'RESOLVED'
+} as const
+
+export type ContactMessageStatus = (typeof ContactMessageStatus)[keyof typeof ContactMessageStatus]

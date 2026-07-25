@@ -88,6 +88,7 @@ export const ModelName = {
   ContentBlock: 'ContentBlock',
   NewsletterSubscriber: 'NewsletterSubscriber',
   SiteSetting: 'SiteSetting',
+  ContactMessage: 'ContactMessage',
   AuditLog: 'AuditLog'
 } as const
 
@@ -643,6 +644,24 @@ export const SiteSettingScalarFieldEnum = {
 } as const
 
 export type SiteSettingScalarFieldEnum = (typeof SiteSettingScalarFieldEnum)[keyof typeof SiteSettingScalarFieldEnum]
+
+
+export const ContactMessageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  subject: 'subject',
+  message: 'message',
+  status: 'status',
+  adminNote: 'adminNote',
+  userId: 'userId',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {

@@ -96,6 +96,7 @@ export const contactSchema = z.object({
   name: nameSchema,
   email: emailSchema,
   phone: phoneSchema.optional().or(z.literal('')),
+  subject: z.string().trim().min(2, 'יש להזין נושא').max(120, 'הנושא ארוך מדי'),
   message: z.string().trim().min(10, 'ההודעה קצרה מדי').max(2000, 'ההודעה ארוכה מדי'),
 });
 

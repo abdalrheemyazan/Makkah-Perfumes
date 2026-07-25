@@ -220,5 +220,13 @@ test.describe('admin screenshots', () => {
     await page.goto('/admin/content');
     await settle(page);
     await page.screenshot({ path: `${OUT}/admin-content-${suffix}.png` });
+
+    await page.goto('/admin/settings');
+    await settle(page);
+    await page.screenshot({ path: `${OUT}/admin-settings-${suffix}.png`, fullPage: true });
+
+    await page.goto('/admin/messages');
+    await settle(page);
+    await page.screenshot({ path: `${OUT}/admin-messages-${suffix}.png`, fullPage: true });
   });
 });

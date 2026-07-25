@@ -29,16 +29,19 @@ const heebo = Heebo({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.nameHe} — בשמי יוקרה, לבונה וקטורת`,
-    template: `%s | ${SITE.nameHe}`,
+    // Tab format per brand: "<Hebrew page> | Makkah Perfumes".
+    default: `בית | ${SITE.nameEn}`,
+    template: `%s | ${SITE.nameEn}`,
   },
   description: SITE.descriptionHe,
+  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'he_IL',
-    siteName: SITE.nameHe,
+    siteName: SITE.nameEn,
     title: `${SITE.nameHe} — בשמי יוקרה, לבונה וקטורת`,
     description: SITE.descriptionHe,
+    images: ['/generated/social/og-home.jpg'],
   },
   robots: { index: true, follow: true },
 };
@@ -60,16 +63,19 @@ export default function RootLayout({
       dir="rtl"
       className={`${heebo.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-ink text-ivory">
-        {/* Applies persisted accessibility preferences before first paint, so a
-            returning visitor never sees a flash of the default styling. Mirrors
-            AccessibilitySettings' own class/font-size logic. */}
+      <head>
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html:
               "(function(){try{var s=JSON.parse(localStorage.getItem('makkah-a11y')||'{}');var e=document.documentElement;if(s.contrast)e.classList.add('a11y-contrast');if(s.links)e.classList.add('a11y-links');if(s.stopMotion)e.classList.add('a11y-stop-motion');if(s.readable)e.classList.add('a11y-readable');if(s.fontScale&&s.fontScale!==100)e.style.fontSize=s.fontScale+'%';}catch(_){}})();",
           }}
         />
+      </head>
+      <body className="flex min-h-full flex-col bg-ink text-ivory">
+        {/* Applies persisted accessibility preferences before first paint, so a
+            returning visitor never sees a flash of the default styling. Mirrors
+            AccessibilitySettings' own class/font-size logic. */}
         {children}
       </body>
     </html>

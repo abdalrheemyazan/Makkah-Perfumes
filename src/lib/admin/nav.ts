@@ -39,6 +39,7 @@ export const ADMIN_NAV: readonly AdminNavGroup[] = [
     items: [
       { href: '/admin/orders', labelHe: 'הזמנות', capability: 'orders.read' },
       { href: '/admin/customers', labelHe: 'לקוחות', capability: 'customers.read' },
+      { href: '/admin/messages', labelHe: 'פניות', capability: 'messages.read' },
       { href: '/admin/coupons', labelHe: 'קופונים', capability: 'coupons.write' },
     ],
   },

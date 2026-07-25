@@ -5,11 +5,13 @@ import { ProductCard } from '@/components/product/product-card';
 import { ShopFilterPanel } from '@/components/shop/filter-panel';
 import { ActiveFilterChips } from '@/components/shop/active-filters';
 import { SortSelect } from '@/components/shop/sort-select';
+import { PageIdentity } from '@/components/layout/page-identity';
 import { SORT_OPTIONS } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'בשמים',
   description: 'כל הבשמים, הלבונה והקטורת של מכה פרפיומס.',
+  alternates: { canonical: '/shop' },
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -24,36 +26,25 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
   const to = Math.min(result.page * PAGE_SIZE, result.total);
 
   return (
-    <div className="container-editorial pt-32 pb-24">
-      <nav aria-label="מסלול ניווט" className="text-xs text-muted">
-        <ol className="flex items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-ivory">
-              בית
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page" className="text-cream">
-            בשמים
-          </li>
-        </ol>
-      </nav>
+    <>
+      <PageIdentity
+        titleHe="הבשמים שלנו"
+        breadcrumb={[{ labelHe: 'בית', href: '/' }, { labelHe: 'בשמים' }]}
+        descriptionHe="הקולקציה המלאה של בשמי היוקרה, הלבונה והקטורת."
+      />
+      <div className="container-editorial pt-10 pb-24">
+      <p className="text-sm text-muted">
+        {result.total > 0 ? (
+          <>
+            מציג <span className="ltr-nums">{from}</span>–<span className="ltr-nums">{to}</span>{' '}
+            מתוך <span className="ltr-nums">{result.total}</span> מוצרים
+          </>
+        ) : (
+          'לא נמצאו מוצרים'
+        )}
+      </p>
 
-      <header className="mt-6">
-        <h1 className="font-serif text-4xl text-ivory sm:text-5xl">בשמים</h1>
-        <p className="mt-3 text-sm text-muted">
-          {result.total > 0 ? (
-            <>
-              מציג <span className="ltr-nums">{from}</span>–<span className="ltr-nums">{to}</span>{' '}
-              מתוך <span className="ltr-nums">{result.total}</span> מוצרים
-            </>
-          ) : (
-            'לא נמצאו מוצרים'
-          )}
-        </p>
-      </header>
-
-      <div className="mt-10 grid gap-10 lg:grid-cols-[16rem_1fr]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[16rem_1fr]">
         <ShopFilterPanel facets={facets} filters={filters} />
 
         <div>
@@ -88,7 +79,8 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

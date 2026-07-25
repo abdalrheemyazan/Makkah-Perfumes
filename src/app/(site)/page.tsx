@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { db } from '@/lib/db';
@@ -8,6 +9,8 @@ import { ScrollCue } from '@/components/home/scroll-cue';
 import { CinematicHero } from '@/components/home/cinematic-hero';
 import { StorySequence, type StoryChapter } from '@/components/home/story-sequence';
 import { FragranceDiscovery } from '@/components/home/fragrance-discovery';
+
+export const metadata: Metadata = { title: 'בית', alternates: { canonical: '/' } };
 
 /**
  * Homepage.

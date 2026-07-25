@@ -2,10 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { db } from '@/lib/db';
+import { PageIdentity } from '@/components/layout/page-identity';
+import { ButtonLink } from '@/components/ui/button';
 
 export const metadata: Metadata = {
   title: 'קולקציות',
   description: 'הקולקציות של מכה פרפיומס, מסודרות לפי שפת העיצוב של הבקבוק.',
+  alternates: { canonical: '/collections' },
 };
 
 export default async function CollectionsPage() {
@@ -26,16 +29,25 @@ export default async function CollectionsPage() {
   });
 
   return (
-    <div className="container-editorial pt-32 pb-24">
-      <h1 className="font-serif text-4xl text-ivory sm:text-5xl">קולקציות</h1>
-      <p className="mt-3 max-w-xl text-sm text-muted">
-        הקולקציות מקובצות לפי שפת העיצוב של הבקבוק — כפי שהיא נראית בפועל על המוצר.
-      </p>
-
+    <>
+      <PageIdentity
+        titleHe="הקולקציות שלנו"
+        breadcrumb={[{ labelHe: 'בית', href: '/' }, { labelHe: 'קולקציות' }]}
+        descriptionHe="הקולקציות מקובצות לפי שפת העיצוב של הבקבוק — כפי שהיא נראית בפועל על המוצר."
+      />
+      <div className="container-editorial pt-10 pb-24">
       {collections.length === 0 ? (
-        <p className="mt-10 text-muted">טרם פורסמו קולקציות.</p>
+        <div className="rounded-lg border border-gold/15 bg-charcoal p-10 text-center">
+          <p className="text-xl font-semibold text-ivory">טרם פורסמו קולקציות</p>
+          <p className="mt-2 text-sm text-muted">
+            הקולקציות יופיעו כאן עם פרסומן. בינתיים אפשר לעיין בכל הבשמים.
+          </p>
+          <div className="mt-6">
+            <ButtonLink href="/shop">לכל הבשמים</ButtonLink>
+          </div>
+        </div>
       ) : (
-        <ul className="mt-12 grid gap-8 md:grid-cols-3">
+        <ul className="grid gap-8 md:grid-cols-3">
           {collections.map((collection) => {
             const image = collection.products[0]?.product.images[0];
             return (
@@ -76,6 +88,7 @@ export default async function CollectionsPage() {
           })}
         </ul>
       )}
-    </div>
+      </div>
+    </>
   );
 }

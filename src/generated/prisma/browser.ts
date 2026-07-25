@@ -203,6 +203,11 @@ export type NewsletterSubscriber = Prisma.NewsletterSubscriberModel
  */
 export type SiteSetting = Prisma.SiteSettingModel
 /**
+ * Model ContactMessage
+ * פניות מטופס "יצירת קשר". נשמרות לתיבת הפניות של הניהול.
+ */
+export type ContactMessage = Prisma.ContactMessageModel
+/**
  * Model AuditLog
  * 
  */

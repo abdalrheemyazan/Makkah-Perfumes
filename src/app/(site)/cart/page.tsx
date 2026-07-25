@@ -6,35 +6,42 @@ import { formatPrice } from '@/lib/commerce/money';
 import { ButtonLink } from '@/components/ui/button';
 import { CartQuantityControl, RemoveCartItem } from '@/components/cart/cart-controls';
 import { CouponForm } from '@/components/cart/coupon-form';
+import { PageIdentity } from '@/components/layout/page-identity';
 
-export const metadata: Metadata = { title: 'עגלת הקניות' };
+export const metadata: Metadata = { title: 'עגלת הקניות', robots: { index: false } };
+
+const CART_CRUMB = [{ labelHe: 'בית', href: '/' }, { labelHe: 'עגלת הקניות' }];
 
 export default async function CartPage() {
   const cart = await readCart();
 
   if (cart.lines.length === 0) {
     return (
-      <div className="container-editorial pt-32 pb-24">
-        <h1 className="font-serif text-4xl text-ivory">עגלת הקניות</h1>
-        <div className="mt-10 rounded-sm border border-gold/15 bg-charcoal p-12 text-center">
-          <p className="font-serif text-2xl text-ivory">העגלה ריקה</p>
-          <p className="mt-3 text-sm text-muted">עדיין לא הוספתם מוצרים לעגלה.</p>
-          <div className="mt-8">
-            <ButtonLink href="/shop" size="lg">
-              למעבר לחנות
-            </ButtonLink>
+      <>
+        <PageIdentity titleHe="עגלת הקניות" breadcrumb={CART_CRUMB} />
+        <div className="container-editorial pt-10 pb-24">
+          <div className="rounded-sm border border-gold/15 bg-charcoal p-12 text-center">
+            <p className="text-2xl font-semibold text-ivory">העגלה ריקה</p>
+            <p className="mt-3 text-sm text-muted">עדיין לא הוספתם מוצרים לעגלה.</p>
+            <div className="mt-8">
+              <ButtonLink href="/shop" size="lg">
+                למעבר לחנות
+              </ButtonLink>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="container-editorial pt-32 pb-24">
-      <h1 className="font-serif text-4xl text-ivory">עגלת הקניות</h1>
-      <p className="mt-2 text-sm text-muted">
-        <span className="ltr-nums">{cart.itemCount}</span> פריטים
-      </p>
+    <>
+      <PageIdentity
+        titleHe="עגלת הקניות"
+        breadcrumb={CART_CRUMB}
+        descriptionHe={`${cart.itemCount} פריטים בעגלה`}
+      />
+      <div className="container-editorial pt-10 pb-24">
 
       {cart.hasStockProblem && (
         <p role="alert" className="mt-6 rounded-sm border border-danger/40 bg-danger/10 p-4 text-sm text-danger">
@@ -160,7 +167,8 @@ export default async function CartPage() {
           </div>
         </aside>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

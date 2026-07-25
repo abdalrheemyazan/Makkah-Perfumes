@@ -247,6 +247,7 @@ export type UserWhereInput = {
   reviews?: Prisma.ReviewListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   passwordResets?: Prisma.PasswordResetTokenListRelationFilter
+  contactMessages?: Prisma.ContactMessageListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -271,6 +272,7 @@ export type UserOrderByWithRelationInput = {
   reviews?: Prisma.ReviewOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   passwordResets?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
+  contactMessages?: Prisma.ContactMessageOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -298,6 +300,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   reviews?: Prisma.ReviewListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   passwordResets?: Prisma.PasswordResetTokenListRelationFilter
+  contactMessages?: Prisma.ContactMessageListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -358,6 +361,7 @@ export type UserCreateInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -382,6 +386,7 @@ export type UserUncheckedCreateInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -406,6 +411,7 @@ export type UserUpdateInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -430,6 +436,7 @@ export type UserUncheckedUpdateInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -672,6 +679,22 @@ export type UserUpdateOneWithoutReviewsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReviewsInput, Prisma.UserUpdateWithoutReviewsInput>, Prisma.UserUncheckedUpdateWithoutReviewsInput>
 }
 
+export type UserCreateNestedOneWithoutContactMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutContactMessagesInput, Prisma.UserUncheckedCreateWithoutContactMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutContactMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutContactMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutContactMessagesInput, Prisma.UserUncheckedCreateWithoutContactMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutContactMessagesInput
+  upsert?: Prisma.UserUpsertWithoutContactMessagesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutContactMessagesInput, Prisma.UserUpdateWithoutContactMessagesInput>, Prisma.UserUncheckedUpdateWithoutContactMessagesInput>
+}
+
 export type UserCreateNestedOneWithoutAuditLogsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
@@ -709,6 +732,7 @@ export type UserCreateWithoutRolesInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -732,6 +756,7 @@ export type UserUncheckedCreateWithoutRolesInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -771,6 +796,7 @@ export type UserUpdateWithoutRolesInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -794,6 +820,7 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -817,6 +844,7 @@ export type UserCreateWithoutSessionsInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -840,6 +868,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -879,6 +908,7 @@ export type UserUpdateWithoutSessionsInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -902,6 +932,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetsInput = {
@@ -925,6 +956,7 @@ export type UserCreateWithoutPasswordResetsInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetsInput = {
@@ -948,6 +980,7 @@ export type UserUncheckedCreateWithoutPasswordResetsInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetsInput = {
@@ -987,6 +1020,7 @@ export type UserUpdateWithoutPasswordResetsInput = {
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetsInput = {
@@ -1010,6 +1044,7 @@ export type UserUncheckedUpdateWithoutPasswordResetsInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAddressesInput = {
@@ -1033,6 +1068,7 @@ export type UserCreateWithoutAddressesInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAddressesInput = {
@@ -1056,6 +1092,7 @@ export type UserUncheckedCreateWithoutAddressesInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAddressesInput = {
@@ -1095,6 +1132,7 @@ export type UserUpdateWithoutAddressesInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAddressesInput = {
@@ -1118,6 +1156,7 @@ export type UserUncheckedUpdateWithoutAddressesInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCartsInput = {
@@ -1141,6 +1180,7 @@ export type UserCreateWithoutCartsInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCartsInput = {
@@ -1164,6 +1204,7 @@ export type UserUncheckedCreateWithoutCartsInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCartsInput = {
@@ -1203,6 +1244,7 @@ export type UserUpdateWithoutCartsInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCartsInput = {
@@ -1226,6 +1268,7 @@ export type UserUncheckedUpdateWithoutCartsInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWishlistInput = {
@@ -1249,6 +1292,7 @@ export type UserCreateWithoutWishlistInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWishlistInput = {
@@ -1272,6 +1316,7 @@ export type UserUncheckedCreateWithoutWishlistInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWishlistInput = {
@@ -1311,6 +1356,7 @@ export type UserUpdateWithoutWishlistInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWishlistInput = {
@@ -1334,6 +1380,7 @@ export type UserUncheckedUpdateWithoutWishlistInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOrdersInput = {
@@ -1357,6 +1404,7 @@ export type UserCreateWithoutOrdersInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrdersInput = {
@@ -1380,6 +1428,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrdersInput = {
@@ -1419,6 +1468,7 @@ export type UserUpdateWithoutOrdersInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -1442,6 +1492,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReviewsInput = {
@@ -1465,6 +1516,7 @@ export type UserCreateWithoutReviewsInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewsInput = {
@@ -1488,6 +1540,7 @@ export type UserUncheckedCreateWithoutReviewsInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewsInput = {
@@ -1527,6 +1580,7 @@ export type UserUpdateWithoutReviewsInput = {
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsInput = {
@@ -1548,6 +1602,119 @@ export type UserUncheckedUpdateWithoutReviewsInput = {
   carts?: Prisma.CartUncheckedUpdateManyWithoutUserNestedInput
   wishlist?: Prisma.WishlistUncheckedUpdateOneWithoutUserNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutContactMessagesInput = {
+  id?: string
+  email: string
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  acceptsMarketing?: boolean
+  isActive?: boolean
+  deletionRequestedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutUserInput
+  carts?: Prisma.CartCreateNestedManyWithoutUserInput
+  wishlist?: Prisma.WishlistCreateNestedOneWithoutUserInput
+  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutContactMessagesInput = {
+  id?: string
+  email: string
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  acceptsMarketing?: boolean
+  isActive?: boolean
+  deletionRequestedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutUserInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutUserInput
+  wishlist?: Prisma.WishlistUncheckedCreateNestedOneWithoutUserInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutContactMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutContactMessagesInput, Prisma.UserUncheckedCreateWithoutContactMessagesInput>
+}
+
+export type UserUpsertWithoutContactMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutContactMessagesInput, Prisma.UserUncheckedUpdateWithoutContactMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutContactMessagesInput, Prisma.UserUncheckedCreateWithoutContactMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutContactMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutContactMessagesInput, Prisma.UserUncheckedUpdateWithoutContactMessagesInput>
+}
+
+export type UserUpdateWithoutContactMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptsMarketing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutUserNestedInput
+  carts?: Prisma.CartUpdateManyWithoutUserNestedInput
+  wishlist?: Prisma.WishlistUpdateOneWithoutUserNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutContactMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptsMarketing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutUserNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutUserNestedInput
+  wishlist?: Prisma.WishlistUncheckedUpdateOneWithoutUserNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1573,6 +1740,7 @@ export type UserCreateWithoutAuditLogsInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1596,6 +1764,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1635,6 +1804,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1658,6 +1828,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1674,6 +1845,7 @@ export type UserCountOutputType = {
   reviews: number
   auditLogs: number
   passwordResets: number
+  contactMessages: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1685,6 +1857,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   reviews?: boolean | UserCountOutputTypeCountReviewsArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   passwordResets?: boolean | UserCountOutputTypeCountPasswordResetsArgs
+  contactMessages?: boolean | UserCountOutputTypeCountContactMessagesArgs
 }
 
 /**
@@ -1753,6 +1926,13 @@ export type UserCountOutputTypeCountPasswordResetsArgs<ExtArgs extends runtime.T
   where?: Prisma.PasswordResetTokenWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountContactMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContactMessageWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1776,6 +1956,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   reviews?: boolean | Prisma.User$reviewsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
+  contactMessages?: boolean | Prisma.User$contactMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1835,6 +2016,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   reviews?: boolean | Prisma.User$reviewsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
+  contactMessages?: boolean | Prisma.User$contactMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1852,6 +2034,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     reviews: Prisma.$ReviewPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     passwordResets: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
+    contactMessages: Prisma.$ContactMessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2269,6 +2452,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   reviews<T extends Prisma.User$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResets<T extends Prisma.User$passwordResetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  contactMessages<T extends Prisma.User$contactMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$contactMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContactMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2911,6 +3095,30 @@ export type User$passwordResetsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
+}
+
+/**
+ * User.contactMessages
+ */
+export type User$contactMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContactMessage
+   */
+  select?: Prisma.ContactMessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContactMessage
+   */
+  omit?: Prisma.ContactMessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContactMessageInclude<ExtArgs> | null
+  where?: Prisma.ContactMessageWhereInput
+  orderBy?: Prisma.ContactMessageOrderByWithRelationInput | Prisma.ContactMessageOrderByWithRelationInput[]
+  cursor?: Prisma.ContactMessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContactMessageScalarFieldEnum | Prisma.ContactMessageScalarFieldEnum[]
 }
 
 /**

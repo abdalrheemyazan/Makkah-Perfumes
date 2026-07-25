@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { db } from '@/lib/db';
 import { ButtonLink } from '@/components/ui/button';
+import { PageIdentity } from '@/components/layout/page-identity';
 
 export const metadata: Metadata = {
   title: 'סניפים',
   description: 'רשימת הסניפים של מכה פרפיומס.',
+  alternates: { canonical: '/stores' },
 };
 
 export default async function StoresPage() {
@@ -14,11 +16,14 @@ export default async function StoresPage() {
   });
 
   return (
-    <div className="container-editorial pt-32 pb-24">
-      <h1 className="font-serif text-4xl text-ivory sm:text-5xl">סניפים</h1>
-
+    <>
+      <PageIdentity
+        titleHe="הסניפים שלנו"
+        breadcrumb={[{ labelHe: 'בית', href: '/' }, { labelHe: 'סניפים' }]}
+      />
+      <div className="container-editorial pt-10 pb-24">
       {branches.length === 0 ? (
-        <div className="mt-8 max-w-2xl">
+        <div className="max-w-2xl">
           <p className="text-base leading-relaxed text-cream/85">
             פרטי הסניפים יתעדכנו בקרוב.
           </p>
@@ -76,6 +81,7 @@ export default async function StoresPage() {
           ))}
         </ul>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PageIdentity } from '@/components/layout/page-identity';
+import { ContactForm } from '@/components/contact/contact-form';
 
-export const metadata: Metadata = { title: 'יצירת קשר' };
+export const metadata: Metadata = {
+  title: 'יצירת קשר',
+  description: 'צרו קשר עם מכה פרפיומס — שאלות על מוצרים, הזמנות ומשלוחים.',
+  alternates: { canonical: '/contact' },
+};
 
 export default function Page() {
   return (
@@ -12,14 +18,40 @@ export default function Page() {
         descriptionHe="נשמח לענות על שאלות בנוגע למוצרים, להזמנות ולמשלוחים."
       />
       <div className="container-editorial pt-10 pb-24">
-      <div className="mx-auto max-w-2xl">
-        <div role="note" className="rounded-sm border border-warning/40 bg-warning/10 p-5 text-sm leading-relaxed text-warning">
-          <p className="font-medium">פרטי יצירת קשר טרם התקבלו</p>
-          <p className="mt-1.5">
-            טלפון, כתובת דוא״ל ושעות מענה של שירות הלקוחות יתעדכנו כאן עם קבלתם.
-          </p>
+        <div className="mx-auto grid max-w-4xl gap-10 lg:grid-cols-[1fr_18rem]">
+          <div>
+            <h2 className="text-xl font-semibold text-ivory">שליחת פנייה</h2>
+            <p className="mt-2 text-sm text-cream/75">
+              מלאו את הטופס ונחזור אליכם בהקדם. שדות המסומנים נדרשים למענה.
+            </p>
+            <div className="mt-6">
+              <ContactForm />
+            </div>
+          </div>
+
+          <aside className="flex flex-col gap-4">
+            <div
+              role="note"
+              className="rounded-lg border border-warning/40 bg-warning/10 p-5 text-sm leading-relaxed text-warning"
+            >
+              <p className="font-medium">פרטי יצירת קשר טרם התקבלו</p>
+              <p className="mt-1.5">
+                טלפון, כתובת דוא״ל ושעות מענה יתעדכנו כאן עם קבלתם. בינתיים אפשר
+                לפנות דרך הטופס.
+              </p>
+            </div>
+            <div className="rounded-lg border border-gold/15 bg-charcoal/60 p-5 text-sm leading-relaxed text-cream/80">
+              <p className="font-medium text-ivory">נגישות</p>
+              <p className="mt-1.5">
+                האתר תומך בניווט מקלדת ובתפריט נגישות ייעודי. לפרטים ראו{' '}
+                <Link href="/accessibility" className="text-gold underline underline-offset-2 hover:text-cream">
+                  הצהרת נגישות
+                </Link>
+                .
+              </p>
+            </div>
+          </aside>
         </div>
-      </div>
       </div>
     </>
   );

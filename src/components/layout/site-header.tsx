@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
+import { Heart, LayoutDashboard, Menu, Search, ShieldCheck, ShoppingBag, User, X } from 'lucide-react';
 import { MAIN_NAV, SITE } from '@/lib/site';
 import { useScrolledPast } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
@@ -27,7 +27,15 @@ import { cn } from '@/lib/utils';
  * keeps the links legible against the artwork. Past the fold it settles into a
  * blurred, bordered bar and loses a little height.
  */
-export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wishlistCount: number }) {
+export function SiteHeader({
+  cartCount,
+  wishlistCount,
+  adminInfo,
+}: {
+  cartCount: number;
+  wishlistCount: number;
+  adminInfo?: { isAdmin: boolean; isSuperAdmin: boolean } | null;
+}) {
   const pathname = usePathname();
   const scrolled = useScrolledPast(24);
   // The drawer records which route it was opened on, so a route change closes
@@ -158,6 +166,11 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
             <IconLink href="/account" label="החשבון שלי">
               <User className="h-5 w-5" aria-hidden="true" />
             </IconLink>
+            {adminInfo?.isAdmin && (
+              <IconLink href="/admin" label="ניהול האתר">
+                <ShieldCheck className="h-5 w-5 text-gold" aria-hidden="true" />
+              </IconLink>
+            )}
             <IconLink href="/cart" label="עגלת הקניות" badge={cartCount}>
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </IconLink>
@@ -219,6 +232,17 @@ export function SiteHeader({ cartCount, wishlistCount }: { cartCount: number; wi
                     </Link>
                   </li>
                 ))}
+                {adminInfo?.isAdmin && (
+                  <li className="mt-2 border-t border-gold/20 pt-3">
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-2 rounded-sm py-2 text-base font-semibold text-gold hover:text-cream"
+                    >
+                      <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
+                      ניהול האתר
+                    </Link>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>

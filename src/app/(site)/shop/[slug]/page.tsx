@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!product) return { title: 'המוצר לא נמצא' };
 
   return {
-    title: product.seoTitleHe ?? `${product.nameHe} — ${product.nameEn}`,
+    title: product.nameHe,
     description: product.seoDescriptionHe ?? product.descriptionHe ?? SITE.descriptionHe,
     alternates: { canonical: `${SITE.url}/shop/${slug}` },
   };

@@ -8,7 +8,7 @@
 
 export const SITE = {
   nameHe: 'מכה פרפיומס',
-  nameEn: 'MAKKAH PERFUMES',
+  nameEn: 'Makkah Perfumes',
   /** Printed on the official logo and product labels. Quoted, not asserted by us. */
   tagline: 'SINCE 1976',
   descriptionHe:

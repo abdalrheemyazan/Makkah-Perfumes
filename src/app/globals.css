@@ -56,10 +56,19 @@
     scroll-behavior: smooth;
   }
 
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
+  }
+
+  /* Honour the accessibility panel's "עצירת אנימציות" for smooth scrolling too. */
+  :root.a11y-stop-motion {
+    scroll-behavior: auto;
   }
 
   body {
@@ -181,6 +190,46 @@
   50% {
     transform: translate3d(-3%, 1.5%, 0);
     opacity: 0.44;
+  }
+}
+
+/* Route transition: a short, subtle fade + rise on navigation. */
+@keyframes pageEnter {
+  from {
+    opacity: 0.5;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .page-enter {
+    animation: pageEnter 240ms var(--ease-reveal);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+}
+
+:root.a11y-stop-motion .page-enter {
+  animation: none;
+}
+
+/* Fragrance consultation: gentle step-change fade. */
+@keyframes fadeStep {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

@@ -1,3 +1,4 @@
+import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@/generated/prisma/client';
 
@@ -19,8 +20,9 @@ function createClient() {
     );
   }
 
+  const pool = new Pool({ connectionString });
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    adapter: new PrismaPg(pool),
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   });
 }

@@ -23,6 +23,16 @@ export const NEWSLETTER_INITIAL: NewsletterState = {
   errors: {},
 };
 
+// --- Contact --------------------------------------------------------------
+
+export type ContactState = {
+  status: FormStatus;
+  messageHe: string;
+  errors: Record<string, string>;
+};
+
+export const CONTACT_INITIAL: ContactState = { status: 'idle', messageHe: '', errors: {} };
+
 // --- Cart -----------------------------------------------------------------
 
 export type CartActionState = {

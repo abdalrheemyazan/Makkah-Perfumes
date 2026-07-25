@@ -434,6 +434,7 @@ export const ModelName = {
   ContentBlock: 'ContentBlock',
   NewsletterSubscriber: 'NewsletterSubscriber',
   SiteSetting: 'SiteSetting',
+  ContactMessage: 'ContactMessage',
   AuditLog: 'AuditLog'
 } as const
 
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "userRole" | "session" | "passwordResetToken" | "address" | "product" | "productRelation" | "productVariant" | "productImage" | "productMedia" | "productModel" | "category" | "collection" | "productCollection" | "fragranceFamily" | "fragranceNote" | "productFragranceNote" | "inventoryItem" | "inventoryMovement" | "cart" | "cartItem" | "wishlist" | "wishlistItem" | "order" | "orderItem" | "orderEvent" | "payment" | "shipment" | "coupon" | "couponRedemption" | "review" | "branch" | "journalPost" | "contentBlock" | "newsletterSubscriber" | "siteSetting" | "auditLog"
+    modelProps: "user" | "role" | "userRole" | "session" | "passwordResetToken" | "address" | "product" | "productRelation" | "productVariant" | "productImage" | "productMedia" | "productModel" | "category" | "collection" | "productCollection" | "fragranceFamily" | "fragranceNote" | "productFragranceNote" | "inventoryItem" | "inventoryMovement" | "cart" | "cartItem" | "wishlist" | "wishlistItem" | "order" | "orderItem" | "orderEvent" | "payment" | "shipment" | "coupon" | "couponRedemption" | "review" | "branch" | "journalPost" | "contentBlock" | "newsletterSubscriber" | "siteSetting" | "contactMessage" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3192,6 +3193,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ContactMessage: {
+      payload: Prisma.$ContactMessagePayload<ExtArgs>
+      fields: Prisma.ContactMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContactMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContactMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.ContactMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContactMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>
+        }
+        findMany: {
+          args: Prisma.ContactMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>[]
+        }
+        create: {
+          args: Prisma.ContactMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>
+        }
+        createMany: {
+          args: Prisma.ContactMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContactMessageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>[]
+        }
+        delete: {
+          args: Prisma.ContactMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>
+        }
+        update: {
+          args: Prisma.ContactMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.ContactMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContactMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContactMessageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>[]
+        }
+        upsert: {
+          args: Prisma.ContactMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.ContactMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContactMessage>
+        }
+        groupBy: {
+          args: Prisma.ContactMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContactMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContactMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContactMessageCountAggregateOutputType> | number
+        }
+      }
+    }
     AuditLog: {
       payload: Prisma.$AuditLogPayload<ExtArgs>
       fields: Prisma.AuditLogFieldRefs
@@ -3843,6 +3918,24 @@ export const SiteSettingScalarFieldEnum = {
 export type SiteSettingScalarFieldEnum = (typeof SiteSettingScalarFieldEnum)[keyof typeof SiteSettingScalarFieldEnum]
 
 
+export const ContactMessageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  subject: 'subject',
+  message: 'message',
+  status: 'status',
+  adminNote: 'adminNote',
+  userId: 'userId',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum]
+
+
 export const AuditLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -4159,6 +4252,20 @@ export type EnumContentBlockKindFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type ListEnumContentBlockKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentBlockKind[]'>
     
 
+
+/**
+ * Reference to a field of type 'ContactMessageStatus'
+ */
+export type EnumContactMessageStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactMessageStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ContactMessageStatus[]'
+ */
+export type ListEnumContactMessageStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactMessageStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4347,6 +4454,7 @@ export type GlobalOmitConfig = {
   contentBlock?: Prisma.ContentBlockOmit
   newsletterSubscriber?: Prisma.NewsletterSubscriberOmit
   siteSetting?: Prisma.SiteSettingOmit
+  contactMessage?: Prisma.ContactMessageOmit
   auditLog?: Prisma.AuditLogOmit
 }
 

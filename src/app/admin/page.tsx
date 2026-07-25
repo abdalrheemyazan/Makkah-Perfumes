@@ -24,11 +24,19 @@ export default async function AdminDashboard() {
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
 
   const [
     ordersToday,
     revenueAgg,
+    revenueTodayAgg,
+    revenueMonthAgg,
     pendingOrders,
+    unreadMessages,
+    outOfStockCount,
+    draftProductCount,
     lowStock,
     topSellers,
     recentCustomers,
@@ -42,7 +50,18 @@ export default async function AdminDashboard() {
       _sum: { totalAgorot: true },
       _count: true,
     }),
+    db.order.aggregate({
+      where: { status: { in: [...REVENUE_STATUSES] }, placedAt: { gte: startOfToday } },
+      _sum: { totalAgorot: true },
+    }),
+    db.order.aggregate({
+      where: { status: { in: [...REVENUE_STATUSES] }, placedAt: { gte: startOfMonth } },
+      _sum: { totalAgorot: true },
+    }),
     db.order.count({ where: { status: 'PENDING' } }),
+    db.contactMessage.count({ where: { status: 'NEW' } }),
+    db.inventoryItem.count({ where: { quantityOnHand: { lte: 0 } } }),
+    db.product.count({ where: { status: 'DRAFT' } }),
     db.inventoryItem.findMany({
       where: { quantityOnHand: { lte: 5 } },
       include: { variant: { include: { product: true } } },
@@ -74,6 +93,8 @@ export default async function AdminDashboard() {
 
   const revenue = revenueAgg._sum.totalAgorot ?? 0;
   const orderCount = revenueAgg._count;
+  const revenueToday = revenueTodayAgg._sum.totalAgorot ?? 0;
+  const revenueMonth = revenueMonthAgg._sum.totalAgorot ?? 0;
   // Guard the division: an empty shop must show a dash, not NaN.
   const averageOrderValue = orderCount > 0 ? Math.round(revenue / orderCount) : null;
 
@@ -106,8 +127,10 @@ export default async function AdminDashboard() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard labelHe="הזמנות היום" value={String(ordersToday)} />
+          <StatCard labelHe="הכנסות היום" value={formatPrice(revenueToday)} />
+          <StatCard labelHe="הכנסות החודש" value={formatPrice(revenueMonth)} />
           <StatCard
-            labelHe="הכנסות"
+            labelHe="הכנסות (מצטבר)"
             value={formatPrice(revenue)}
             hintHe={`מתוך ${orderCount} הזמנות שאושרו`}
           />
@@ -120,6 +143,22 @@ export default async function AdminDashboard() {
             labelHe="הזמנות ממתינות"
             value={String(pendingOrders)}
             tone={pendingOrders > 0 ? 'warning' : 'default'}
+          />
+          <StatCard
+            labelHe="הודעות חדשות"
+            value={String(unreadMessages)}
+            tone={unreadMessages > 0 ? 'warning' : 'default'}
+            hintHe={unreadMessages > 0 ? 'ממתינות לטיפול' : undefined}
+          />
+          <StatCard
+            labelHe="אזל מהמלאי"
+            value={String(outOfStockCount)}
+            tone={outOfStockCount > 0 ? 'warning' : 'default'}
+          />
+          <StatCard
+            labelHe="מוצרים בטיוטה"
+            value={String(draftProductCount)}
+            hintHe={draftProductCount > 0 ? 'טרם פורסמו' : undefined}
           />
         </div>
       </section>
