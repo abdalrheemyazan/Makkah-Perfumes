@@ -14,7 +14,7 @@
 [build]
   # `postinstall` (package.json) runs `prisma generate` right after install, so
   # the Prisma Client exists before the build compiles.
-  command = "npm run build"
+  command = "npm run db:deploy && npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
