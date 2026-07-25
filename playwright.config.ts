@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -8,10 +9,36 @@ import { defineConfig, devices } from '@playwright/test';
  *   desktop / mobile — storefront specs, signed out
  *   *-admin          — admin specs, reusing the stored session
  *
- * Splitting the admin projects out means the app's real login rate limiter is
- * exercised once rather than fought on every test.
+ * DATABASE ISOLATION: E2E runs against TEST_DATABASE_URL, never the development
+ * database. The guard below aborts the whole run (before the web server starts)
+ * unless a properly isolated test database is configured, and the web server is
+ * launched with DATABASE_URL pointed at it. Run `npm run db:test-setup` once to
+ * create/seed that database.
  */
+const TEST_DB = process.env.TEST_DATABASE_URL;
+(function assertIsolatedTestDb() {
+  if (!TEST_DB) {
+    throw new Error(
+      'E2E aborted: TEST_DATABASE_URL is not set. Run `npm run db:test-setup` and set it in .env.',
+    );
+  }
+  if (TEST_DB === process.env.DATABASE_URL) {
+    throw new Error('E2E aborted: TEST_DATABASE_URL must be different from DATABASE_URL.');
+  }
+  let name = '';
+  try {
+    name = new URL(TEST_DB).pathname.slice(1).split('?')[0];
+  } catch {
+    throw new Error('E2E aborted: TEST_DATABASE_URL is not a valid URL.');
+  }
+  if (!/test/i.test(name)) {
+    throw new Error(`E2E aborted: test database name "${name}" must contain "test".`);
+  }
+})();
+
 export default defineConfig({
+  globalSetup: './tests/e2e/global-setup.ts',
+  globalTeardown: './tests/e2e/global-teardown.ts',
   testDir: './tests/e2e',
   timeout: 60_000,
   expect: { timeout: 10_000 },
@@ -67,7 +94,11 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    // Never reuse a server that might be pointed at the development database —
+    // always start a fresh one bound to the isolated test database.
+    reuseExistingServer: false,
     timeout: 120_000,
+    // Next.js does not override already-set env vars from .env, so this wins.
+    env: { ...process.env, DATABASE_URL: TEST_DB! },
   },
 });

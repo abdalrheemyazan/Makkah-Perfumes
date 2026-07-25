@@ -56,7 +56,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
       <ProductTabs />
       <PageHeader
         titleHe="מוצרים"
-        descriptionHe={`${products.length} מוצרים בקטלוג`}
+        descriptionHe={`${products.length} מוצרים בחנות`}
         action={<AdminButtonLink href="/admin/products/new">מוצר חדש</AdminButtonLink>}
       />
 
@@ -126,7 +126,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
               <Row key={product.id}>
                 <Cell labelHe="מוצר">
                   <span className="flex items-center gap-3">
-                    {image && (
+                    {image ? (
                       <span className="relative hidden h-11 w-11 shrink-0 overflow-hidden rounded-sm border border-gold/15 bg-ink md:block">
                         <Image
                           src={image.url}
@@ -135,6 +135,10 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                           sizes="44px"
                           className="object-contain p-1"
                         />
+                      </span>
+                    ) : (
+                      <span className="hidden h-11 w-11 shrink-0 place-items-center rounded-sm border border-dashed border-gold/25 bg-ink text-center text-[0.55rem] leading-tight text-faint md:grid">
+                        חסרה תמונה
                       </span>
                     )}
                     <span className="min-w-0">

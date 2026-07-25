@@ -12,7 +12,10 @@ import type { SortValue } from '@/lib/site';
  * filter state, which makes every result shareable and back-button friendly.
  */
 
-export const PAGE_SIZE = 12;
+// The full catalogue (13 official products) must fit on a single page — a page
+// size of 12 stranded one product alone on page 2. 24 keeps room to grow while
+// showing everything at once for the current catalogue.
+export const PAGE_SIZE = 24;
 
 export type ShopFilters = {
   query: string | null;
@@ -191,15 +194,19 @@ export async function searchProducts(filters: ShopFilters): Promise<ShopResult> 
     filters.sort === 'price-desc' ||
     filters.sort === 'bestsellers';
 
-  const [rows, total] = await Promise.all([
-    db.product.findMany({
-      where,
-      select: cardSelect,
-      orderBy: buildOrderBy(filters.sort),
-      ...(sortsInMemory ? {} : { skip: (filters.page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
-    }),
-    db.product.count({ where }),
-  ]);
+  // Count first so we can clamp an out-of-range page (e.g. ?page=2 when the
+  // whole catalogue fits on one page) to the last valid page instead of
+  // rendering an empty results grid.
+  const total = await db.product.count({ where });
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(Math.max(1, filters.page), pageCount);
+
+  const rows = await db.product.findMany({
+    where,
+    select: cardSelect,
+    orderBy: buildOrderBy(filters.sort),
+    ...(sortsInMemory ? {} : { skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
+  });
 
   let products = rows.map(toCard).filter((card): card is ProductCard => card !== null);
 
@@ -215,15 +222,15 @@ export async function searchProducts(filters: ShopFilters): Promise<ShopResult> 
   }
 
   if (sortsInMemory) {
-    const start = (filters.page - 1) * PAGE_SIZE;
+    const start = (page - 1) * PAGE_SIZE;
     products = products.slice(start, start + PAGE_SIZE);
   }
 
   return {
     products,
     total,
-    page: filters.page,
-    pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    page,
+    pageCount,
   };
 }
 

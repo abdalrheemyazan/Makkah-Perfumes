@@ -110,7 +110,12 @@ test.describe('admin dashboard', () => {
 
   test('the admin sidebar shows only the store sections', async ({ page }) => {
     await page.goto('/admin');
-    const nav = page.getByRole('navigation', { name: 'ניווט ניהול' }).first();
+    // On mobile the sidebar lives in a drawer; open it so its links are visible.
+    const menuBtn = page.getByRole('button', { name: 'פתיחת תפריט ניהול' });
+    if (await menuBtn.isVisible().catch(() => false)) await menuBtn.click();
+
+    // Scope to whichever admin nav is actually visible (sidebar or drawer).
+    const nav = page.locator('nav[aria-label="ניווט ניהול"]:visible');
     for (const label of ['לוח בקרה', 'מוצרים', 'הזמנות', 'מלאי', 'לקוחות', 'צפייה בחנות']) {
       await expect(nav.getByRole('link', { name: label })).toBeVisible();
     }
@@ -129,9 +134,11 @@ test.describe('admin dashboard', () => {
   });
 
   test('a product can be created and then found in the catalogue', async ({ page }) => {
+    // E2E fixtures carry a clear `E2E-` SKU prefix and are removed by the global
+    // teardown from the isolated test database.
     const stamp = Date.now().toString(36);
     const nameHe = `בושם בדיקה ${stamp}`;
-    const sku = `TEST-${stamp.toUpperCase()}`;
+    const sku = `E2E-${stamp.toUpperCase()}`;
 
     await page.goto('/admin/products/new');
     const form = page.locator('main');
