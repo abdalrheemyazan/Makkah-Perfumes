@@ -4,42 +4,53 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Heart, LayoutDashboard, Menu, Search, ShieldCheck, ShoppingBag, User, X } from 'lucide-react';
+import {
+  ChevronDown,
+  Heart,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  Menu,
+  Package,
+  Search,
+  ShoppingBag,
+  UserRound,
+  X,
+} from 'lucide-react';
 import { MAIN_NAV, SITE } from '@/lib/site';
+import { logout } from '@/app/actions/auth';
 import { useScrolledPast } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 
 /**
  * Site header.
  *
+ * Auth state is rendered from the server (the layout resolves the session and
+ * passes `account`), so a signed-in visitor never sees a flash of "התחברות".
+ *
  * RTL notes:
  *  - The logo is first in DOM order, so in `dir="rtl"` it lands on the right
  *    and the utility icons on the left. No manual flipping is involved.
- *  - The mobile drawer uses `start-0`, which Tailwind maps to
- *    `inset-inline-start` — the right edge in Hebrew, i.e. the near edge.
- *
- * Layout: the bar spans the full viewport and its contents run to a wide
- * 110rem measure, deliberately wider than the 80rem editorial column. A
- * navigation constrained to the text column reads as a floating island rather
- * than a top bar.
- *
- * Over the homepage hero the bar has no fill — just a soft top-down scrim that
- * keeps the links legible against the artwork. Past the fold it settles into a
- * blurred, bordered bar and loses a little height.
+ *  - The mobile drawer uses `start-0` (inset-inline-start → the right edge).
  */
+
+type Account = {
+  isLoggedIn: boolean;
+  displayName: string | null;
+  isAdmin: boolean;
+};
+
 export function SiteHeader({
   cartCount,
   wishlistCount,
-  adminInfo,
+  account,
 }: {
   cartCount: number;
   wishlistCount: number;
-  adminInfo?: { isAdmin: boolean; isSuperAdmin: boolean } | null;
+  account: Account;
 }) {
   const pathname = usePathname();
   const scrolled = useScrolledPast(24);
-  // The drawer records which route it was opened on, so a route change closes
-  // it as derived state rather than through an effect.
   const [openedOnPath, setOpenedOnPath] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -47,12 +58,9 @@ export function SiteHeader({
   const menuOpen = openedOnPath === pathname;
   const closeMenu = () => setOpenedOnPath(null);
 
-  // The homepage hero sits under a transparent header; every other page needs
-  // the solid bar immediately or the nav would be unreadable.
   const overHero = pathname === '/';
   const solid = scrolled || !overHero || menuOpen;
 
-  // Escape closes the drawer and returns focus to the trigger.
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = (event: KeyboardEvent) => {
@@ -87,7 +95,6 @@ export function SiteHeader({
             : 'border-b border-transparent bg-transparent',
         )}
       >
-        {/* Scrim: legibility over the hero without committing to a solid bar. */}
         <div
           aria-hidden="true"
           className={cn(
@@ -106,10 +113,6 @@ export function SiteHeader({
             solid ? 'h-16' : 'h-20 lg:h-24',
           )}
         >
-          {/* Logo — right edge in RTL.
-              The ivory variant is a real cutout (see scripts/build-logo-variants.mjs);
-              the original logo.webp has an opaque white background and cannot be
-              filtered onto a dark surface. */}
           <Link
             href="/"
             className="flex shrink-0 items-center"
@@ -128,7 +131,6 @@ export function SiteHeader({
             />
           </Link>
 
-          {/* Desktop navigation — centred, so the bar reads as one balanced unit */}
           <nav aria-label="ניווט ראשי" className="hidden flex-1 justify-center lg:flex">
             <ul className="flex items-center gap-8 xl:gap-10">
               {MAIN_NAV.map((item) => {
@@ -140,8 +142,6 @@ export function SiteHeader({
                       href={item.href}
                       aria-current={active ? 'page' : undefined}
                       className={cn(
-                        // A hairline that grows from the centre on hover — quieter
-                        // than a colour flash and it never shifts the layout.
                         'relative py-2 text-[0.9rem] tracking-wide whitespace-nowrap transition-colors duration-200',
                         'after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:h-px after:w-0 after:bg-gold after:transition-[width] after:duration-300 hover:after:w-full',
                         active ? 'text-gold after:w-full' : 'text-cream/85 hover:text-ivory',
@@ -163,14 +163,20 @@ export function SiteHeader({
             <IconLink href="/wishlist" label="רשימת משאלות" badge={wishlistCount}>
               <Heart className="h-5 w-5" aria-hidden="true" />
             </IconLink>
-            <IconLink href="/account" label="החשבון שלי">
-              <User className="h-5 w-5" aria-hidden="true" />
-            </IconLink>
-            {adminInfo?.isAdmin && (
-              <IconLink href="/admin" label="ניהול האתר">
-                <ShieldCheck className="h-5 w-5 text-gold" aria-hidden="true" />
-              </IconLink>
+
+            {account.isLoggedIn ? (
+              <AccountMenu displayName={account.displayName} isAdmin={account.isAdmin} />
+            ) : (
+              <Link
+                href="/login"
+                aria-label="התחברות"
+                className="flex h-10 items-center gap-1.5 rounded-sm px-2.5 text-sm text-cream transition-colors hover:text-ivory"
+              >
+                <LogIn className="h-5 w-5" aria-hidden="true" />
+                <span className="hidden sm:inline">התחברות</span>
+              </Link>
             )}
+
             <IconLink href="/cart" label="עגלת הקניות" badge={cartCount}>
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </IconLink>
@@ -190,7 +196,7 @@ export function SiteHeader({
         </div>
       </header>
 
-      {/* Mobile drawer — enters from the inline-start edge, i.e. the right in Hebrew */}
+      {/* Mobile drawer */}
       {menuOpen && (
         <div className="fixed inset-0 z-60 lg:hidden">
           <button
@@ -205,10 +211,10 @@ export function SiteHeader({
             role="dialog"
             aria-modal="true"
             aria-label="תפריט ניווט"
-            className="absolute inset-y-0 start-0 flex w-[min(20rem,85vw)] flex-col border-e border-gold/20 bg-charcoal p-6 shadow-2xl"
+            className="absolute inset-y-0 start-0 flex w-[min(20rem,85vw)] flex-col overflow-y-auto border-e border-gold/20 bg-charcoal p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between">
-              <span className="font-serif text-lg text-ivory">תפריט</span>
+              <span className="text-lg font-semibold text-ivory">תפריט</span>
               <button
                 ref={closeButtonRef}
                 type="button"
@@ -232,23 +238,157 @@ export function SiteHeader({
                     </Link>
                   </li>
                 ))}
-                {adminInfo?.isAdmin && (
-                  <li className="mt-2 border-t border-gold/20 pt-3">
-                    <Link
-                      href="/admin"
-                      className="flex items-center gap-2 rounded-sm py-2 text-base font-semibold text-gold hover:text-cream"
-                    >
-                      <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
-                      ניהול האתר
-                    </Link>
-                  </li>
-                )}
               </ul>
             </nav>
+
+            {/* Account section */}
+            <div className="mt-6 border-t border-gold/15 pt-5">
+              {account.isLoggedIn ? (
+                <>
+                  <p className="text-sm font-semibold text-ivory">
+                    שלום, {account.displayName || 'לקוח יקר'}
+                  </p>
+                  <ul className="mt-3 flex flex-col gap-1">
+                    <li>
+                      <Link href="/account" className="block rounded-sm py-2.5 text-sm text-cream hover:text-gold">
+                        החשבון שלי
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/account/orders" className="block rounded-sm py-2.5 text-sm text-cream hover:text-gold">
+                        ההזמנות שלי
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/wishlist" className="block rounded-sm py-2.5 text-sm text-cream hover:text-gold">
+                        רשימת המשאלות
+                      </Link>
+                    </li>
+                    {account.isAdmin && (
+                      <li>
+                        <Link href="/admin" className="flex items-center gap-2 rounded-sm py-2.5 text-sm font-medium text-gold hover:text-cream">
+                          <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+                          ניהול החנות
+                        </Link>
+                      </li>
+                    )}
+                    <li>
+                      <form action={logout}>
+                        <button type="submit" className="flex w-full items-center gap-2 rounded-sm py-2.5 text-start text-sm text-cream hover:text-danger">
+                          <LogOut className="h-4 w-4" aria-hidden="true" />
+                          התנתקות
+                        </button>
+                      </form>
+                    </li>
+                  </ul>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex h-11 items-center gap-2 rounded-sm bg-gold px-5 text-sm font-medium text-ink"
+                >
+                  <LogIn className="h-4 w-4" aria-hidden="true" />
+                  התחברות
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}
     </>
+  );
+}
+
+/**
+ * Desktop signed-in account menu: a button ("שלום, <name>") that toggles an
+ * accessible dropdown. Escape closes and restores focus to the trigger; a click
+ * outside closes it.
+ */
+function AccountMenu({ displayName, isAdmin }: { displayName: string | null; isAdmin: boolean }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const firstItemRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    const onClick = (event: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    const raf = requestAnimationFrame(() => firstItemRef.current?.focus());
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+      cancelAnimationFrame(raf);
+    };
+  }, [open]);
+
+  const itemClass =
+    'flex items-center gap-2.5 px-4 py-2.5 text-sm text-cream transition-colors hover:bg-stone/60 hover:text-ivory';
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`תפריט חשבון — שלום, ${displayName || 'לקוח יקר'}`}
+        className="flex h-10 items-center gap-1.5 rounded-sm px-2.5 text-sm text-cream transition-colors hover:text-ivory"
+      >
+        <span className="grid h-7 w-7 place-items-center rounded-full border border-gold/40 bg-gold/10 text-gold">
+          <UserRound className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span className="hidden max-w-[8rem] truncate md:inline">
+          שלום, {displayName || 'לקוח יקר'}
+        </span>
+        <ChevronDown className={cn('hidden h-4 w-4 transition-transform md:inline', open && 'rotate-180')} aria-hidden="true" />
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          aria-label="תפריט חשבון"
+          className="absolute end-0 top-[calc(100%+0.5rem)] z-50 w-56 overflow-hidden rounded-lg border border-gold/20 bg-charcoal py-1 shadow-2xl"
+        >
+          <Link ref={firstItemRef} href="/account" role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
+            <UserRound className="h-4 w-4 text-gold" aria-hidden="true" />
+            החשבון שלי
+          </Link>
+          <Link href="/account/orders" role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
+            <Package className="h-4 w-4 text-gold" aria-hidden="true" />
+            ההזמנות שלי
+          </Link>
+          <Link href="/wishlist" role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
+            <Heart className="h-4 w-4 text-gold" aria-hidden="true" />
+            רשימת המשאלות
+          </Link>
+          {isAdmin && (
+            <Link href="/admin" role="menuitem" className={cn(itemClass, 'border-t border-gold/10 font-medium text-gold')} onClick={() => setOpen(false)}>
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              ניהול החנות
+            </Link>
+          )}
+          <form action={logout} className="border-t border-gold/10">
+            <button type="submit" role="menuitem" className={cn(itemClass, 'w-full text-start hover:text-danger')}>
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              התנתקות
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
   );
 }
 

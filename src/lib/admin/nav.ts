@@ -1,12 +1,17 @@
 import type { Capability } from '@/lib/auth';
 
 /**
- * Admin navigation.
+ * Admin navigation — intentionally small.
  *
- * Each entry declares the capability required to see it, so the sidebar shows a
- * Support Agent a different menu than a Super Admin. This is presentation only —
- * every route and every mutation re-checks server-side. Hiding a link is not
- * access control.
+ * The admin manages the STORE, not the whole website. The visible menu is just
+ * the store essentials; website-content tools (media, journal, branches,
+ * newsletter, settings, users, audit log, …) are not surfaced here. Categories
+ * and collections are secondary product tools shown as tabs inside the Products
+ * area, not top-level sections.
+ *
+ * Each item declares the capability required to see it. This is presentation
+ * only — every route and every mutation re-checks server-side. Hiding a link is
+ * never access control.
  */
 
 export type AdminNavItem = {
@@ -15,51 +20,18 @@ export type AdminNavItem = {
   capability: Capability;
 };
 
-export type AdminNavGroup = {
-  titleHe: string;
-  items: readonly AdminNavItem[];
-};
+/** The complete visible sidebar, in order. */
+export const ADMIN_NAV: readonly AdminNavItem[] = [
+  { href: '/admin', labelHe: 'לוח בקרה', capability: 'orders.read' },
+  { href: '/admin/products', labelHe: 'מוצרים', capability: 'products.write' },
+  { href: '/admin/orders', labelHe: 'הזמנות', capability: 'orders.read' },
+  { href: '/admin/inventory', labelHe: 'מלאי', capability: 'inventory.write' },
+  { href: '/admin/customers', labelHe: 'לקוחות', capability: 'customers.read' },
+] as const;
 
-export const ADMIN_NAV: readonly AdminNavGroup[] = [
-  {
-    titleHe: 'סקירה',
-    items: [{ href: '/admin', labelHe: 'לוח בקרה', capability: 'orders.read' }],
-  },
-  {
-    titleHe: 'קטלוג',
-    items: [
-      { href: '/admin/products', labelHe: 'מוצרים', capability: 'products.write' },
-      { href: '/admin/categories', labelHe: 'קטגוריות', capability: 'products.write' },
-      { href: '/admin/collections', labelHe: 'קולקציות', capability: 'products.write' },
-      { href: '/admin/inventory', labelHe: 'מלאי', capability: 'inventory.write' },
-    ],
-  },
-  {
-    titleHe: 'מכירות',
-    items: [
-      { href: '/admin/orders', labelHe: 'הזמנות', capability: 'orders.read' },
-      { href: '/admin/customers', labelHe: 'לקוחות', capability: 'customers.read' },
-      { href: '/admin/messages', labelHe: 'פניות', capability: 'messages.read' },
-      { href: '/admin/coupons', labelHe: 'קופונים', capability: 'coupons.write' },
-    ],
-  },
-  {
-    titleHe: 'תוכן',
-    items: [
-      { href: '/admin/content', labelHe: 'תוכן האתר', capability: 'content.write' },
-      { href: '/admin/media', labelHe: 'מדיה', capability: 'content.write' },
-      { href: '/admin/journal', labelHe: 'מגזין', capability: 'content.write' },
-      { href: '/admin/branches', labelHe: 'סניפים', capability: 'content.write' },
-      { href: '/admin/reviews', labelHe: 'ביקורות', capability: 'reviews.moderate' },
-      { href: '/admin/newsletter', labelHe: 'ניוזלטר', capability: 'content.write' },
-    ],
-  },
-  {
-    titleHe: 'מערכת',
-    items: [
-      { href: '/admin/users', labelHe: 'משתמשי מערכת', capability: 'users.write' },
-      { href: '/admin/audit-log', labelHe: 'יומן פעולות', capability: 'audit.read' },
-      { href: '/admin/settings', labelHe: 'הגדרות', capability: 'settings.write' },
-    ],
-  },
+/** Secondary product tools, rendered as tabs within the Products area. */
+export const PRODUCT_TABS: readonly { href: string; labelHe: string }[] = [
+  { href: '/admin/products', labelHe: 'מוצרים' },
+  { href: '/admin/categories', labelHe: 'קטגוריות' },
+  { href: '/admin/collections', labelHe: 'קולקציות' },
 ] as const;

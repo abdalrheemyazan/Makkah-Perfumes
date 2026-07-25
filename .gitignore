@@ -37,10 +37,16 @@ yarn-error.log*
 # local embedded postgres cluster (development only)
 /.postgres-data
 
+# database logical backups (may contain customer data)
+/backups
+
 # playwright
 /test-results
 /playwright-report
 /.playwright
+
+# netlify local cache / CLI
+.netlify
 
 # vercel
 .vercel
@@ -48,3 +54,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# higgsfield raw generation candidates (temporary inputs, not shipped)
+/.cache

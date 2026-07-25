@@ -100,32 +100,35 @@ export function AccessibilitySettings() {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
+  // State updaters are PURE — they only compute the next settings object. All
+  // DOM/localStorage/event side effects happen in the effect below, AFTER React
+  // commits. Doing them inside the updater dispatched `a11y-change` during
+  // render, which synchronously notified useSyncExternalStore subscribers
+  // (PageTransition) and produced "Cannot update a component while rendering a
+  // different component". See docs/… and the regression test.
   const update = useCallback((patch: Partial<Settings>) => {
+    setSettings((prev) => ({ ...prev, ...patch }));
+  }, []);
+
+  const stepFont = useCallback((direction: 1 | -1) => {
     setSettings((prev) => {
-      const next = { ...prev, ...patch };
-      applySettings(next);
-      return next;
+      const index = FONT_STEPS.indexOf(prev.fontScale as (typeof FONT_STEPS)[number]);
+      const base = index === -1 ? FONT_STEPS.indexOf(DEFAULT_SCALE) : index;
+      const nextIndex = Math.min(FONT_STEPS.length - 1, Math.max(0, base + direction));
+      return { ...prev, fontScale: FONT_STEPS[nextIndex] };
     });
   }, []);
 
-  const stepFont = useCallback(
-    (direction: 1 | -1) => {
-      setSettings((prev) => {
-        const index = FONT_STEPS.indexOf(prev.fontScale as (typeof FONT_STEPS)[number]);
-        const base = index === -1 ? FONT_STEPS.indexOf(DEFAULT_SCALE) : index;
-        const nextIndex = Math.min(FONT_STEPS.length - 1, Math.max(0, base + direction));
-        const next = { ...prev, fontScale: FONT_STEPS[nextIndex] };
-        applySettings(next);
-        return next;
-      });
-    },
-    [],
-  );
-
   const reset = useCallback(() => {
     setSettings(DEFAULTS);
-    applySettings(DEFAULTS);
   }, []);
+
+  // Apply preferences to the document, persist them, and notify subscribers —
+  // only after commit, never during render. Runs on mount (re-applying what the
+  // blocking init script already set, idempotently) and on every change.
+  useEffect(() => {
+    applySettings(settings);
+  }, [settings]);
 
   const close = useCallback(() => {
     setOpen(false);

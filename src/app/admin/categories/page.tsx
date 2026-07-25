@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { requireCapability } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Cell, EmptyState, PageHeader, Row, Table } from '@/components/admin/ui';
+import { ProductTabs } from '@/components/admin/product-tabs';
 
 export const metadata: Metadata = { title: 'קטגוריות' };
 
@@ -15,6 +16,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div>
+      <ProductTabs />
       <PageHeader
         titleHe="קטגוריות"
         descriptionHe="סיווג ראשי של המוצרים בקטלוג."

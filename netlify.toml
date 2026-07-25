@@ -1,0 +1,27 @@
+# Netlify configuration — Makkah Perfumes
+#
+# A dynamic Next.js App Router app (Server Components, Server Actions, Prisma,
+# authentication, dynamic routes). It is NOT a static export — the Netlify Next
+# runtime serves the server output. Do not set `output: 'export'` in
+# next.config.
+#
+# The production database is a MANAGED PostgreSQL reached via the DATABASE_URL
+# environment variable set in the Netlify UI. The local embedded PostgreSQL
+# (scripts/db-server.mjs, port 55432) is never started during a Netlify build.
+#
+# See docs/NETLIFY_DEPLOYMENT.md for the full variable list and migration flow.
+
+[build]
+  # `postinstall` (package.json) runs `prisma generate` right after install, so
+  # the Prisma Client exists before the build compiles.
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Keep Prisma's engine download reliable on CI.
+  PRISMA_CLIENT_ENGINE_TYPE = "client"
+
+# The official Next.js runtime. Netlify auto-installs it for Next sites; naming
+# it here makes the dependency explicit.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

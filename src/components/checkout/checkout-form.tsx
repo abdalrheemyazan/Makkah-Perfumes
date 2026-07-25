@@ -1,10 +1,32 @@
 'use client';
 
-import { useActionState, useId, useState } from 'react';
+import { useActionState, useEffect, useId, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { placeOrder } from '@/app/actions/checkout';
 import { CHECKOUT_INITIAL } from '@/lib/action-state';
 import { DELIVERY_METHOD_LABELS } from '@/lib/commerce/labels';
+import { usePrefersReducedMotion, useA11yMotionStopped } from '@/lib/hooks';
+
+/**
+ * Every field the server can reject, in visual order, mapped from its error key
+ * to the input's `name` and a Hebrew label. Drives the error summary and the
+ * scroll-to-first-error behaviour.
+ */
+const CHECKOUT_FIELDS: { key: string; name: string; labelHe: string }[] = [
+  { key: 'email', name: 'email', labelHe: 'דוא״ל' },
+  { key: 'address.firstName', name: 'firstName', labelHe: 'שם פרטי' },
+  { key: 'address.lastName', name: 'lastName', labelHe: 'שם משפחה' },
+  { key: 'address.phone', name: 'phone', labelHe: 'טלפון' },
+  { key: 'address.street', name: 'street', labelHe: 'רחוב' },
+  { key: 'address.houseNumber', name: 'houseNumber', labelHe: 'מספר בית' },
+  { key: 'address.entrance', name: 'entrance', labelHe: 'כניסה' },
+  { key: 'address.floor', name: 'floor', labelHe: 'קומה' },
+  { key: 'address.apartment', name: 'apartment', labelHe: 'דירה' },
+  { key: 'address.city', name: 'city', labelHe: 'עיר' },
+  { key: 'address.postalCode', name: 'postalCode', labelHe: 'מיקוד' },
+  { key: 'address.notes', name: 'notes', labelHe: 'הערות לשליח' },
+  { key: 'customerNote', name: 'customerNote', labelHe: 'הערה להזמנה' },
+];
 
 /**
  * Checkout form.
@@ -37,14 +59,71 @@ export function CheckoutForm({
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
   );
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const motionStopped = useA11yMotionStopped();
+
+  const invalidFields = CHECKOUT_FIELDS.filter((field) => state.errors[field.key]);
+
+  const focusField = (name: string) => {
+    const form = formRef.current;
+    if (!form) return;
+    const el = form.querySelector<HTMLElement>(`[name="${name}"]`);
+    if (!el) return;
+    const behavior: ScrollBehavior = reducedMotion || motionStopped ? 'auto' : 'smooth';
+    // `center` keeps the field clear of the fixed navbar.
+    el.scrollIntoView({ behavior, block: 'center' });
+    el.focus({ preventScroll: true });
+  };
+
+  // After a failed submission, move the user to the problem: the first invalid
+  // field (in visual order), or the general error banner if there is no field
+  // to point at. Runs once per action result.
+  useEffect(() => {
+    if (state.status !== 'error') return;
+    const first = CHECKOUT_FIELDS.find((field) => state.errors[field.key]);
+    if (first) {
+      focusField(first.name);
+    } else if (state.messageHe) {
+      const behavior: ScrollBehavior = reducedMotion || motionStopped ? 'auto' : 'smooth';
+      bannerRef.current?.scrollIntoView({ behavior, block: 'center' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
   return (
-    <form action={formAction} noValidate className="flex flex-col gap-10">
+    <form ref={formRef} action={formAction} noValidate className="flex flex-col gap-10">
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
 
-      {state.status === 'error' && state.messageHe && (
-        <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-4 text-sm text-danger">
-          {state.messageHe}
-        </p>
+      {state.status === 'error' && (state.messageHe || invalidFields.length > 0) && (
+        <div
+          ref={bannerRef}
+          role="alert"
+          className="rounded-sm border border-danger/40 bg-danger/10 p-4 text-sm text-danger"
+        >
+          {state.messageHe && <p className="font-medium">{state.messageHe}</p>}
+          {invalidFields.length > 0 && (
+            <>
+              <p className={state.messageHe ? 'mt-2 font-medium' : 'font-medium'}>
+                יש לתקן את הפרטים הבאים:
+              </p>
+              <ul className="mt-1.5 flex flex-col gap-1">
+                {invalidFields.map((field) => (
+                  <li key={field.key}>
+                    <button
+                      type="button"
+                      onClick={() => focusField(field.name)}
+                      className="text-start underline underline-offset-2 hover:text-ivory"
+                    >
+                      {field.labelHe} — {state.errors[field.key]}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
       )}
 
       {/* 1 — Contact */}

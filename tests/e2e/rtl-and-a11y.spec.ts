@@ -113,4 +113,38 @@ test.describe('Hebrew RTL and layout integrity', () => {
     expect(response?.status()).toBe(404);
     await expect(page.getByRole('heading', { name: 'העמוד לא נמצא' })).toBeVisible();
   });
+
+  test('the header shows a login link when signed out', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('link', { name: 'התחברות' }).first()).toBeVisible();
+    // A signed-out visitor must not see the account greeting or store admin.
+    await expect(page.getByText('שלום,')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'ניהול החנות' })).toHaveCount(0);
+  });
+
+  // Regression: changing accessibility settings used to run a side effect
+  // (dispatch a11y-change) inside a state updater, updating PageTransition while
+  // AccessibilitySettings was rendering. That must never reappear.
+  test('changing accessibility settings raises no React render-time error', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+    page.on('pageerror', (err) => errors.push(err.message));
+
+    await page.goto('/');
+    await page.getByRole('button', { name: 'פתיחת תפריט נגישות' }).click();
+    await expect(page.getByRole('dialog', { name: 'אפשרויות נגישות' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'ניגודיות גבוהה' }).click();
+    await page.getByRole('button', { name: 'עצירת אנימציות' }).click();
+    await page.getByRole('button', { name: 'הגדלת טקסט' }).click();
+    await page.getByRole('button', { name: 'איפוס הגדרות' }).click();
+    await page.waitForTimeout(300);
+
+    const renderErrors = errors.filter((text) =>
+      /Cannot update a component|while rendering a different component|Maximum update depth/.test(text),
+    );
+    expect(renderErrors, renderErrors.join('\n')).toHaveLength(0);
+  });
 });

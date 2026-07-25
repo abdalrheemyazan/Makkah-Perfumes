@@ -8,6 +8,8 @@ import { expect, test } from '@playwright/test';
  * created through the form really lands in Postgres.
  */
 
+// The simplified store admin. Website-CMS routes were removed and now redirect
+// to /admin, so they are no longer part of the visible admin surface.
 const ADMIN_ROUTES = [
   ['/admin', 'לוח בקרה'],
   ['/admin/products', 'מוצרים'],
@@ -17,16 +19,21 @@ const ADMIN_ROUTES = [
   ['/admin/orders', 'הזמנות'],
   ['/admin/customers', 'לקוחות'],
   ['/admin/inventory', 'מלאי'],
-  ['/admin/coupons', 'קופונים'],
-  ['/admin/reviews', 'ביקורות'],
-  ['/admin/media', 'מדיה'],
-  ['/admin/content', 'תוכן האתר'],
-  ['/admin/journal', 'מגזין'],
-  ['/admin/branches', 'סניפים'],
-  ['/admin/newsletter', 'ניוזלטר'],
-  ['/admin/users', 'משתמשי מערכת'],
-  ['/admin/audit-log', 'יומן פעולות'],
-  ['/admin/settings', 'הגדרות'],
+] as const;
+
+// Removed from the visible admin — each must redirect to the dashboard.
+const REDIRECTED_ADMIN_ROUTES = [
+  '/admin/content',
+  '/admin/media',
+  '/admin/journal',
+  '/admin/branches',
+  '/admin/newsletter',
+  '/admin/reviews',
+  '/admin/coupons',
+  '/admin/messages',
+  '/admin/users',
+  '/admin/audit-log',
+  '/admin/settings',
 ] as const;
 
 test.describe('admin access control', () => {
@@ -88,10 +95,37 @@ test.describe('admin dashboard', () => {
 
   test('the dashboard shows real aggregates, not placeholders', async ({ page }) => {
     await page.goto('/admin');
-    await expect(page.getByText('הזמנות היום')).toBeVisible();
-    await expect(page.getByText('ערך הזמנה ממוצע')).toBeVisible();
+    await expect(page.getByText('סך כל המוצרים')).toBeVisible();
+    await expect(page.getByText('מספר לקוחות')).toBeVisible();
     // Seeded orders exist, so the recent-orders list must show a real number.
     await expect(page.locator('text=/MK-\\d{4}-\\d{6}/').first()).toBeVisible();
+  });
+
+  test('removed admin sections redirect to the dashboard', async ({ page }) => {
+    for (const route of REDIRECTED_ADMIN_ROUTES) {
+      await page.goto(route);
+      await expect(page, `${route} should redirect`).toHaveURL(/\/admin$/);
+    }
+  });
+
+  test('the admin sidebar shows only the store sections', async ({ page }) => {
+    await page.goto('/admin');
+    const nav = page.getByRole('navigation', { name: 'ניווט ניהול' }).first();
+    for (const label of ['לוח בקרה', 'מוצרים', 'הזמנות', 'מלאי', 'לקוחות', 'צפייה בחנות']) {
+      await expect(nav.getByRole('link', { name: label })).toBeVisible();
+    }
+    // Website-CMS sections must not appear in the menu.
+    for (const label of ['תוכן האתר', 'מדיה', 'מגזין', 'סניפים', 'ניוזלטר', 'הגדרות', 'יומן פעולות', 'משתמשי מערכת']) {
+      await expect(nav.getByRole('link', { name: label })).toHaveCount(0);
+    }
+  });
+
+  test('an admin sees the store-admin link in the public account menu', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: /שלום/ }).click();
+    const menu = page.getByRole('menu', { name: 'תפריט חשבון' });
+    await expect(menu.getByRole('menuitem', { name: 'ניהול החנות' })).toBeVisible();
+    await expect(menu.getByRole('menuitem', { name: 'החשבון שלי' })).toBeVisible();
   });
 
   test('a product can be created and then found in the catalogue', async ({ page }) => {
@@ -160,19 +194,8 @@ test.describe('admin dashboard', () => {
     await expect(page.getByRole('heading', { name: 'תעודת ליקוט' })).toBeVisible();
   });
 
-  test('admin actions are written to the audit log', async ({ page }) => {
-    await page.goto('/admin/audit-log');
-    // The product creation and inventory adjustment above must be recorded.
-    await expect(page.getByText('inventory.adjust').first()).toBeVisible();
-  });
-
-  test('content blocks are editable', async ({ page }) => {
-    await page.goto('/admin/content');
-    const heroTitle = page.locator('input[name="titleHe"]').first();
-    await expect(heroTitle).toHaveValue(/.+/);
-
-    await heroTitle.fill('ניחוח שנשאר איתך');
-    await page.getByRole('button', { name: 'שמירה' }).first().click();
-    await expect(page.getByText('התוכן נשמר.')).toBeVisible({ timeout: 20_000 });
-  });
+  // Note: audit logging still runs server-side inside every mutation
+  // (see src/lib/admin/audit.ts); the audit-log *page* and website content
+  // editor were removed from the simplified store admin, so their former UI
+  // tests were dropped along with them.
 });

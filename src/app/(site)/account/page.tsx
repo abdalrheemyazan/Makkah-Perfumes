@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, Heart, MapPin, Package, ShieldCheck, UserRound } from 'lucide-react';
-import { getCurrentUser, isAdmin, hasRole } from '@/lib/auth';
+import { getCurrentUser, isAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { logout } from '@/app/actions/auth';
 import { LogoutButton } from '@/components/auth/auth-forms';
@@ -18,7 +18,6 @@ export default async function AccountPage() {
   if (!user) redirect('/login');
 
   const isAdminUser = isAdmin(user);
-  const isSuperAdmin = hasRole(user, 'SUPER_ADMIN');
 
   // Every figure below is a real database count — nothing is invented.
   const [recentOrders, orderCount, wishlistCount, addressCount] = await Promise.all([
@@ -90,50 +89,6 @@ export default async function AccountPage() {
             </div>
           </div>
 
-          {/* ===== Admin Access Card ===== */}
-          {isAdminUser && (
-            <div className="mt-8 rounded-lg border border-gold/40 bg-charcoal/90 p-6 shadow-xl">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-12 w-12 place-items-center rounded-full border border-gold/30 bg-ink/60 text-gold">
-                    <ShieldCheck className="h-6 w-6" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-bold text-ivory">ניהול האתר</h3>
-                    <p className="text-sm text-muted">מעבר ללוח הבקרה ולכלי הניהול</p>
-                  </div>
-                </div>
-                <Link
-                  href="/admin"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-gold px-6 text-sm font-semibold text-ink transition-colors hover:bg-cream"
-                >
-                  פתיחת לוח הניהול
-                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </div>
-
-              {isSuperAdmin && (
-                <div className="mt-6 border-t border-gold/15 pt-4">
-                  <p className="text-xs font-semibold tracking-wider text-gold">גישה מהירה למנהל-על (SUPER_ADMIN):</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Link href="/admin" className="rounded-sm border border-gold/20 bg-ink/40 px-3 py-1.5 text-xs text-cream hover:border-gold/50 hover:text-gold">
-                      לוח בקרה (/admin)
-                    </Link>
-                    <Link href="/admin/settings" className="rounded-sm border border-gold/20 bg-ink/40 px-3 py-1.5 text-xs text-cream hover:border-gold/50 hover:text-gold">
-                      הגדרות (/admin/settings)
-                    </Link>
-                    <Link href="/admin/products" className="rounded-sm border border-gold/20 bg-ink/40 px-3 py-1.5 text-xs text-cream hover:border-gold/50 hover:text-gold">
-                      מוצרים (/admin/products)
-                    </Link>
-                    <Link href="/admin/orders" className="rounded-sm border border-gold/20 bg-ink/40 px-3 py-1.5 text-xs text-cream hover:border-gold/50 hover:text-gold">
-                      הזמנות (/admin/orders)
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* ===== Summary cards ===== */}
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {cards.map((card) => {
@@ -160,6 +115,30 @@ export default async function AccountPage() {
                 </Link>
               );
             })}
+
+            {/* Distinct fifth card — admins only. Store management entry point. */}
+            {isAdminUser && (
+              <div className="flex flex-col justify-between gap-4 rounded-lg border border-gold/45 bg-charcoal p-5 shadow-lg shadow-black/30 sm:col-span-2 lg:col-span-4 lg:flex-row lg:items-center">
+                <div className="flex items-start gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-gold/35 bg-ink/50 text-gold">
+                    <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h3 className="text-base font-semibold text-ivory">ניהול החנות</h3>
+                    <p className="mt-1 text-xs leading-relaxed text-muted">
+                      מעבר ללוח הבקרה של המוצרים וההזמנות.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/admin"
+                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-gold px-6 text-sm font-semibold text-ink transition-colors hover:bg-cream"
+                >
+                  פתיחת לוח הניהול
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* ===== Recent orders ===== */}

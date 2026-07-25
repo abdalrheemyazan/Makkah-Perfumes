@@ -87,4 +87,47 @@ test.describe('purchase flow', () => {
 
     await expect(page.getByText('קוד הקופון אינו קיים.')).toBeVisible();
   });
+
+  test('an incomplete checkout scrolls to and focuses the first invalid field', async ({ page }) => {
+    await page.goto('/shop/adventure');
+    await page.getByRole('button', { name: 'הוספה לעגלה' }).first().click();
+    await expect(page.getByText('נוסף לעגלה').first()).toBeVisible();
+
+    await page.goto('/checkout');
+    await expect(page.getByRole('heading', { level: 1, name: 'תשלום' })).toBeVisible();
+
+    // Submit with everything empty.
+    await page.getByRole('button', { name: /ביצוע הזמנה/ }).click();
+
+    // Error summary appears and lists fields.
+    await expect(page.getByText('יש לתקן את הפרטים הבאים:')).toBeVisible();
+
+    // The first invalid field (email) receives focus. Scope to <main>: the
+    // footer newsletter form also has an input named "email".
+    const email = page.locator('main input[name="email"]');
+    await expect(email).toBeFocused();
+    // And its Hebrew error text is shown.
+    await expect(page.locator('main input[name="email"] ~ p[role="alert"]')).toBeVisible();
+
+    // Fix the first error; focus must advance to the next invalid field
+    // (first name, the next in visual order). The assertion auto-waits for the
+    // re-render + focus, so there is no race with the server action.
+    await email.fill('guest@example.com');
+    await page.getByRole('button', { name: /ביצוע הזמנה/ }).click();
+    await expect(page.locator('main input[name="firstName"]')).toBeFocused();
+    await expect(email).not.toBeFocused();
+  });
+
+  test('checkout error focus works under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/shop/adventure');
+    await page.getByRole('button', { name: 'הוספה לעגלה' }).first().click();
+    await expect(page.getByText('נוסף לעגלה').first()).toBeVisible();
+
+    await page.goto('/checkout');
+    await page.getByRole('button', { name: /ביצוע הזמנה/ }).click();
+
+    await expect(page.getByText('יש לתקן את הפרטים הבאים:')).toBeVisible();
+    await expect(page.locator('main input[name="email"]')).toBeFocused();
+  });
 });

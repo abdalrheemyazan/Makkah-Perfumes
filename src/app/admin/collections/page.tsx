@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireCapability } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Badge, Cell, EmptyState, PageHeader, Row, Table } from '@/components/admin/ui';
+import { ProductTabs } from '@/components/admin/product-tabs';
 
 export const metadata: Metadata = { title: 'קולקציות' };
 
@@ -16,6 +17,7 @@ export default async function AdminCollectionsPage() {
 
   return (
     <div>
+      <ProductTabs />
       <PageHeader
         titleHe="קולקציות"
         descriptionHe="הקולקציות מקובצות לפי שפת העיצוב של הבקבוק, כפי שאומתה מהתצלומים הרשמיים."

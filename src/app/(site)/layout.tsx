@@ -3,7 +3,7 @@ import { SiteFooter } from '@/components/layout/site-footer';
 import { AccessibilitySettings } from '@/components/a11y/accessibility-settings';
 import { PageTransition } from '@/components/layout/page-transition';
 import { readCart } from '@/lib/commerce/cart';
-import { getCurrentUser, isAdmin, hasRole } from '@/lib/auth';
+import { getCurrentUser, isAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -13,13 +13,15 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     ? await db.wishlistItem.count({ where: { wishlist: { userId: user.id } } })
     : 0;
 
-  const adminInfo = user
-    ? { isAdmin: isAdmin(user), isSuperAdmin: hasRole(user, 'SUPER_ADMIN') }
-    : null;
+  const account = {
+    isLoggedIn: Boolean(user),
+    displayName: user?.firstName?.trim() || null,
+    isAdmin: user ? isAdmin(user) : false,
+  };
 
   return (
     <>
-      <SiteHeader cartCount={cart.itemCount} wishlistCount={wishlistCount} adminInfo={adminInfo} />
+      <SiteHeader cartCount={cart.itemCount} wishlistCount={wishlistCount} account={account} />
       <main id="main" className="flex flex-1 flex-col">
         <PageTransition>{children}</PageTransition>
       </main>

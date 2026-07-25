@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
-import type { AdminNavGroup } from '@/lib/admin/nav';
+import { ExternalLink, Menu, X } from 'lucide-react';
+import type { AdminNavItem } from '@/lib/admin/nav';
 import { cn } from '@/lib/utils';
 
 /**
@@ -20,7 +20,7 @@ export function AdminShell({
   logoutAction,
   children,
 }: {
-  nav: AdminNavGroup[];
+  nav: AdminNavItem[];
   userLabelHe: string;
   rolesHe: string;
   logoutAction: () => Promise<void>;
@@ -49,36 +49,41 @@ export function AdminShell({
   }, [open]);
 
   const navList = (
-    <nav aria-label="ניווט ניהול" className="flex flex-col gap-7">
-      {nav.map((group) => (
-        <div key={group.titleHe}>
-          <h2 className="text-[0.7rem] tracking-[0.15em] text-gold/70">
-            {group.titleHe}
-          </h2>
-          <ul className="mt-2.5 flex flex-col gap-0.5">
-            {group.items.map((item) => {
-              const active =
-                item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? 'page' : undefined}
-                    className={cn(
-                      'block rounded-sm px-3 py-2 text-sm transition-colors',
-                      active
-                        ? 'bg-gold/15 text-gold'
-                        : 'text-cream/80 hover:bg-stone/60 hover:text-ivory',
-                    )}
-                  >
-                    {item.labelHe}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+    <nav aria-label="ניווט ניהול">
+      <ul className="flex flex-col gap-1">
+        {nav.map((item) => {
+          const active =
+            item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'block rounded-sm px-3 py-2.5 text-sm transition-colors',
+                  active
+                    ? 'bg-gold/15 font-medium text-gold'
+                    : 'text-cream/80 hover:bg-stone/60 hover:text-ivory',
+                )}
+              >
+                {item.labelHe}
+              </Link>
+            </li>
+          );
+        })}
+        {/* View the public store in a new tab. */}
+        <li className="mt-2 border-t border-gold/10 pt-2">
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 rounded-sm px-3 py-2.5 text-sm text-cream/80 transition-colors hover:bg-stone/60 hover:text-ivory"
+          >
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            צפייה בחנות
+          </a>
+        </li>
+      </ul>
     </nav>
   );
 

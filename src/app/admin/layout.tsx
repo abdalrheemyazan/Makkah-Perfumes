@@ -31,11 +31,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) redirect('/login?next=/admin');
   if (!isAdmin(user)) return <Forbidden />;
 
-  // Show only the groups this user has at least one capability for.
-  const nav = ADMIN_NAV.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => can(user, item.capability)),
-  })).filter((group) => group.items.length > 0);
+  // Show only the items this user has the capability for.
+  const nav = ADMIN_NAV.filter((item) => can(user, item.capability));
 
   return (
     <>

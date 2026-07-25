@@ -14,6 +14,7 @@ import {
   Row,
   Table,
 } from '@/components/admin/ui';
+import { ProductTabs } from '@/components/admin/product-tabs';
 
 export const metadata: Metadata = { title: 'מוצרים' };
 
@@ -52,6 +53,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
 
   return (
     <div>
+      <ProductTabs />
       <PageHeader
         titleHe="מוצרים"
         descriptionHe={`${products.length} מוצרים בקטלוג`}
