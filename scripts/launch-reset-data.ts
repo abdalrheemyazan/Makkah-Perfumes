@@ -41,6 +41,8 @@ if (!keepEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(keepEmail)) {
   console.error('✗ ADMIN_KEEP_EMAIL is not set or invalid.');
   process.exit(1);
 }
+// The admin's display NAME (not a role word). Default to "יזן".
+const keepName = (process.env.ADMIN_KEEP_NAME || 'יזן').trim();
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
@@ -273,12 +275,11 @@ async function main() {
     });
     const admin = await tx.user.upsert({
       where: { email: keepEmail },
-      update: { passwordHash, isActive: true, emailVerified: new Date() },
+      update: { passwordHash, firstName: keepName, lastName: null, isActive: true, emailVerified: new Date() },
       create: {
         email: keepEmail,
         passwordHash,
-        firstName: 'מנהל',
-        lastName: 'ראשי',
+        firstName: keepName,
         isActive: true,
         emailVerified: new Date(),
       },

@@ -42,13 +42,10 @@ export const metadata: Metadata = {
     title: SITE.nameEn,
     statusBarStyle: 'black-translucent',
   },
-  icons: {
-    icon: [
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
-  },
+  // Favicon / tab icon comes from the App Router file conventions —
+  // src/app/icon.png, src/app/apple-icon.png, src/app/favicon.ico — which Next
+  // serves with content-hashed, cache-busted URLs. No manual `icons` block, so
+  // there is a single source of truth and no stale /icons/* reference.
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

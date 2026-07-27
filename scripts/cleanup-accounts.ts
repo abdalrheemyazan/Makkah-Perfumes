@@ -115,14 +115,14 @@ async function main() {
       create: { name: 'SUPER_ADMIN', description: 'מנהל־על' },
       select: { id: true },
     });
+    const keepName = (process.env.ADMIN_KEEP_NAME || 'יזן').trim();
     const admin = await tx.user.upsert({
       where: { email: keepEmail },
-      update: { passwordHash, isActive: true, emailVerified: new Date() },
+      update: { passwordHash, firstName: keepName, lastName: null, isActive: true, emailVerified: new Date() },
       create: {
         email: keepEmail,
         passwordHash,
-        firstName: 'מנהל',
-        lastName: 'ראשי',
+        firstName: keepName,
         isActive: true,
         emailVerified: new Date(),
       },

@@ -29,12 +29,15 @@ export async function placeOrder(
       firstName: formData.get('firstName'),
       lastName: formData.get('lastName'),
       phone: formData.get('phone'),
-      street: formData.get('street'),
-      houseNumber: formData.get('houseNumber'),
+      // Address fields are absent from the form for SELF_PICKUP — coerce the
+      // missing (null) values to '' so the optional schema accepts them. They are
+      // only *required* for REGULAR/EXPRESS via the shipping-method refinement.
+      street: formData.get('street') ?? '',
+      houseNumber: formData.get('houseNumber') ?? '',
       apartment: formData.get('apartment') ?? '',
       entrance: formData.get('entrance') ?? '',
       floor: formData.get('floor') ?? '',
-      city: formData.get('city'),
+      city: formData.get('city') ?? '',
       postalCode: formData.get('postalCode') ?? '',
       notes: formData.get('notes') ?? '',
     },

@@ -59,7 +59,7 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/_next/static/'),
       handler: new CacheFirst({
-        cacheName: 'static-assets',
+        cacheName: 'static-assets-v2',
         plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 })],
       }),
     },
@@ -67,7 +67,7 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/_next/image'),
       handler: new StaleWhileRevalidate({
-        cacheName: 'next-image',
+        cacheName: 'next-image-v2',
         plugins: [new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 })],
       }),
     },
@@ -76,7 +76,7 @@ const serwist = new Serwist({
       matcher: ({ url, sameOrigin }) =>
         sameOrigin && /^\/(brand-reference|generated|icons)\//.test(url.pathname),
       handler: new StaleWhileRevalidate({
-        cacheName: 'public-media',
+        cacheName: 'public-media-v2',
         plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 })],
       }),
     },
@@ -84,13 +84,13 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) =>
         sameOrigin && /^\/(manifest\.webmanifest|favicon\.ico|apple-touch-icon\.png)$/.test(url.pathname),
-      handler: new StaleWhileRevalidate({ cacheName: 'meta' }),
+      handler: new StaleWhileRevalidate({ cacheName: 'meta-v2' }),
     },
     // 7. Public page navigations: network-first, fall back to the offline page.
     {
       matcher: ({ request, sameOrigin }) => sameOrigin && request.mode === 'navigate',
       handler: new NetworkFirst({
-        cacheName: 'pages',
+        cacheName: 'pages-v2',
         networkTimeoutSeconds: 3,
         plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 })],
       }),
