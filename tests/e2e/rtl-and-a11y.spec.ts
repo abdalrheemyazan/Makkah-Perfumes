@@ -85,9 +85,9 @@ test.describe('Hebrew RTL and layout integrity', () => {
     }
   });
 
-  test('unverified prices are labelled rather than presented as real', async ({ page }) => {
+  test('prices do not show development price labels', async ({ page }) => {
     await page.goto('/shop/royal-leather');
-    await expect(page.getByText('מחיר לדוגמה').first()).toBeVisible();
+    await expect(page.getByText('מחיר לדוגמה')).not.toBeVisible();
   });
 
   test('no fabricated reviews or branches are shown', async ({ page }) => {
