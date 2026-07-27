@@ -55,6 +55,7 @@ export type OrderMinAggregateOutputType = {
   shippingAddressId: string | null
   billingAddressId: string | null
   deliveryMethod: $Enums.DeliveryMethod | null
+  shippingMethod: $Enums.ShippingMethod | null
   subtotalAgorot: number | null
   discountAgorot: number | null
   shippingAgorot: number | null
@@ -84,6 +85,7 @@ export type OrderMaxAggregateOutputType = {
   shippingAddressId: string | null
   billingAddressId: string | null
   deliveryMethod: $Enums.DeliveryMethod | null
+  shippingMethod: $Enums.ShippingMethod | null
   subtotalAgorot: number | null
   discountAgorot: number | null
   shippingAgorot: number | null
@@ -113,6 +115,7 @@ export type OrderCountAggregateOutputType = {
   shippingAddressId: number
   billingAddressId: number
   deliveryMethod: number
+  shippingMethod: number
   subtotalAgorot: number
   discountAgorot: number
   shippingAgorot: number
@@ -160,6 +163,7 @@ export type OrderMinAggregateInputType = {
   shippingAddressId?: true
   billingAddressId?: true
   deliveryMethod?: true
+  shippingMethod?: true
   subtotalAgorot?: true
   discountAgorot?: true
   shippingAgorot?: true
@@ -189,6 +193,7 @@ export type OrderMaxAggregateInputType = {
   shippingAddressId?: true
   billingAddressId?: true
   deliveryMethod?: true
+  shippingMethod?: true
   subtotalAgorot?: true
   discountAgorot?: true
   shippingAgorot?: true
@@ -218,6 +223,7 @@ export type OrderCountAggregateInputType = {
   shippingAddressId?: true
   billingAddressId?: true
   deliveryMethod?: true
+  shippingMethod?: true
   subtotalAgorot?: true
   discountAgorot?: true
   shippingAgorot?: true
@@ -334,6 +340,7 @@ export type OrderGroupByOutputType = {
   shippingAddressId: string | null
   billingAddressId: string | null
   deliveryMethod: $Enums.DeliveryMethod
+  shippingMethod: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot: number
   shippingAgorot: number
@@ -386,6 +393,7 @@ export type OrderWhereInput = {
   shippingAddressId?: Prisma.StringNullableFilter<"Order"> | string | null
   billingAddressId?: Prisma.StringNullableFilter<"Order"> | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFilter<"Order"> | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.EnumShippingMethodNullableFilter<"Order"> | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFilter<"Order"> | number
   discountAgorot?: Prisma.IntFilter<"Order"> | number
   shippingAgorot?: Prisma.IntFilter<"Order"> | number
@@ -424,6 +432,7 @@ export type OrderOrderByWithRelationInput = {
   shippingAddressId?: Prisma.SortOrderInput | Prisma.SortOrder
   billingAddressId?: Prisma.SortOrderInput | Prisma.SortOrder
   deliveryMethod?: Prisma.SortOrder
+  shippingMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   subtotalAgorot?: Prisma.SortOrder
   discountAgorot?: Prisma.SortOrder
   shippingAgorot?: Prisma.SortOrder
@@ -465,6 +474,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   shippingAddressId?: Prisma.StringNullableFilter<"Order"> | string | null
   billingAddressId?: Prisma.StringNullableFilter<"Order"> | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFilter<"Order"> | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.EnumShippingMethodNullableFilter<"Order"> | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFilter<"Order"> | number
   discountAgorot?: Prisma.IntFilter<"Order"> | number
   shippingAgorot?: Prisma.IntFilter<"Order"> | number
@@ -503,6 +513,7 @@ export type OrderOrderByWithAggregationInput = {
   shippingAddressId?: Prisma.SortOrderInput | Prisma.SortOrder
   billingAddressId?: Prisma.SortOrderInput | Prisma.SortOrder
   deliveryMethod?: Prisma.SortOrder
+  shippingMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   subtotalAgorot?: Prisma.SortOrder
   discountAgorot?: Prisma.SortOrder
   shippingAgorot?: Prisma.SortOrder
@@ -540,6 +551,7 @@ export type OrderScalarWhereWithAggregatesInput = {
   shippingAddressId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   billingAddressId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodWithAggregatesFilter<"Order"> | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.EnumShippingMethodNullableWithAggregatesFilter<"Order"> | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntWithAggregatesFilter<"Order"> | number
   discountAgorot?: Prisma.IntWithAggregatesFilter<"Order"> | number
   shippingAgorot?: Prisma.IntWithAggregatesFilter<"Order"> | number
@@ -566,6 +578,7 @@ export type OrderCreateInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -603,6 +616,7 @@ export type OrderUncheckedCreateInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -634,6 +648,7 @@ export type OrderUpdateInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -671,6 +686,7 @@ export type OrderUncheckedUpdateInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -705,6 +721,7 @@ export type OrderCreateManyInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -731,6 +748,7 @@ export type OrderUpdateManyMutationInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -759,6 +777,7 @@ export type OrderUncheckedUpdateManyInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -798,6 +817,7 @@ export type OrderCountOrderByAggregateInput = {
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   deliveryMethod?: Prisma.SortOrder
+  shippingMethod?: Prisma.SortOrder
   subtotalAgorot?: Prisma.SortOrder
   discountAgorot?: Prisma.SortOrder
   shippingAgorot?: Prisma.SortOrder
@@ -835,6 +855,7 @@ export type OrderMaxOrderByAggregateInput = {
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   deliveryMethod?: Prisma.SortOrder
+  shippingMethod?: Prisma.SortOrder
   subtotalAgorot?: Prisma.SortOrder
   discountAgorot?: Prisma.SortOrder
   shippingAgorot?: Prisma.SortOrder
@@ -864,6 +885,7 @@ export type OrderMinOrderByAggregateInput = {
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   deliveryMethod?: Prisma.SortOrder
+  shippingMethod?: Prisma.SortOrder
   subtotalAgorot?: Prisma.SortOrder
   discountAgorot?: Prisma.SortOrder
   shippingAgorot?: Prisma.SortOrder
@@ -1035,6 +1057,10 @@ export type EnumDeliveryMethodFieldUpdateOperationsInput = {
   set?: $Enums.DeliveryMethod
 }
 
+export type NullableEnumShippingMethodFieldUpdateOperationsInput = {
+  set?: $Enums.ShippingMethod | null
+}
+
 export type OrderCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.OrderCreateWithoutItemsInput, Prisma.OrderUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.OrderCreateOrConnectWithoutItemsInput
@@ -1157,6 +1183,7 @@ export type OrderCreateWithoutUserInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1192,6 +1219,7 @@ export type OrderUncheckedCreateWithoutUserInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1255,6 +1283,7 @@ export type OrderScalarWhereInput = {
   shippingAddressId?: Prisma.StringNullableFilter<"Order"> | string | null
   billingAddressId?: Prisma.StringNullableFilter<"Order"> | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFilter<"Order"> | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.EnumShippingMethodNullableFilter<"Order"> | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFilter<"Order"> | number
   discountAgorot?: Prisma.IntFilter<"Order"> | number
   shippingAgorot?: Prisma.IntFilter<"Order"> | number
@@ -1281,6 +1310,7 @@ export type OrderCreateWithoutShippingAddressInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1316,6 +1346,7 @@ export type OrderUncheckedCreateWithoutShippingAddressInput = {
   fulfillmentStatus?: $Enums.FulfillmentStatus
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1357,6 +1388,7 @@ export type OrderCreateWithoutBillingAddressInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1392,6 +1424,7 @@ export type OrderUncheckedCreateWithoutBillingAddressInput = {
   fulfillmentStatus?: $Enums.FulfillmentStatus
   shippingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1465,6 +1498,7 @@ export type OrderCreateWithoutItemsInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1501,6 +1535,7 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1547,6 +1582,7 @@ export type OrderUpdateWithoutItemsInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1583,6 +1619,7 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1613,6 +1650,7 @@ export type OrderCreateWithoutEventsInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1649,6 +1687,7 @@ export type OrderUncheckedCreateWithoutEventsInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1695,6 +1734,7 @@ export type OrderUpdateWithoutEventsInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1731,6 +1771,7 @@ export type OrderUncheckedUpdateWithoutEventsInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1761,6 +1802,7 @@ export type OrderCreateWithoutPaymentsInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1797,6 +1839,7 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1843,6 +1886,7 @@ export type OrderUpdateWithoutPaymentsInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1879,6 +1923,7 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1909,6 +1954,7 @@ export type OrderCreateWithoutShipmentsInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1945,6 +1991,7 @@ export type OrderUncheckedCreateWithoutShipmentsInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -1991,6 +2038,7 @@ export type OrderUpdateWithoutShipmentsInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2027,6 +2075,7 @@ export type OrderUncheckedUpdateWithoutShipmentsInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2057,6 +2106,7 @@ export type OrderCreateWithoutCouponInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2093,6 +2143,7 @@ export type OrderUncheckedCreateWithoutCouponInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2149,6 +2200,7 @@ export type OrderCreateWithoutRedemptionsInput = {
   paymentStatus?: $Enums.PaymentStatus
   fulfillmentStatus?: $Enums.FulfillmentStatus
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2185,6 +2237,7 @@ export type OrderUncheckedCreateWithoutRedemptionsInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2231,6 +2284,7 @@ export type OrderUpdateWithoutRedemptionsInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2267,6 +2321,7 @@ export type OrderUncheckedUpdateWithoutRedemptionsInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2299,6 +2354,7 @@ export type OrderCreateManyUserInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2325,6 +2381,7 @@ export type OrderUpdateWithoutUserInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2360,6 +2417,7 @@ export type OrderUncheckedUpdateWithoutUserInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2393,6 +2451,7 @@ export type OrderUncheckedUpdateManyWithoutUserInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2421,6 +2480,7 @@ export type OrderCreateManyShippingAddressInput = {
   fulfillmentStatus?: $Enums.FulfillmentStatus
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2449,6 +2509,7 @@ export type OrderCreateManyBillingAddressInput = {
   fulfillmentStatus?: $Enums.FulfillmentStatus
   shippingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2475,6 +2536,7 @@ export type OrderUpdateWithoutShippingAddressInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2510,6 +2572,7 @@ export type OrderUncheckedUpdateWithoutShippingAddressInput = {
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2543,6 +2606,7 @@ export type OrderUncheckedUpdateManyWithoutShippingAddressInput = {
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2569,6 +2633,7 @@ export type OrderUpdateWithoutBillingAddressInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2604,6 +2669,7 @@ export type OrderUncheckedUpdateWithoutBillingAddressInput = {
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2637,6 +2703,7 @@ export type OrderUncheckedUpdateManyWithoutBillingAddressInput = {
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2666,6 +2733,7 @@ export type OrderCreateManyCouponInput = {
   shippingAddressId?: string | null
   billingAddressId?: string | null
   deliveryMethod?: $Enums.DeliveryMethod
+  shippingMethod?: $Enums.ShippingMethod | null
   subtotalAgorot: number
   discountAgorot?: number
   shippingAgorot?: number
@@ -2691,6 +2759,7 @@ export type OrderUpdateWithoutCouponInput = {
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   fulfillmentStatus?: Prisma.EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2727,6 +2796,7 @@ export type OrderUncheckedUpdateWithoutCouponInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2760,6 +2830,7 @@ export type OrderUncheckedUpdateManyWithoutCouponInput = {
   shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deliveryMethod?: Prisma.EnumDeliveryMethodFieldUpdateOperationsInput | $Enums.DeliveryMethod
+  shippingMethod?: Prisma.NullableEnumShippingMethodFieldUpdateOperationsInput | $Enums.ShippingMethod | null
   subtotalAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   discountAgorot?: Prisma.IntFieldUpdateOperationsInput | number
   shippingAgorot?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2855,6 +2926,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   shippingAddressId?: boolean
   billingAddressId?: boolean
   deliveryMethod?: boolean
+  shippingMethod?: boolean
   subtotalAgorot?: boolean
   discountAgorot?: boolean
   shippingAgorot?: boolean
@@ -2894,6 +2966,7 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   shippingAddressId?: boolean
   billingAddressId?: boolean
   deliveryMethod?: boolean
+  shippingMethod?: boolean
   subtotalAgorot?: boolean
   discountAgorot?: boolean
   shippingAgorot?: boolean
@@ -2927,6 +3000,7 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   shippingAddressId?: boolean
   billingAddressId?: boolean
   deliveryMethod?: boolean
+  shippingMethod?: boolean
   subtotalAgorot?: boolean
   discountAgorot?: boolean
   shippingAgorot?: boolean
@@ -2960,6 +3034,7 @@ export type OrderSelectScalar = {
   shippingAddressId?: boolean
   billingAddressId?: boolean
   deliveryMethod?: boolean
+  shippingMethod?: boolean
   subtotalAgorot?: boolean
   discountAgorot?: boolean
   shippingAgorot?: boolean
@@ -2976,7 +3051,7 @@ export type OrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "idempotencyKey" | "userId" | "guestEmail" | "guestPhone" | "status" | "paymentStatus" | "fulfillmentStatus" | "shippingAddressId" | "billingAddressId" | "deliveryMethod" | "subtotalAgorot" | "discountAgorot" | "shippingAgorot" | "taxAgorot" | "totalAgorot" | "couponId" | "couponCode" | "customerNote" | "internalNote" | "isDevelopmentOrder" | "placedAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "idempotencyKey" | "userId" | "guestEmail" | "guestPhone" | "status" | "paymentStatus" | "fulfillmentStatus" | "shippingAddressId" | "billingAddressId" | "deliveryMethod" | "shippingMethod" | "subtotalAgorot" | "discountAgorot" | "shippingAgorot" | "taxAgorot" | "totalAgorot" | "couponId" | "couponCode" | "customerNote" | "internalNote" | "isDevelopmentOrder" | "placedAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Order$userArgs<ExtArgs>
   shippingAddress?: boolean | Prisma.Order$shippingAddressArgs<ExtArgs>
@@ -3034,6 +3109,7 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     shippingAddressId: string | null
     billingAddressId: string | null
     deliveryMethod: $Enums.DeliveryMethod
+    shippingMethod: $Enums.ShippingMethod | null
     subtotalAgorot: number
     discountAgorot: number
     shippingAgorot: number
@@ -3495,6 +3571,7 @@ export interface OrderFieldRefs {
   readonly shippingAddressId: Prisma.FieldRef<"Order", 'String'>
   readonly billingAddressId: Prisma.FieldRef<"Order", 'String'>
   readonly deliveryMethod: Prisma.FieldRef<"Order", 'DeliveryMethod'>
+  readonly shippingMethod: Prisma.FieldRef<"Order", 'ShippingMethod'>
   readonly subtotalAgorot: Prisma.FieldRef<"Order", 'Int'>
   readonly discountAgorot: Prisma.FieldRef<"Order", 'Int'>
   readonly shippingAgorot: Prisma.FieldRef<"Order", 'Int'>

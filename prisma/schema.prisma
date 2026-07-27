@@ -145,6 +145,12 @@ enum DeliveryMethod {
   STORE_PICKUP
 }
 
+enum ShippingMethod {
+  SELF_PICKUP
+  REGULAR
+  EXPRESS
+}
+
 enum AddressKind {
   SHIPPING
   BILLING
@@ -608,6 +614,7 @@ model Order {
   shippingAddressId String?
   billingAddressId  String?
   deliveryMethod    DeliveryMethod @default(STANDARD_DELIVERY)
+  shippingMethod    ShippingMethod?
 
   // כל הסכומים באגורות, מחושבים בשרת בלבד.
   subtotalAgorot Int

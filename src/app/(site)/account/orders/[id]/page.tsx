@@ -22,9 +22,12 @@ export default async function OrderDetailPage({ params }: { params: Params }) {
   if (!user) redirect('/login');
 
   // Ownership is part of the query, not a check afterwards: another customer's
-  // order id simply does not resolve.
+  // order id or number simply does not resolve.
   const order = await db.order.findFirst({
-    where: { id, userId: user.id },
+    where: {
+      OR: [{ id }, { orderNumber: id }],
+      userId: user.id,
+    },
     include: {
       items: true,
       shippingAddress: true,
@@ -47,12 +50,12 @@ export default async function OrderDetailPage({ params }: { params: Params }) {
       </h1>
       <p className="mt-2 text-sm text-muted">{formatDateTimeHe(order.placedAt)}</p>
 
-      {order.isDevelopmentOrder && (
+      {order.paymentStatus !== 'PAID' && (
         <p
           role="note"
-          className="mt-6 rounded-sm border border-warning/50 bg-warning/10 p-4 text-sm text-warning"
+          className="mt-6 rounded-sm border border-gold/25 bg-charcoal p-4 text-sm text-cream/85"
         >
-          הזמנה זו נוצרה במצב פיתוח. לא בוצע חיוב אמיתי ולא יישלח משלוח.
+          פרטי התשלום והמשלוח יתואמו לאחר אישור ההזמנה.
         </p>
       )}
 

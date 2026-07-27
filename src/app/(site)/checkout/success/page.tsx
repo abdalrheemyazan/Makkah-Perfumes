@@ -4,8 +4,10 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/commerce/money';
 import { formatDateHe } from '@/lib/utils';
-import { DELIVERY_METHOD_LABELS } from '@/lib/commerce/labels';
 import { ButtonLink } from '@/components/ui/button';
+
+import { getCurrentUser, can } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'ההזמנה התקבלה',
@@ -22,6 +24,11 @@ export default async function CheckoutSuccessPage({
   const { order: orderNumber } = await searchParams;
   if (!orderNumber) notFound();
 
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect(`/login?redirectTo=${encodeURIComponent(`/checkout/success?order=${orderNumber}`)}`);
+  }
+
   const order = await db.order.findUnique({
     where: { orderNumber },
     include: { items: true, shippingAddress: true },
@@ -29,11 +36,19 @@ export default async function CheckoutSuccessPage({
 
   if (!order) notFound();
 
+  const isOwner = order.userId === user.id || (Boolean(order.guestEmail) && order.guestEmail === user.email);
+  const isAdmin = can(user, 'orders.read');
+  if (!isOwner && !isAdmin) {
+    notFound();
+  }
+
   return (
     <div className="container-editorial pt-32 pb-24">
       <div className="mx-auto max-w-2xl">
         <p className="text-sm tracking-[0.15em] text-gold">תודה</p>
-        <h1 className="mt-3 font-serif text-4xl text-ivory sm:text-5xl">ההזמנה התקבלה</h1>
+        <h1 className="mt-3 font-serif text-4xl text-ivory sm:text-5xl">
+          ההזמנה התקבלה בהצלחה
+        </h1>
         <p className="mt-4 text-base text-cream/85">
           מספר ההזמנה שלכם הוא{' '}
           <span className="ltr-nums font-medium text-gold" dir="ltr">
@@ -42,12 +57,12 @@ export default async function CheckoutSuccessPage({
           . שלחנו אישור לכתובת הדוא״ל שהזנתם.
         </p>
 
-        {order.isDevelopmentOrder && (
+        {order.paymentStatus !== 'PAID' && (
           <p
             role="note"
-            className="mt-6 rounded-sm border border-warning/50 bg-warning/10 p-4 text-sm leading-relaxed text-warning"
+            className="mt-6 rounded-sm border border-gold/25 bg-charcoal p-4 text-sm leading-relaxed text-cream/85"
           >
-            הזמנה זו נוצרה במצב פיתוח. לא בוצע חיוב אמיתי ולא יישלח משלוח.
+            פרטי התשלום והמשלוח יתואמו לאחר אישור ההזמנה.
           </p>
         )}
 
@@ -58,7 +73,13 @@ export default async function CheckoutSuccessPage({
             <dt className="text-muted">תאריך</dt>
             <dd className="text-cream">{formatDateHe(order.placedAt)}</dd>
             <dt className="text-muted">אופן משלוח</dt>
-            <dd className="text-cream">{DELIVERY_METHOD_LABELS[order.deliveryMethod]}</dd>
+            <dd className="text-cream">
+              {order.shippingMethod === 'SELF_PICKUP' || order.deliveryMethod === 'STORE_PICKUP'
+                ? 'איסוף עצמי'
+                : order.shippingMethod === 'EXPRESS' || order.deliveryMethod === 'EXPRESS_DELIVERY'
+                  ? 'משלוח מהיר'
+                  : 'משלוח רגיל'}
+            </dd>
           </dl>
 
           <ul className="mt-6 flex flex-col gap-3 border-t border-gold/15 pt-5">
@@ -89,7 +110,7 @@ export default async function CheckoutSuccessPage({
               </div>
             )}
             <div className="flex justify-between">
-              <dt className="text-muted">משלוח</dt>
+              <dt className="text-muted">עלות משלוח</dt>
               <dd className="ltr-nums text-cream">
                 {order.shippingAgorot === 0 ? 'חינם' : formatPrice(order.shippingAgorot)}
               </dd>
@@ -102,7 +123,7 @@ export default async function CheckoutSuccessPage({
             </div>
           </dl>
 
-          {order.shippingAddress && (
+          {order.shippingAddress ? (
             <div className="mt-6 border-t border-gold/15 pt-5 text-sm">
               <h3 className="text-muted">כתובת למשלוח</h3>
               <p className="mt-1.5 text-cream">
@@ -114,17 +135,24 @@ export default async function CheckoutSuccessPage({
                 {order.shippingAddress.city}
               </p>
             </div>
+          ) : (
+            <div className="mt-6 border-t border-gold/15 pt-5 text-sm">
+              <h3 className="text-muted">פרטי איסוף</h3>
+              <p className="mt-1.5 text-gold">
+                לאחר אישור ההזמנה ניצור איתכם קשר לתיאום האיסוף.
+              </p>
+            </div>
           )}
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/shop">להמשך קנייה</ButtonLink>
           <Link
-            href="/account/orders"
-            className="inline-flex h-11 items-center rounded-sm border border-gold/40 px-5 text-sm text-cream hover:border-gold hover:text-ivory"
+            href={`/account/orders/${order.id}`}
+            className="inline-flex h-11 items-center rounded-sm bg-gold px-6 text-sm font-medium text-ink hover:bg-cream"
           >
-            להזמנות שלי
+            צפייה בהזמנה
           </Link>
+          <ButtonLink href="/shop">המשך בקניות</ButtonLink>
         </div>
       </div>
     </div>

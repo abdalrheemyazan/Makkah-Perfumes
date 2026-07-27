@@ -21,6 +21,8 @@
     "db:repair-commerce": "tsx scripts/repair-commerce.ts",
     "db:verify-concurrency": "tsx scripts/verify-inventory-concurrency.ts",
     "assets:pwa-icons": "node scripts/build-pwa-icons.mjs",
+    "coupon:create-launch": "tsx scripts/create-launch-coupon.ts",
+    "accounts:cleanup": "tsx scripts/cleanup-accounts.ts",
     "db:cleanup-test-products": "tsx scripts/cleanup-test-products.mjs",
     "db:test-setup": "node scripts/setup-test-db.mjs",
     "admin:create": "tsx scripts/create-admin.ts",

@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/commerce/money';
 import { formatDateHe } from '@/lib/utils';
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from '@/lib/commerce/labels';
+import { ORDER_STATUS_LABELS } from '@/lib/commerce/labels';
 import { ButtonLink } from '@/components/ui/button';
 import { PageIdentity } from '@/components/layout/page-identity';
 
@@ -36,7 +36,7 @@ export default async function AccountOrdersPage() {
 
       {orders.length === 0 ? (
         <div className="rounded-lg border border-gold/15 bg-charcoal p-10 text-center">
-          <p className="font-serif text-xl text-ivory">אין עדיין הזמנות</p>
+          <p className="font-serif text-xl text-ivory">עדיין לא ביצעתם הזמנות.</p>
           <p className="mt-2 text-sm text-muted">כשתבצעו הזמנה, היא תופיע כאן.</p>
           <div className="mt-6">
             <ButtonLink href="/shop">למעבר לחנות</ButtonLink>
@@ -55,22 +55,34 @@ export default async function AccountOrdersPage() {
                   >
                     {order.orderNumber}
                   </Link>
-                  <p className="mt-1 text-xs text-muted">{formatDateHe(order.placedAt)}</p>
+                  <p className="mt-1 text-xs text-muted">
+                    {formatDateHe(order.placedAt)} ·{' '}
+                    <span className="ltr-nums">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</span> פריטים
+                  </p>
+                  <p className="mt-1 text-xs text-cream/70">
+                    אופן משלוח:{' '}
+                    {order.shippingMethod === 'SELF_PICKUP' || order.deliveryMethod === 'STORE_PICKUP'
+                      ? 'איסוף עצמי'
+                      : order.shippingMethod === 'EXPRESS' || order.deliveryMethod === 'EXPRESS_DELIVERY'
+                        ? 'משלוח מהיר'
+                        : 'משלוח רגיל'}
+                  </p>
                 </div>
                 <div className="text-end">
                   <p className="ltr-nums text-lg text-cream">{formatPrice(order.totalAgorot)}</p>
                   <p className="mt-1 text-xs text-gold">
-                    {ORDER_STATUS_LABELS[order.status]} ·{' '}
-                    {PAYMENT_STATUS_LABELS[order.paymentStatus]}
+                    {ORDER_STATUS_LABELS[order.status]}
                   </p>
+                  <div className="mt-2">
+                    <Link
+                      href={`/account/orders/${order.id}`}
+                      className="text-xs text-gold underline underline-offset-2 hover:text-cream"
+                    >
+                      צפייה בפרטים
+                    </Link>
+                  </div>
                 </div>
               </div>
-
-              {order.isDevelopmentOrder && (
-                <p className="mt-3 text-xs text-warning">
-                  הזמנת פיתוח — לא בוצע חיוב אמיתי.
-                </p>
-              )}
 
               <ul className="mt-4 flex flex-col gap-1.5 border-t border-gold/10 pt-4 text-sm">
                 {order.items.map((item) => (

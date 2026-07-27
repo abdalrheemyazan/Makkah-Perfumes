@@ -57,10 +57,7 @@ export async function sendOrderConfirmation(input: {
   ];
 
   if (input.isDevelopmentOrder) {
-    lines.push(
-      '',
-      '⚠️ הזמנה זו נוצרה במצב פיתוח. לא בוצע חיוב אמיתי ולא יישלח משלוח.',
-    );
+    lines.push('', 'פרטי התשלום והמשלוח יתואמו לאחר אישור ההזמנה.');
   }
 
   await send({

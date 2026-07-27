@@ -441,6 +441,7 @@ export const OrderScalarFieldEnum = {
   shippingAddressId: 'shippingAddressId',
   billingAddressId: 'billingAddressId',
   deliveryMethod: 'deliveryMethod',
+  shippingMethod: 'shippingMethod',
   subtotalAgorot: 'subtotalAgorot',
   discountAgorot: 'discountAgorot',
   shippingAgorot: 'shippingAgorot',

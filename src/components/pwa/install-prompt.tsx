@@ -1,37 +1,62 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import {
+  INSTALL_DISMISSED_AT_KEY,
+  INSTALL_INSTALLED_KEY,
+  INSTALL_SESSION_SHOWN_KEY,
+  INSTALL_SHOW_DELAY_MS,
+  isRouteExcluded,
+  parseDismissedAt,
+  shouldShowInstallBanner,
+} from '@/lib/pwa-install';
 
 /**
- * PWA install experience — intentionally quiet.
+ * PWA install experience — intentionally quiet, and shown at most once per tab
+ * session.
  *
- * Rules honoured:
- *  - never an on-load popup; the banner only appears once the browser fires
- *    `beforeinstallprompt` (or, on iOS, when the app is clearly installable),
- *    and after a short delay so it never interrupts first paint;
- *  - never shown when already installed (display-mode: standalone);
- *  - dismissible, and a dismissal is remembered for 30 days;
- *  - iOS gets manual "Add to Home Screen" guidance since it has no prompt API.
+ * The banner is mounted once from the persistent site layout, so it does not
+ * remount on internal navigation. As a belt-and-suspenders guard against any
+ * remount, a sessionStorage flag (`makkah-pwa-install-shown`) is written the
+ * moment it appears, so it never reopens during the session. Dismissing it (or
+ * Escape) hides it for one hour via a localStorage timestamp; installing it hides
+ * it forever. All storage access is guarded and tolerant of private mode / bad
+ * values, and a single `beforeinstallprompt` listener is registered.
  */
-
-const DISMISS_KEY = 'makkah-pwa-dismissed';
-const DISMISS_DAYS = 30;
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 };
 
-function recentlyDismissed(): boolean {
+function safeLocalGet(key: string): string | null {
   try {
-    const raw = localStorage.getItem(DISMISS_KEY);
-    if (!raw) return false;
-    const when = Number(raw);
-    if (!Number.isFinite(when)) return false;
-    return Date.now() - when < DISMISS_DAYS * 24 * 60 * 60 * 1000;
+    return typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
   } catch {
-    return false;
+    return null;
+  }
+}
+function safeLocalSet(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined') window.localStorage.setItem(key, value);
+  } catch {
+    /* private mode — nothing to persist */
+  }
+}
+function safeSessionGet(key: string): string | null {
+  try {
+    return typeof window !== 'undefined' ? window.sessionStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+function safeSessionSet(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined') window.sessionStorage.setItem(key, value);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -39,9 +64,12 @@ function isStandalone(): boolean {
   if (typeof window === 'undefined') return false;
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    // iOS Safari
     (window.navigator as unknown as { standalone?: boolean }).standalone === true
   );
+}
+
+function isInstalledFlag(): boolean {
+  return safeLocalGet(INSTALL_INSTALLED_KEY) === 'true';
 }
 
 function isIos(): boolean {
@@ -49,53 +77,90 @@ function isIos(): boolean {
   return /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
 }
 
+/** Reads the current storage/route state and asks the pure guard. */
+function eligibleNow(excluded: boolean): boolean {
+  return shouldShowInstallBanner({
+    installed: isInstalledFlag(),
+    standalone: isStandalone(),
+    excludedRoute: excluded,
+    sessionShown: safeSessionGet(INSTALL_SESSION_SHOWN_KEY) === '1',
+    dismissedAt: parseDismissedAt(safeLocalGet(INSTALL_DISMISSED_AT_KEY)),
+  });
+}
+
 export function InstallPrompt() {
+  const pathname = usePathname();
+  const excluded = isRouteExcluded(pathname);
+
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
   const [visible, setVisible] = useState(false);
 
+  // Mirror the latest exclusion into a ref so the (once-registered) timer reads
+  // the current route without re-arming on navigation.
+  const excludedRef = useRef(excluded);
   useEffect(() => {
-    if (isStandalone() || recentlyDismissed()) return;
+    excludedRef.current = excluded;
+  }, [excluded]);
+
+  // Register exactly one set of listeners for the component's lifetime.
+  useEffect(() => {
+    if (isInstalledFlag() || isStandalone()) return;
+
+    let revealTimer: number | undefined;
+
+    const reveal = (ios: boolean) => {
+      if (revealTimer !== undefined) return; // a single scheduled reveal
+      revealTimer = window.setTimeout(() => {
+        revealTimer = undefined;
+        if (!eligibleNow(excludedRef.current)) return;
+        if (ios) setShowIosHint(true);
+        setVisible(true);
+        // Mark shown immediately, so navigation/remounts never reopen it.
+        safeSessionSet(INSTALL_SESSION_SHOWN_KEY, '1');
+      }, INSTALL_SHOW_DELAY_MS);
+    };
 
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();
       setDeferred(event as BeforeInstallPromptEvent);
-      // Small delay so it never competes with first paint.
-      window.setTimeout(() => setVisible(true), 2500);
+      if (eligibleNow(excludedRef.current)) reveal(false);
     };
-    window.addEventListener('beforeinstallprompt', onBeforeInstall);
-
-    // iOS has no beforeinstallprompt — offer manual guidance instead. Both
-    // setStates run from the timer callback, not synchronously in the effect body.
-    let iosTimer: number | undefined;
-    if (isIos()) {
-      iosTimer = window.setTimeout(() => {
-        setShowIosHint(true);
-        setVisible(true);
-      }, 2500);
-    }
 
     const onInstalled = () => {
+      if (revealTimer !== undefined) window.clearTimeout(revealTimer);
       setVisible(false);
       setDeferred(null);
+      safeLocalSet(INSTALL_INSTALLED_KEY, 'true');
     };
+
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
     window.addEventListener('appinstalled', onInstalled);
+
+    // iOS has no beforeinstallprompt — offer the manual hint on the same terms.
+    if (isIos() && eligibleNow(excludedRef.current)) reveal(true);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', onBeforeInstall);
       window.removeEventListener('appinstalled', onInstalled);
-      if (iosTimer) window.clearTimeout(iosTimer);
+      if (revealTimer !== undefined) window.clearTimeout(revealTimer);
     };
   }, []);
 
   function dismiss() {
     setVisible(false);
-    try {
-      localStorage.setItem(DISMISS_KEY, String(Date.now()));
-    } catch {
-      /* private mode — nothing to persist */
-    }
+    safeLocalSet(INSTALL_DISMISSED_AT_KEY, String(Date.now()));
   }
+
+  // Escape closes the (non-modal) banner and counts as a one-hour dismissal.
+  useEffect(() => {
+    if (!visible) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') dismiss();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [visible]);
 
   async function install() {
     if (!deferred) return;
@@ -105,7 +170,7 @@ export function InstallPrompt() {
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (excluded || safeSessionGet(INSTALL_SESSION_SHOWN_KEY) === '1' || !visible) return null;
 
   return (
     <div

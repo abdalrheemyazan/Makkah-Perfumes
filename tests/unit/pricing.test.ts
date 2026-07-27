@@ -10,8 +10,6 @@ import {
 } from '@/lib/commerce/money';
 import {
   calculateCartTotals,
-  DEVELOPMENT_FREE_SHIPPING_THRESHOLD,
-  DEVELOPMENT_SHIPPING_RATES,
   evaluateCoupon,
   priceLine,
   shippingFor,
@@ -129,7 +127,7 @@ describe('evaluateCoupon', () => {
   it('rejects an inactive coupon', () => {
     expect(evaluateCoupon({ ...baseCoupon, isActive: false }, 20000)).toMatchObject({
       ok: false,
-      reasonHe: 'הקופון אינו פעיל',
+      reasonHe: 'הקופון אינו פעיל כרגע',
     });
   });
 
@@ -137,29 +135,29 @@ describe('evaluateCoupon', () => {
     const now = new Date('2026-07-24T12:00:00Z');
     expect(
       evaluateCoupon({ ...baseCoupon, startsAt: new Date('2026-08-01') }, 20000, { now }),
-    ).toMatchObject({ ok: false, reasonHe: 'הקופון עדיין לא בתוקף' });
+    ).toMatchObject({ ok: false, reasonHe: 'הקופון אינו פעיל כרגע' });
 
     expect(
       evaluateCoupon({ ...baseCoupon, endsAt: new Date('2026-07-01') }, 20000, { now }),
-    ).toMatchObject({ ok: false, reasonHe: 'תוקף הקופון פג' });
+    ).toMatchObject({ ok: false, reasonHe: 'תוקף הקופון הסתיים' });
   });
 
   it('rejects an exhausted coupon', () => {
     expect(
       evaluateCoupon({ ...baseCoupon, usageLimit: 5, usageCount: 5 }, 20000),
-    ).toMatchObject({ ok: false, reasonHe: 'הקופון מוצה' });
+    ).toMatchObject({ ok: false, reasonHe: 'לא ניתן להשתמש בקופון זה יותר' });
   });
 
   it('enforces the per-user limit', () => {
     expect(
       evaluateCoupon({ ...baseCoupon, perUserLimit: 1 }, 20000, { userRedemptionCount: 1 }),
-    ).toMatchObject({ ok: false, reasonHe: 'כבר מימשתם את הקופון הזה' });
+    ).toMatchObject({ ok: false, reasonHe: 'לא ניתן להשתמש בקופון זה יותר' });
   });
 
   it('enforces the minimum subtotal', () => {
     expect(
       evaluateCoupon({ ...baseCoupon, minSubtotalAgorot: 30000 }, 20000),
-    ).toMatchObject({ ok: false });
+    ).toMatchObject({ ok: false, reasonHe: 'סכום ההזמנה אינו עומד בתנאי הקופון' });
   });
 
   it('reports free shipping without a monetary discount', () => {
@@ -178,29 +176,23 @@ describe('shippingFor', () => {
     expect(shippingFor('STORE_PICKUP', 1000)).toBe(0);
   });
 
-  it('charges the standard rate below the free-shipping threshold', () => {
-    expect(shippingFor('STANDARD_DELIVERY', DEVELOPMENT_FREE_SHIPPING_THRESHOLD - 1)).toBe(
-      DEVELOPMENT_SHIPPING_RATES.STANDARD_DELIVERY,
-    );
+  it('charges exact 2500 agorot for regular shipping', () => {
+    expect(shippingFor('REGULAR', 1000)).toBe(2500);
+    expect(shippingFor('STANDARD_DELIVERY', 1000)).toBe(2500);
   });
 
-  it('is free at or above the threshold for standard delivery', () => {
-    expect(shippingFor('STANDARD_DELIVERY', DEVELOPMENT_FREE_SHIPPING_THRESHOLD)).toBe(0);
-  });
-
-  it('still charges express delivery above the threshold', () => {
-    expect(shippingFor('EXPRESS_DELIVERY', DEVELOPMENT_FREE_SHIPPING_THRESHOLD + 10000)).toBe(
-      DEVELOPMENT_SHIPPING_RATES.EXPRESS_DELIVERY,
-    );
+  it('charges exact 5000 agorot for express shipping', () => {
+    expect(shippingFor('EXPRESS', 1000)).toBe(5000);
+    expect(shippingFor('EXPRESS_DELIVERY', 1000)).toBe(5000);
   });
 
   it('honours a free-shipping coupon', () => {
-    expect(shippingFor('EXPRESS_DELIVERY', 1000, { freeShipping: true })).toBe(0);
+    expect(shippingFor('EXPRESS', 1000, { freeShipping: true })).toBe(0);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Cart totals
+// Cart totals & Controlled Calculation Verification
 // ---------------------------------------------------------------------------
 
 describe('calculateCartTotals', () => {
@@ -209,18 +201,18 @@ describe('calculateCartTotals', () => {
     { variantId: 'b', unitPriceAgorot: 9900, quantity: 1 }, //   9900
   ];
 
-  it('sums lines and adds shipping', () => {
+  it('sums lines and adds express shipping', () => {
     const totals = calculateCartTotals({ lines, deliveryMethod: 'EXPRESS_DELIVERY' });
     expect(totals.subtotalAgorot).toBe(39880);
     expect(totals.discountAgorot).toBe(0);
-    expect(totals.shippingAgorot).toBe(DEVELOPMENT_SHIPPING_RATES.EXPRESS_DELIVERY);
-    expect(totals.totalAgorot).toBe(39880 + DEVELOPMENT_SHIPPING_RATES.EXPRESS_DELIVERY);
+    expect(totals.shippingAgorot).toBe(5000);
+    expect(totals.totalAgorot).toBe(39880 + 5000);
   });
 
-  it('gives free standard shipping above the threshold', () => {
+  it('applies regular shipping', () => {
     const totals = calculateCartTotals({ lines, deliveryMethod: 'STANDARD_DELIVERY' });
-    expect(totals.shippingAgorot).toBe(0);
-    expect(totals.totalAgorot).toBe(39880);
+    expect(totals.shippingAgorot).toBe(2500);
+    expect(totals.totalAgorot).toBe(39880 + 2500);
   });
 
   it('applies a valid coupon and reports the code', () => {
@@ -232,7 +224,7 @@ describe('calculateCartTotals', () => {
     expect(totals.discountAgorot).toBe(3988);
     expect(totals.appliedCouponCode).toBe('WELCOME10');
     expect(totals.couponErrorHe).toBeNull();
-    expect(totals.totalAgorot).toBe(39880 - 3988);
+    expect(totals.totalAgorot).toBe(39880 - 3988 + 2500);
   });
 
   it('reports a rejected coupon without altering the total', () => {
@@ -243,20 +235,53 @@ describe('calculateCartTotals', () => {
     });
     expect(totals.discountAgorot).toBe(0);
     expect(totals.appliedCouponCode).toBeNull();
-    expect(totals.couponErrorHe).toBe('הקופון אינו פעיל');
-    expect(totals.totalAgorot).toBe(39880);
+    expect(totals.couponErrorHe).toBe('הקופון אינו פעיל כרגע');
+    expect(totals.totalAgorot).toBe(39880 + 2500);
   });
 
-  it('recomputes shipping from the discounted subtotal', () => {
-    // 260 ILS drops below the 250 ILS free-shipping threshold after a 10% discount.
-    const totals = calculateCartTotals({
-      lines: [{ variantId: 'a', unitPriceAgorot: 26000, quantity: 1 }],
-      coupon: baseCoupon,
-      deliveryMethod: 'STANDARD_DELIVERY',
-    });
-    expect(totals.discountAgorot).toBe(2600);
-    expect(totals.shippingAgorot).toBe(DEVELOPMENT_SHIPPING_RATES.STANDARD_DELIVERY);
-    expect(totals.totalAgorot).toBe(26000 - 2600 + DEVELOPMENT_SHIPPING_RATES.STANDARD_DELIVERY);
+  it('verifies controlled calculations A, B, C, D', () => {
+    const singleProductLines = [{ variantId: 'p1', unitPriceAgorot: 44900, quantity: 1 }];
+    const percentCoupon: CouponRules = {
+      code: 'LAUNCH10',
+      discountType: 'PERCENTAGE',
+      discountValue: 10,
+      minSubtotalAgorot: null,
+      maxDiscountAgorot: null,
+      usageLimit: null,
+      usageCount: 0,
+      perUserLimit: null,
+      startsAt: null,
+      endsAt: null,
+      isActive: true,
+    };
+
+    // Example A: Subtotal 449.00, Regular Shipping 25.00 -> Total 474.00
+    const calcA = calculateCartTotals({ lines: singleProductLines, deliveryMethod: 'STANDARD_DELIVERY' });
+    expect(calcA.subtotalAgorot).toBe(44900);
+    expect(calcA.discountAgorot).toBe(0);
+    expect(calcA.shippingAgorot).toBe(2500);
+    expect(calcA.totalAgorot).toBe(47400);
+
+    // Example B: Subtotal 449.00, Express Shipping 50.00 -> Total 499.00
+    const calcB = calculateCartTotals({ lines: singleProductLines, deliveryMethod: 'EXPRESS_DELIVERY' });
+    expect(calcB.subtotalAgorot).toBe(44900);
+    expect(calcB.discountAgorot).toBe(0);
+    expect(calcB.shippingAgorot).toBe(5000);
+    expect(calcB.totalAgorot).toBe(49900);
+
+    // Example C: Subtotal 449.00, Coupon 44.90, Regular Shipping 25.00 -> Total 429.10
+    const calcC = calculateCartTotals({ lines: singleProductLines, coupon: percentCoupon, deliveryMethod: 'STANDARD_DELIVERY' });
+    expect(calcC.subtotalAgorot).toBe(44900);
+    expect(calcC.discountAgorot).toBe(4490);
+    expect(calcC.shippingAgorot).toBe(2500);
+    expect(calcC.totalAgorot).toBe(42910);
+
+    // Example D: Subtotal 449.00, Coupon 44.90, Express Shipping 50.00 -> Total 454.10
+    const calcD = calculateCartTotals({ lines: singleProductLines, coupon: percentCoupon, deliveryMethod: 'EXPRESS_DELIVERY' });
+    expect(calcD.subtotalAgorot).toBe(44900);
+    expect(calcD.discountAgorot).toBe(4490);
+    expect(calcD.shippingAgorot).toBe(5000);
+    expect(calcD.totalAgorot).toBe(45410);
   });
 
   it('never produces a negative total', () => {

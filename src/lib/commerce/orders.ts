@@ -42,16 +42,17 @@ export type CreateOrderInput = {
   userId: string | null;
   email: string;
   deliveryMethod: DeliveryMethod;
+  shippingMethod?: 'SELF_PICKUP' | 'REGULAR' | 'EXPRESS';
   address: {
     firstName: string;
     lastName: string;
     phone: string;
-    street: string;
-    houseNumber: string;
+    street?: string;
+    houseNumber?: string;
     apartment?: string;
     entrance?: string;
     floor?: string;
-    city: string;
+    city?: string;
     postalCode?: string;
     notes?: string;
   };
@@ -120,7 +121,19 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     });
 
     if (!cart) throw new CheckoutError('העגלה לא נמצאה.');
-    if (cart.convertedToOrderId) throw new CheckoutError('העגלה כבר הומרה להזמנה.');
+    if (cart.convertedToOrderId) {
+      const existingConverted = await tx.order.findUnique({
+        where: { id: cart.convertedToOrderId },
+        select: { id: true, orderNumber: true, totalAgorot: true, isDevelopmentOrder: true },
+      });
+      if (existingConverted) {
+        return {
+          order: existingConverted as unknown as { id: string; orderNumber: string; isDevelopmentOrder: boolean },
+          totals: { totalAgorot: existingConverted.totalAgorot } as unknown as { totalAgorot: number },
+          isExisting: true,
+        };
+      }
+    }
     if (cart.items.length === 0) throw new CheckoutError('העגלה ריקה.');
 
     // --- Re-validate every line against live data -------------------------
@@ -186,23 +199,26 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     }
 
     // --- Address ----------------------------------------------------------
-    const address = await tx.address.create({
-      data: {
-        userId: input.userId,
-        kind: 'SHIPPING',
-        firstName: input.address.firstName,
-        lastName: input.address.lastName,
-        phone: input.address.phone,
-        street: input.address.street,
-        houseNumber: input.address.houseNumber,
-        apartment: input.address.apartment || null,
-        entrance: input.address.entrance || null,
-        floor: input.address.floor || null,
-        city: input.address.city,
-        postalCode: input.address.postalCode || null,
-        notes: input.address.notes || null,
-      },
-    });
+    const isPickup = input.shippingMethod === 'SELF_PICKUP' || input.deliveryMethod === 'STORE_PICKUP';
+    const address = isPickup
+      ? null
+      : await tx.address.create({
+          data: {
+            userId: input.userId,
+            kind: 'SHIPPING',
+            firstName: input.address.firstName,
+            lastName: input.address.lastName,
+            phone: input.address.phone,
+            street: input.address.street || 'איסוף עצמי',
+            houseNumber: input.address.houseNumber || '1',
+            apartment: input.address.apartment || null,
+            entrance: input.address.entrance || null,
+            floor: input.address.floor || null,
+            city: input.address.city || 'איסוף עצמי',
+            postalCode: input.address.postalCode || null,
+            notes: input.address.notes || null,
+          },
+        });
 
     // --- Order ------------------------------------------------------------
     const orderNumber = await nextOrderNumber(tx);
@@ -217,9 +233,10 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
         status: 'PENDING',
         paymentStatus: 'PENDING',
         fulfillmentStatus: 'UNFULFILLED',
-        shippingAddressId: address.id,
-        billingAddressId: address.id,
+        shippingAddressId: address?.id ?? null,
+        billingAddressId: address?.id ?? null,
         deliveryMethod: input.deliveryMethod,
+        shippingMethod: input.shippingMethod ?? (input.deliveryMethod === 'EXPRESS_DELIVERY' ? 'EXPRESS' : input.deliveryMethod === 'STORE_PICKUP' ? 'SELF_PICKUP' : 'REGULAR'),
         subtotalAgorot: totals.subtotalAgorot,
         discountAgorot: totals.discountAgorot,
         shippingAgorot: totals.shippingAgorot,
@@ -353,7 +370,37 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     }
   }
 
-  // --- Authorise payment outside the transaction --------------------------
+  if ((created as { isExisting?: boolean }).isExisting) {
+    return {
+      orderId: created.order.id,
+      orderNumber: created.order.orderNumber,
+      totalAgorot: created.totals.totalAgorot,
+      isDevelopmentOrder: created.order.isDevelopmentOrder,
+    };
+  }
+
+  // --- Payment ------------------------------------------------------------
+  // With no live gateway connected, the order is placed as PENDING and is never
+  // marked PAID. No fake authorization runs and no card is requested; payment is
+  // coordinated manually after the order is confirmed. When a real provider is
+  // registered (`provider.isLive === true`), the authorize→PAID flow below runs.
+  if (!provider.isLive) {
+    await db.orderEvent.create({
+      data: {
+        orderId: created.order.id,
+        type: 'order.awaiting_payment',
+        messageHe: 'ההזמנה התקבלה. פרטי התשלום והמשלוח יתואמו לאחר אישור ההזמנה.',
+      },
+    });
+    return {
+      orderId: created.order.id,
+      orderNumber: created.order.orderNumber,
+      totalAgorot: created.totals.totalAgorot,
+      isDevelopmentOrder: !provider.isLive,
+    };
+  }
+
+  // --- Authorise payment outside the transaction (live providers only) ----
   // Network calls must not hold a database transaction open.
   const authorization = await provider.authorize({
     orderId: created.order.id,

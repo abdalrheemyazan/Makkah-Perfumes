@@ -85,12 +85,46 @@ export const registerSchema = z.object({
   acceptsMarketing: z.coerce.boolean().optional().default(false),
 });
 
-export const checkoutSchema = z.object({
-  email: emailSchema,
-  deliveryMethod: z.enum(['STANDARD_DELIVERY', 'EXPRESS_DELIVERY', 'STORE_PICKUP']),
-  address: israeliAddressSchema,
-  customerNote: z.string().trim().max(500).optional().or(z.literal('')),
-});
+export const checkoutSchema = z
+  .object({
+    email: emailSchema,
+    deliveryMethod: z.enum(['STANDARD_DELIVERY', 'EXPRESS_DELIVERY', 'STORE_PICKUP']).optional().default('STANDARD_DELIVERY'),
+    shippingMethod: z.enum(['SELF_PICKUP', 'REGULAR', 'EXPRESS']).optional().default('SELF_PICKUP'),
+    address: z.object({
+      firstName: nameSchema,
+      lastName: nameSchema,
+      phone: phoneSchema,
+      street: z.string().trim().optional().or(z.literal('')),
+      houseNumber: z.string().trim().optional().or(z.literal('')),
+      apartment: z.string().trim().optional().or(z.literal('')),
+      entrance: z.string().trim().optional().or(z.literal('')),
+      floor: z.string().trim().optional().or(z.literal('')),
+      city: z.string().trim().optional().or(z.literal('')),
+      postalCode: z.string().trim().optional().or(z.literal('')),
+      notes: z.string().trim().optional().or(z.literal('')),
+    }),
+    customerNote: z.string().trim().max(500).optional().or(z.literal('')),
+  })
+  .superRefine((data, ctx) => {
+    const method =
+      data.shippingMethod ??
+      (data.deliveryMethod === 'STORE_PICKUP'
+        ? 'SELF_PICKUP'
+        : data.deliveryMethod === 'EXPRESS_DELIVERY'
+          ? 'EXPRESS'
+          : 'REGULAR');
+    if (method !== 'SELF_PICKUP') {
+      if (!data.address.street || data.address.street.trim().length < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'יש להזין שם רחוב', path: ['address.street'] });
+      }
+      if (!data.address.houseNumber || data.address.houseNumber.trim().length < 1) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'יש להזין מספר בית', path: ['address.houseNumber'] });
+      }
+      if (!data.address.city || data.address.city.trim().length < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'יש להזין עיר', path: ['address.city'] });
+      }
+    }
+  });
 
 export const contactSchema = z.object({
   name: nameSchema,

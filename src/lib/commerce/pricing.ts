@@ -9,23 +9,36 @@ import { clampToZero, percentageOf, sumAgorot, type MoneyError } from './money';
  */
 
 export type DeliveryMethod = 'STANDARD_DELIVERY' | 'EXPRESS_DELIVERY' | 'STORE_PICKUP';
+export type ShippingMethod = 'SELF_PICKUP' | 'REGULAR' | 'EXPRESS';
 export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING';
 
-/**
- * ⚠️ נתוני פיתוח — תעריפי המשלוח לא אומתו מול הלקוח.
- * ראו docs/MISSING_BUSINESS_DATA.md §1.3. יש להחליף לפני עלייה לייצור.
- */
+/** Shared official shipping configuration */
+export const SHIPPING_METHODS = {
+  SELF_PICKUP: { label: 'איסוף עצמי', amount: 0 },
+  REGULAR: { label: 'משלוח רגיל', amount: 2500 },
+  EXPRESS: { label: 'משלוח מהיר', amount: 5000 },
+} as const;
+
+export const SHIPPING_PRICES = {
+  SELF_PICKUP: 0,
+  REGULAR: 2500,
+  EXPRESS: 5000,
+} as const;
+
 export const DEVELOPMENT_SHIPPING_RATES: Readonly<Record<DeliveryMethod, number>> = {
-  STANDARD_DELIVERY: 2900,
-  EXPRESS_DELIVERY: 4900,
+  STANDARD_DELIVERY: 2500,
+  EXPRESS_DELIVERY: 5000,
   STORE_PICKUP: 0,
 };
 
-/** ⚠️ נתוני פיתוח — סף למשלוח חינם. */
-export const DEVELOPMENT_FREE_SHIPPING_THRESHOLD = 25000;
-
-/** True while shipping pricing is still using unverified development values. */
-export const SHIPPING_RATES_VERIFIED = false;
+/** Normalizes coupon codes to uppercase alphanumeric string */
+export function normalizeCouponCode(code: string): string {
+  const trimmed = code.trim().toUpperCase();
+  if (!/^[A-Z0-9_-]+$/.test(trimmed)) {
+    throw new Error('קוד הקופון אינו תקין');
+  }
+  return trimmed;
+}
 
 export type PriceableLine = {
   variantId: string;
@@ -85,22 +98,22 @@ export function evaluateCoupon(
   const userRedemptions = options.userRedemptionCount ?? 0;
 
   if (!coupon.isActive) {
-    return { ok: false, reasonHe: 'הקופון אינו פעיל' };
+    return { ok: false, reasonHe: 'הקופון אינו פעיל כרגע' };
   }
   if (coupon.startsAt && now < coupon.startsAt) {
-    return { ok: false, reasonHe: 'הקופון עדיין לא בתוקף' };
+    return { ok: false, reasonHe: 'הקופון אינו פעיל כרגע' };
   }
   if (coupon.endsAt && now > coupon.endsAt) {
-    return { ok: false, reasonHe: 'תוקף הקופון פג' };
+    return { ok: false, reasonHe: 'תוקף הקופון הסתיים' };
   }
   if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
-    return { ok: false, reasonHe: 'הקופון מוצה' };
+    return { ok: false, reasonHe: 'לא ניתן להשתמש בקופון זה יותר' };
   }
   if (coupon.perUserLimit !== null && userRedemptions >= coupon.perUserLimit) {
-    return { ok: false, reasonHe: 'כבר מימשתם את הקופון הזה' };
+    return { ok: false, reasonHe: 'לא ניתן להשתמש בקופון זה יותר' };
   }
   if (coupon.minSubtotalAgorot !== null && subtotalAgorot < coupon.minSubtotalAgorot) {
-    return { ok: false, reasonHe: 'סכום ההזמנה נמוך מהמינימום הנדרש לקופון' };
+    return { ok: false, reasonHe: 'סכום ההזמנה אינו עומד בתנאי הקופון' };
   }
 
   if (coupon.discountType === 'FREE_SHIPPING') {
@@ -122,19 +135,19 @@ export function evaluateCoupon(
 }
 
 export function shippingFor(
-  method: DeliveryMethod,
+  method: DeliveryMethod | ShippingMethod,
   subtotalAfterDiscount: number,
   options: { freeShipping?: boolean } = {},
 ): number {
   if (options.freeShipping) return 0;
   if (method === 'STORE_PICKUP') return 0;
-  if (
-    method === 'STANDARD_DELIVERY' &&
-    subtotalAfterDiscount >= DEVELOPMENT_FREE_SHIPPING_THRESHOLD
-  ) {
-    return 0;
+  if (method === 'REGULAR' || method === 'STANDARD_DELIVERY') {
+    return SHIPPING_PRICES.REGULAR;
   }
-  return DEVELOPMENT_SHIPPING_RATES[method];
+  if (method === 'EXPRESS' || method === 'EXPRESS_DELIVERY') {
+    return SHIPPING_PRICES.EXPRESS;
+  }
+  return SHIPPING_PRICES.REGULAR;
 }
 
 export type CartTotals = {

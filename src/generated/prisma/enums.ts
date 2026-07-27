@@ -177,6 +177,15 @@ export const DeliveryMethod = {
 export type DeliveryMethod = (typeof DeliveryMethod)[keyof typeof DeliveryMethod]
 
 
+export const ShippingMethod = {
+  SELF_PICKUP: 'SELF_PICKUP',
+  REGULAR: 'REGULAR',
+  EXPRESS: 'EXPRESS'
+} as const
+
+export type ShippingMethod = (typeof ShippingMethod)[keyof typeof ShippingMethod]
+
+
 export const AddressKind = {
   SHIPPING: 'SHIPPING',
   BILLING: 'BILLING'

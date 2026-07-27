@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { getOrCreateCart } from '@/lib/commerce/cart';
 import { evaluateCoupon } from '@/lib/commerce/pricing';
+import { isValidCouponCode, normalizeCouponCode } from '@/lib/commerce/coupon-code';
 import type { CartActionState } from '@/lib/action-state';
 
 const MAX_PER_LINE = 20;
@@ -185,14 +186,20 @@ export async function applyCoupon(
   _previous: CartActionState,
   formData: FormData,
 ): Promise<CartActionState> {
-  const code = String(formData.get('code') ?? '').trim().toUpperCase();
-  if (!code) return { status: 'error', messageHe: 'יש להזין קוד קופון.' };
+  const raw = String(formData.get('code') ?? '');
+  if (!raw.trim()) return { status: 'error', messageHe: 'יש להזין קוד קופון.' };
+
+  const code = normalizeCouponCode(raw);
+  if (!isValidCouponCode(code)) {
+    return { status: 'error', messageHe: 'קוד הקופון אינו תקין' };
+  }
 
   const user = await getCurrentUser();
   const cart = await getOrCreateCart(user?.id);
 
+  // Codes are stored normalized, so this is an exact, case-insensitive match.
   const coupon = await db.coupon.findUnique({ where: { code } });
-  if (!coupon) return { status: 'error', messageHe: 'קוד הקופון אינו קיים.' };
+  if (!coupon) return { status: 'error', messageHe: 'קוד הקופון אינו תקין' };
 
   const subtotal = cart.items.reduce(
     (sum, item) => sum + item.variant.priceAgorot * item.quantity,
@@ -227,7 +234,7 @@ export async function applyCoupon(
 
   await db.cart.update({ where: { id: cart.id }, data: { couponId: coupon.id } });
   revalidateCartSurfaces();
-  return { status: 'success', messageHe: 'הקופון הוחל' };
+  return { status: 'success', messageHe: 'הקופון הוחל בהצלחה' };
 }
 
 export async function removeCoupon(): Promise<CartActionState> {

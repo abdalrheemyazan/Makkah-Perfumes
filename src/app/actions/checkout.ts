@@ -22,7 +22,8 @@ export async function placeOrder(
 
   const parsed = checkoutSchema.safeParse({
     email: formData.get('email'),
-    deliveryMethod: formData.get('deliveryMethod'),
+    deliveryMethod: formData.get('deliveryMethod') ?? undefined,
+    shippingMethod: formData.get('shippingMethod') ?? undefined,
     customerNote: formData.get('customerNote') ?? '',
     address: {
       firstName: formData.get('firstName'),
@@ -59,15 +60,37 @@ export async function placeOrder(
   }
 
   const user = await getCurrentUser();
+  if (!user) {
+    return { status: 'error', messageHe: 'יש להתחבר לחשבון כדי להשלים את ההזמנה.', errors: {} };
+  }
 
   let orderNumber: string;
   try {
+    const shippingMethod = parsed.data.shippingMethod ?? 'SELF_PICKUP';
     const result = await createOrder({
       cartToken,
-      userId: user?.id ?? null,
+      userId: user.id,
       email: parsed.data.email,
-      deliveryMethod: parsed.data.deliveryMethod,
-      address: parsed.data.address,
+      deliveryMethod:
+        shippingMethod === 'SELF_PICKUP'
+          ? 'STORE_PICKUP'
+          : shippingMethod === 'EXPRESS'
+            ? 'EXPRESS_DELIVERY'
+            : 'STANDARD_DELIVERY',
+      shippingMethod,
+      address: {
+        firstName: parsed.data.address.firstName,
+        lastName: parsed.data.address.lastName,
+        phone: parsed.data.address.phone,
+        street: parsed.data.address.street || 'איסוף עצמי',
+        houseNumber: parsed.data.address.houseNumber || '1',
+        city: parsed.data.address.city || 'איסוף עצמי',
+        apartment: parsed.data.address.apartment || undefined,
+        entrance: parsed.data.address.entrance || undefined,
+        floor: parsed.data.address.floor || undefined,
+        postalCode: parsed.data.address.postalCode || undefined,
+        notes: parsed.data.address.notes || undefined,
+      },
       customerNote: parsed.data.customerNote || undefined,
       idempotencyKey,
     });
@@ -89,7 +112,7 @@ export async function placeOrder(
     console.error('[checkout] order creation failed', error);
     return {
       status: 'error',
-      messageHe: 'אירעה תקלה ביצירת ההזמנה. לא בוצע חיוב. נסו שוב.',
+      messageHe: 'לא הצלחנו להשלים את ההזמנה. נסו שוב.',
       errors: {},
     };
   }

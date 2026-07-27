@@ -144,7 +144,7 @@ export default async function CartPage() {
             </div>
 
             <p className="mt-3 text-xs text-faint">
-              תעריפי המשלוח טרם אומתו מול המותג ומשמשים לצורכי פיתוח.
+              אופן וזמני המשלוח הסופיים יתואמו עם אישור ההזמנה.
             </p>
 
             <div className="mt-6">
