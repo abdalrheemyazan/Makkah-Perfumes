@@ -210,6 +210,12 @@ export async function applyCoupon(
     ? await db.couponRedemption.count({ where: { couponId: coupon.id, userId: user.id } })
     : 0;
 
+  // Per-customer limit already reached in a previous order — reject explicitly,
+  // server-side, based on the authenticated user's real redemption records.
+  if (coupon.perUserLimit !== null && userRedemptionCount >= coupon.perUserLimit) {
+    return { status: 'error', messageHe: 'כבר השתמשתם בקופון זה בהזמנה קודמת.' };
+  }
+
   const evaluation = evaluateCoupon(
     {
       code: coupon.code,

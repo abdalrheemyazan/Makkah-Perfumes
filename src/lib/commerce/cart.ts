@@ -192,8 +192,10 @@ export async function readCartSummary(): Promise<CartSummary> {
   const token = store.get(CART_COOKIE)?.value;
   if (!token) return EMPTY_SUMMARY;
 
+  // Exclude a converted (checked-out) cart so the badge drops to 0 immediately
+  // after an order, even before a fresh cart is created.
   const result = await db.cartItem.aggregate({
-    where: { cart: { token } },
+    where: { cart: { token, convertedToOrderId: null } },
     _sum: { quantity: true },
   });
 
@@ -212,7 +214,9 @@ export async function readCart(
   if (!token) return EMPTY_CART;
 
   const cart = await loadCartByToken(token);
-  if (!cart) return EMPTY_CART;
+  // A converted (checked-out) cart is shown as empty — its items and coupon
+  // belong to the placed order, not to a live cart.
+  if (!cart || cart.convertedToOrderId) return EMPTY_CART;
 
   return projectCart(cart, deliveryMethod);
 }
@@ -227,7 +231,10 @@ export async function getOrCreateCart(userId?: string | null) {
 
   if (existingToken) {
     const existing = await loadCartByToken(existingToken);
-    if (existing) {
+    // A cart that was already converted to an order is closed: never reuse it
+    // (that is what left a used coupon "applied" on the next order). Fall through
+    // and mint a fresh empty cart + cookie instead.
+    if (existing && !existing.convertedToOrderId) {
       // Claim an anonymous cart once the visitor signs in.
       if (userId && !existing.userId) {
         await db.cart.update({ where: { id: existing.id }, data: { userId } });

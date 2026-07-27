@@ -2,28 +2,18 @@
 
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import {
-  INSTALL_DISMISSED_AT_KEY,
-  INSTALL_INSTALLED_KEY,
-  INSTALL_SESSION_SHOWN_KEY,
-  INSTALL_SHOW_DELAY_MS,
-  isRouteExcluded,
-  parseDismissedAt,
-  shouldShowInstallBanner,
-} from '@/lib/pwa-install';
+import { useEffect, useState } from 'react';
+import { INSTALL_INSTALLED_KEY, INSTALL_SHOW_DELAY_MS, isInstallHomepage } from '@/lib/pwa-install';
 
 /**
- * PWA install experience — intentionally quiet, and shown at most once per tab
- * session.
+ * PWA install banner — homepage only, ephemeral.
  *
- * The banner is mounted once from the persistent site layout, so it does not
- * remount on internal navigation. As a belt-and-suspenders guard against any
- * remount, a sessionStorage flag (`makkah-pwa-install-shown`) is written the
- * moment it appears, so it never reopens during the session. Dismissing it (or
- * Escape) hides it for one hour via a localStorage timestamp; installing it hides
- * it forever. All storage access is guarded and tolerant of private mode / bad
- * values, and a single `beforeinstallprompt` listener is registered.
+ * Mounted once from the persistent site layout, so it never remounts on
+ * navigation. It appears only on `/`, ~3s after arriving. Dismissing it ("לא
+ * עכשיו" / Escape) hides it for the current homepage view only — nothing is
+ * persisted, so a refresh or a later return to the homepage may show it again.
+ * The single exception is installation: once installed (or running standalone)
+ * it never shows. One `beforeinstallprompt` listener is registered.
  */
 
 type BeforeInstallPromptEvent = Event & {
@@ -45,20 +35,6 @@ function safeLocalSet(key: string, value: string): void {
     /* private mode — nothing to persist */
   }
 }
-function safeSessionGet(key: string): string | null {
-  try {
-    return typeof window !== 'undefined' ? window.sessionStorage.getItem(key) : null;
-  } catch {
-    return null;
-  }
-}
-function safeSessionSet(key: string, value: string): void {
-  try {
-    if (typeof window !== 'undefined') window.sessionStorage.setItem(key, value);
-  } catch {
-    /* ignore */
-  }
-}
 
 function isStandalone(): boolean {
   if (typeof window === 'undefined') return false;
@@ -68,8 +44,8 @@ function isStandalone(): boolean {
   );
 }
 
-function isInstalledFlag(): boolean {
-  return safeLocalGet(INSTALL_INSTALLED_KEY) === 'true';
+function isInstalled(): boolean {
+  return safeLocalGet(INSTALL_INSTALLED_KEY) === 'true' || isStandalone();
 }
 
 function isIos(): boolean {
@@ -77,82 +53,54 @@ function isIos(): boolean {
   return /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
 }
 
-/** Reads the current storage/route state and asks the pure guard. */
-function eligibleNow(excluded: boolean): boolean {
-  return shouldShowInstallBanner({
-    installed: isInstalledFlag(),
-    standalone: isStandalone(),
-    excludedRoute: excluded,
-    sessionShown: safeSessionGet(INSTALL_SESSION_SHOWN_KEY) === '1',
-    dismissedAt: parseDismissedAt(safeLocalGet(INSTALL_DISMISSED_AT_KEY)),
-  });
-}
-
 export function InstallPrompt() {
   const pathname = usePathname();
-  const excluded = isRouteExcluded(pathname);
+  const onHomepage = isInstallHomepage(pathname);
 
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showIosHint, setShowIosHint] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
-  // Mirror the latest exclusion into a ref so the (once-registered) timer reads
-  // the current route without re-arming on navigation.
-  const excludedRef = useRef(excluded);
+  // Register the one-and-only install listeners for the component's lifetime.
   useEffect(() => {
-    excludedRef.current = excluded;
-  }, [excluded]);
-
-  // Register exactly one set of listeners for the component's lifetime.
-  useEffect(() => {
-    if (isInstalledFlag() || isStandalone()) return;
-
-    let revealTimer: number | undefined;
-
-    const reveal = (ios: boolean) => {
-      if (revealTimer !== undefined) return; // a single scheduled reveal
-      revealTimer = window.setTimeout(() => {
-        revealTimer = undefined;
-        if (!eligibleNow(excludedRef.current)) return;
-        if (ios) setShowIosHint(true);
-        setVisible(true);
-        // Mark shown immediately, so navigation/remounts never reopen it.
-        safeSessionSet(INSTALL_SESSION_SHOWN_KEY, '1');
-      }, INSTALL_SHOW_DELAY_MS);
-    };
-
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();
       setDeferred(event as BeforeInstallPromptEvent);
-      if (eligibleNow(excludedRef.current)) reveal(false);
     };
-
     const onInstalled = () => {
-      if (revealTimer !== undefined) window.clearTimeout(revealTimer);
       setVisible(false);
       setDeferred(null);
       safeLocalSet(INSTALL_INSTALLED_KEY, 'true');
     };
-
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
     window.addEventListener('appinstalled', onInstalled);
-
-    // iOS has no beforeinstallprompt — offer the manual hint on the same terms.
-    if (isIos() && eligibleNow(excludedRef.current)) reveal(true);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', onBeforeInstall);
       window.removeEventListener('appinstalled', onInstalled);
-      if (revealTimer !== undefined) window.clearTimeout(revealTimer);
     };
   }, []);
 
+  // On the homepage, arm a one-shot reveal after the delay. Leaving the homepage
+  // (effect cleanup) resets the ephemeral state so a later return starts fresh.
+  useEffect(() => {
+    if (!onHomepage || isInstalled()) return;
+    const timer = window.setTimeout(() => {
+      if (!isInstalled()) setVisible(true);
+    }, INSTALL_SHOW_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+      setVisible(false);
+      setDismissed(false);
+    };
+  }, [onHomepage]);
+
   function dismiss() {
+    // Ephemeral: hide for this homepage view only. Nothing is persisted.
     setVisible(false);
-    safeLocalSet(INSTALL_DISMISSED_AT_KEY, String(Date.now()));
+    setDismissed(true);
   }
 
-  // Escape closes the (non-modal) banner and counts as a one-hour dismissal.
+  // Escape closes the (non-modal) banner for the current view.
   useEffect(() => {
     if (!visible) return;
     const onKey = (event: KeyboardEvent) => {
@@ -170,7 +118,10 @@ export function InstallPrompt() {
     setVisible(false);
   }
 
-  if (excluded || safeSessionGet(INSTALL_SESSION_SHOWN_KEY) === '1' || !visible) return null;
+  const iosEligible = typeof navigator !== 'undefined' && isIos();
+  if (!onHomepage || !visible || dismissed || isInstalled()) return null;
+  // Non-iOS needs a captured prompt to be installable; iOS shows the manual hint.
+  if (!deferred && !iosEligible) return null;
 
   return (
     <div
@@ -184,13 +135,11 @@ export function InstallPrompt() {
         <div className="min-w-0 flex-1">
           <p className="font-serif text-sm text-ivory">התקנת Makkah Perfumes</p>
           <p className="mt-0.5 text-xs leading-relaxed text-cream/80">
-            {showIosHint
-              ? 'לחצו על שיתוף ולאחר מכן על "הוספה למסך הבית".'
-              : 'התקינו את החנות לגישה מהירה יותר.'}
+            {deferred ? 'התקינו את החנות לגישה מהירה יותר.' : 'לחצו על שיתוף ולאחר מכן על "הוספה למסך הבית".'}
           </p>
 
           <div className="mt-3 flex items-center gap-3">
-            {!showIosHint && deferred && (
+            {deferred && (
               <button
                 type="button"
                 onClick={install}
@@ -199,11 +148,7 @@ export function InstallPrompt() {
                 התקנה
               </button>
             )}
-            <button
-              type="button"
-              onClick={dismiss}
-              className="text-xs text-faint hover:text-cream"
-            >
+            <button type="button" onClick={dismiss} className="text-xs text-faint hover:text-cream">
               לא עכשיו
             </button>
           </div>
