@@ -23,6 +23,7 @@
     "assets:pwa-icons": "node scripts/build-pwa-icons.mjs",
     "coupon:create-launch": "tsx scripts/create-launch-coupon.ts",
     "accounts:cleanup": "tsx scripts/cleanup-accounts.ts",
+    "launch:reset-data": "tsx scripts/launch-reset-data.ts",
     "db:cleanup-test-products": "tsx scripts/cleanup-test-products.mjs",
     "db:test-setup": "node scripts/setup-test-db.mjs",
     "admin:create": "tsx scripts/create-admin.ts",
