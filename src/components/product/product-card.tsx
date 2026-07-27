@@ -2,8 +2,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { ProductCard as ProductCardData } from '@/lib/catalog';
 import { Price } from '@/components/ui/price';
+import { publicVapidKey, emailDeliveryAvailable } from '@/lib/notifications/config';
 import { AddToCartButton } from './add-to-cart-button';
 import { WishlistButton } from './wishlist-button';
+import { RestockNotify } from './restock-notify';
 
 /**
  * Product card.
@@ -90,13 +92,21 @@ export function ProductCard({
           />
         </div>
 
-        {/* Relative + z-10 lifts the button above the card's stretched link. */}
+        {/* Relative + z-10 lifts the control above the card's stretched link. */}
         <div className="relative z-10 mt-4">
-          <AddToCartButton
-            variantId={product.variantId}
-            disabled={!product.inStock}
-            size="sm"
-          />
+          {product.inStock ? (
+            <AddToCartButton variantId={product.variantId} size="sm" />
+          ) : (
+            <RestockNotify
+              productId={product.id}
+              variantId={product.variantId}
+              isLoggedIn={false}
+              accountEmail={null}
+              emailAvailable={emailDeliveryAvailable()}
+              vapidPublicKey={publicVapidKey()}
+              compact
+            />
+          )}
         </div>
       </div>
     </article>

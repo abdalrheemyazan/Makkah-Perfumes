@@ -141,6 +141,33 @@ export const ReviewStatus = {
 export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus]
 
 
+export const NotificationChannel = {
+  EMAIL: 'EMAIL',
+  PUSH: 'PUSH'
+} as const
+
+export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
+
+
+export const RestockSubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  NOTIFIED: 'NOTIFIED',
+  UNSUBSCRIBED: 'UNSUBSCRIBED'
+} as const
+
+export type RestockSubscriptionStatus = (typeof RestockSubscriptionStatus)[keyof typeof RestockSubscriptionStatus]
+
+
+export const NotificationDeliveryStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type NotificationDeliveryStatus = (typeof NotificationDeliveryStatus)[keyof typeof NotificationDeliveryStatus]
+
+
 export const DeliveryMethod = {
   STANDARD_DELIVERY: 'STANDARD_DELIVERY',
   EXPRESS_DELIVERY: 'EXPRESS_DELIVERY',
@@ -173,7 +200,9 @@ export type ContentBlockKind = (typeof ContentBlockKind)[keyof typeof ContentBlo
 export const ContactMessageStatus = {
   NEW: 'NEW',
   READ: 'READ',
-  RESOLVED: 'RESOLVED'
+  IN_PROGRESS: 'IN_PROGRESS',
+  RESOLVED: 'RESOLVED',
+  ARCHIVED: 'ARCHIVED'
 } as const
 
 export type ContactMessageStatus = (typeof ContactMessageStatus)[keyof typeof ContactMessageStatus]

@@ -166,8 +166,15 @@ export function SiteHeader({
             </ul>
           </nav>
 
-          {/* Utility icons — left edge in RTL */}
+          {/* Utility controls — the whole group sits at the left edge in RTL.
+              DOM order is inner→outer; RTL reverses it, so the visual order from
+              the far-left edge inward is: account/login · wishlist · search · cart.
+              The account/login control is the final (outermost) item on desktop;
+              on mobile it lives in the drawer instead to avoid a cramped bar. */}
           <div className="flex shrink-0 items-center gap-1">
+            <IconLink href="/cart" label="עגלת הקניות" badge={liveCartCount}>
+              <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+            </IconLink>
             <IconLink href="/search" label="חיפוש">
               <Search className="h-5 w-5" aria-hidden="true" />
             </IconLink>
@@ -175,22 +182,21 @@ export function SiteHeader({
               <Heart className="h-5 w-5" aria-hidden="true" />
             </IconLink>
 
+            {/* Far-left account/login control — desktop only. */}
             {account.isLoggedIn ? (
-              <AccountMenu displayName={account.displayName} isAdmin={account.isAdmin} />
+              <div className="hidden lg:block">
+                <AccountMenu displayName={account.displayName} isAdmin={account.isAdmin} />
+              </div>
             ) : (
               <Link
                 href="/login"
                 aria-label="התחברות"
-                className="flex h-10 items-center gap-1.5 rounded-sm px-2.5 text-sm text-cream transition-colors hover:text-ivory"
+                className="hidden h-10 items-center gap-1.5 rounded-sm px-2.5 text-sm text-cream transition-colors hover:text-ivory lg:flex"
               >
                 <LogIn className="h-5 w-5" aria-hidden="true" />
-                <span className="hidden sm:inline">התחברות</span>
+                <span>התחברות</span>
               </Link>
             )}
-
-            <IconLink href="/cart" label="עגלת הקניות" badge={liveCartCount}>
-              <ShoppingBag className="h-5 w-5" aria-hidden="true" />
-            </IconLink>
 
             <button
               ref={menuButtonRef}

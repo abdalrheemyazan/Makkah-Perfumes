@@ -75,6 +75,17 @@ export function useA11yMotionStopped(): boolean {
   );
 }
 
+/** True when the browser can register push subscriptions (service worker + Push API). */
+export function usePushSupported(): boolean {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => 'serviceWorker' in navigator && 'PushManager' in window,
+    // Server + first client snapshot: assume unsupported so the push control is
+    // never in the initial HTML; the real value resolves on mount.
+    () => false,
+  );
+}
+
 /** True below the given viewport width. Used to pick mobile media variants. */
 export function useIsNarrowerThan(width: number): boolean {
   return useSyncExternalStore(

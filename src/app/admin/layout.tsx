@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { can, getCurrentUser, isAdmin, type SessionUser } from '@/lib/auth';
+import { db } from '@/lib/db';
 import { ADMIN_NAV } from '@/lib/admin/nav';
 import { ROLE_LABELS } from '@/lib/admin/labels';
 import { logout } from '@/app/actions/auth';
@@ -32,7 +33,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!isAdmin(user)) return <Forbidden />;
 
   // Show only the items this user has the capability for.
-  const nav = ADMIN_NAV.filter((item) => can(user, item.capability));
+  const visible = ADMIN_NAV.filter((item) => can(user, item.capability));
+
+  // New-contact-request badge, only if the user can see that section.
+  const showsContact = visible.some((item) => item.href === '/admin/contact-requests');
+  const newContactCount = showsContact
+    ? await db.contactMessage.count({ where: { status: 'NEW' } })
+    : 0;
+
+  const nav = visible.map((item) =>
+    item.href === '/admin/contact-requests' && newContactCount > 0
+      ? { ...item, badge: newContactCount }
+      : item,
+  );
 
   return (
     <>

@@ -79,6 +79,17 @@ export const CHECKOUT_INITIAL: CheckoutState = {
   errors: {},
 };
 
+// --- Restock notifications ------------------------------------------------
+
+export type RestockActionState = {
+  status: 'idle' | 'success' | 'already' | 'error';
+  messageHe: string;
+  /** Which delivery method the confirmation should reference, for the UI. */
+  channelsHe?: string;
+};
+
+export const RESTOCK_INITIAL: RestockActionState = { status: 'idle', messageHe: '' };
+
 // --- Generic admin mutation ----------------------------------------------
 
 export type AdminActionState = {

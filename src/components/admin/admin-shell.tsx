@@ -60,13 +60,21 @@ export function AdminShell({
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'block rounded-sm px-3 py-2.5 text-sm transition-colors',
+                  'flex items-center justify-between gap-2 rounded-sm px-3 py-2.5 text-sm transition-colors',
                   active
                     ? 'bg-gold/15 font-medium text-gold'
                     : 'text-cream/80 hover:bg-stone/60 hover:text-ivory',
                 )}
               >
-                {item.labelHe}
+                <span>{item.labelHe}</span>
+                {item.badge != null && item.badge > 0 && (
+                  <span
+                    className="ltr-nums grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1.5 text-[0.65rem] font-semibold text-ink"
+                    aria-label={`${item.badge} חדשות`}
+                  >
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
               </Link>
             </li>
           );

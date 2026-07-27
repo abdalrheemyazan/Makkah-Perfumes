@@ -212,3 +212,15 @@ export type ContactMessage = Prisma.ContactMessageModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model PushSubscription
+ * מנוי Web Push של דפדפן. שומר את ה-endpoint ומפתחות ההצפנה (p256dh/auth)
+ * שהדפדפן מנפיק. אלה אינם סודות אישיים אך משמשים אך ורק לשליחת התראות דחיפה.
+ */
+export type PushSubscription = Prisma.PushSubscriptionModel
+/**
+ * Model RestockSubscription
+ * בקשת "עדכנו אותי כשהמוצר חוזר למלאי". נוצרת כאשר מוצר/וריאנט אזל.
+ * אנו שומרים את המינימום הנדרש: מוצר/וריאנט, ואפיק יצירת קשר אחד (משתמש/אימייל/דחיפה).
+ */
+export type RestockSubscription = Prisma.RestockSubscriptionModel

@@ -41,6 +41,14 @@ export const MOVEMENT_REASON_LABELS: Record<string, string> = {
   DAMAGE_WRITE_OFF: 'מחיקה בגלל נזק',
 };
 
+export const CONTACT_STATUS_LABELS: Record<string, string> = {
+  NEW: 'חדשה',
+  READ: 'נקראה',
+  IN_PROGRESS: 'בטיפול',
+  RESOLVED: 'טופלה',
+  ARCHIVED: 'בארכיון',
+};
+
 export const SHIPMENT_STATUS_LABELS: Record<string, string> = {
   PENDING: 'ממתין',
   LABEL_CREATED: 'נוצרה תווית',

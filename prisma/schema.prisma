@@ -118,6 +118,27 @@ enum ReviewStatus {
   REJECTED
 }
 
+// ערוצי התראה על חזרת מוצר למלאי.
+enum NotificationChannel {
+  EMAIL
+  PUSH
+}
+
+// מצב מנוי ה"עדכנו אותי". ACTIVE ממתין, NOTIFIED כבר עודכן, UNSUBSCRIBED בוטל.
+enum RestockSubscriptionStatus {
+  ACTIVE
+  NOTIFIED
+  UNSUBSCRIBED
+}
+
+// תוצאת שליחת ההתראה בפועל — לתיעוד ולריטרַיי בטוח.
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
 enum DeliveryMethod {
   STANDARD_DELIVERY
   EXPRESS_DELIVERY
@@ -143,29 +164,31 @@ enum ContentBlockKind {
 // ===========================================================================
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  emailVerified  DateTime?
-  passwordHash   String?
-  firstName      String?
-  lastName       String?
-  phone          String?
-  acceptsMarketing Boolean @default(false)
-  isActive       Boolean  @default(true)
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  emailVerified       DateTime?
+  passwordHash        String?
+  firstName           String?
+  lastName            String?
+  phone               String?
+  acceptsMarketing    Boolean   @default(false)
+  isActive            Boolean   @default(true)
   deletionRequestedAt DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  roles          UserRole[]
-  sessions       Session[]
-  addresses      Address[]
-  carts          Cart[]
-  wishlist       Wishlist?
-  orders         Order[]
-  reviews        Review[]
-  auditLogs      AuditLog[]
-  passwordResets PasswordResetToken[]
-  contactMessages ContactMessage[]
+  roles                UserRole[]
+  sessions             Session[]
+  addresses            Address[]
+  carts                Cart[]
+  wishlist             Wishlist?
+  orders               Order[]
+  reviews              Review[]
+  auditLogs            AuditLog[]
+  passwordResets       PasswordResetToken[]
+  contactMessages      ContactMessage[]
+  pushSubscriptions    PushSubscription[]
+  restockSubscriptions RestockSubscription[]
 
   @@index([createdAt])
 }
@@ -205,12 +228,12 @@ model Session {
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  tokenHash String   @unique
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -218,28 +241,28 @@ model PasswordResetToken {
 }
 
 model Address {
-  id           String      @id @default(cuid())
-  userId       String?
-  kind         AddressKind @default(SHIPPING)
-  isDefault    Boolean     @default(false)
-  firstName    String
-  lastName     String
-  phone        String
-  street       String
-  houseNumber  String
-  apartment    String?
-  entrance     String?
-  floor        String?
-  city         String
-  postalCode   String?
-  country      String      @default("IL")
-  notes        String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id          String      @id @default(cuid())
+  userId      String?
+  kind        AddressKind @default(SHIPPING)
+  isDefault   Boolean     @default(false)
+  firstName   String
+  lastName    String
+  phone       String
+  street      String
+  houseNumber String
+  apartment   String?
+  entrance    String?
+  floor       String?
+  city        String
+  postalCode  String?
+  country     String      @default("IL")
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  user            User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shippingOrders  Order[] @relation("OrderShippingAddress")
-  billingOrders   Order[] @relation("OrderBillingAddress")
+  user           User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shippingOrders Order[] @relation("OrderShippingAddress")
+  billingOrders  Order[] @relation("OrderBillingAddress")
 
   @@index([userId])
 }
@@ -249,31 +272,31 @@ model Address {
 // ===========================================================================
 
 model Product {
-  id               String        @id @default(cuid())
-  slug             String        @unique
+  id            String        @id @default(cuid())
+  slug          String        @unique
   /// שם התצוגה בעברית — נוצר על ידינו לצורך הממשק
-  nameHe           String
+  nameHe        String
   /// השם הרשמי באנגלית כפי שמופיע על הבקבוק. אין לשנות.
-  nameEn           String
+  nameEn        String
   /// תיאור שיווקי. ראו MISSING_BUSINESS_DATA — לא סופק תיאור רשמי.
-  descriptionHe    String?
-  storyHe          String?
-  usageHe          String?
-  ingredientsHe    String?
-  status           ProductStatus @default(DRAFT)
-  isFeatured       Boolean       @default(false)
-  isNewArrival     Boolean       @default(false)
-  publishedAt      DateTime?
+  descriptionHe String?
+  storyHe       String?
+  usageHe       String?
+  ingredientsHe String?
+  status        ProductStatus @default(DRAFT)
+  isFeatured    Boolean       @default(false)
+  isNewArrival  Boolean       @default(false)
+  publishedAt   DateTime?
 
-  categoryId          String?
-  fragranceFamilyId   String?
+  categoryId        String?
+  fragranceFamilyId String?
 
   /// true כאשר תווי הניחוח אומתו מול הלקוח. כל עוד false — הפירמידה לא מוצגת.
-  notesVerified       Boolean @default(false)
+  notesVerified     Boolean @default(false)
   /// true כאשר המחיר אומת. כל עוד false — המחיר מסומן כ"מחיר לדוגמה" ומוחרג מ-JSON-LD.
-  pricingVerified     Boolean @default(false)
+  pricingVerified   Boolean @default(false)
   /// דגל-על: כל נתוני המוצר שלא מגיעים מהתצלום הרשמי הם נתוני פיתוח.
-  isDevelopmentData   Boolean @default(true)
+  isDevelopmentData Boolean @default(true)
 
   seoTitleHe       String?
   seoDescriptionHe String?
@@ -281,16 +304,17 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  category        Category?              @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  fragranceFamily FragranceFamily?       @relation(fields: [fragranceFamilyId], references: [id], onDelete: SetNull)
-  variants        ProductVariant[]
-  images          ProductImage[]
-  media           ProductMedia[]
-  models          ProductModel[]
-  collections     ProductCollection[]
-  notes           ProductFragranceNote[]
-  reviews         Review[]
-  wishlistItems   WishlistItem[]
+  category             Category?              @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  fragranceFamily      FragranceFamily?       @relation(fields: [fragranceFamilyId], references: [id], onDelete: SetNull)
+  variants             ProductVariant[]
+  images               ProductImage[]
+  media                ProductMedia[]
+  models               ProductModel[]
+  collections          ProductCollection[]
+  notes                ProductFragranceNote[]
+  reviews              Review[]
+  wishlistItems        WishlistItem[]
+  restockSubscriptions RestockSubscription[]
 
   relatedTo   ProductRelation[] @relation("RelationSource")
   relatedFrom ProductRelation[] @relation("RelationTarget")
@@ -314,29 +338,30 @@ model ProductRelation {
 }
 
 model ProductVariant {
-  id        String @id @default(cuid())
-  productId String
+  id              String        @id @default(cuid())
+  productId       String
   /// מק״ט. כרגע נוצר אוטומטית — ראו MISSING_BUSINESS_DATA §1.2.
-  sku       String @unique
+  sku             String        @unique
   /// נפח במיליליטר. null כאשר לא צוין על התווית.
-  volumeMl  Int?
-  concentration Concentration @default(UNSPECIFIED)
+  volumeMl        Int?
+  concentration   Concentration @default(UNSPECIFIED)
   /// מחיר באגורות. לעולם לא לסמוך על מחיר שמגיע מהדפדפן.
-  priceAgorot        Int
+  priceAgorot     Int
   /// מחיר "לפני הנחה" באגורות. null = אין מבצע.
-  compareAtAgorot    Int?
-  barcode   String?
-  isDefault Boolean @default(false)
-  isActive  Boolean @default(true)
-  position  Int     @default(0)
+  compareAtAgorot Int?
+  barcode         String?
+  isDefault       Boolean       @default(false)
+  isActive        Boolean       @default(true)
+  position        Int           @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  inventoryItem InventoryItem?
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
+  product              Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventoryItem        InventoryItem?
+  cartItems            CartItem[]
+  orderItems           OrderItem[]
+  restockSubscriptions RestockSubscription[]
 
   @@index([productId])
 }
@@ -359,17 +384,17 @@ model ProductImage {
 }
 
 model ProductMedia {
-  id         String    @id @default(cuid())
-  productId  String
-  kind       MediaKind
-  url        String
-  posterUrl  String?
-  mobileUrl  String?
-  altHe      String
+  id           String    @id @default(cuid())
+  productId    String
+  kind         MediaKind
+  url          String
+  posterUrl    String?
+  mobileUrl    String?
+  altHe        String
   /// מודל ופרומפט הג'נרציה — לתיעוד מקור הנכס.
   sourceModel  String?
   sourcePrompt String?
-  position   Int       @default(0)
+  position     Int       @default(0)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -377,10 +402,10 @@ model ProductMedia {
 }
 
 model ProductModel {
-  id        String  @id @default(cuid())
-  productId String
-  url       String
-  posterUrl String?
+  id         String  @id @default(cuid())
+  productId  String
+  url        String
+  posterUrl  String?
   /// true רק כאשר המודל הוא סריקה/מודל רשמי מאושר של המוצר האמיתי.
   /// אין להציג קירוב שנוצר ב-AI כמודל תלת-ממד מדויק.
   isApproved Boolean @default(false)
@@ -464,13 +489,13 @@ model ProductFragranceNote {
 // ===========================================================================
 
 model InventoryItem {
-  id                String @id @default(cuid())
-  variantId         String @unique
+  id                String  @id @default(cuid())
+  variantId         String  @unique
   /// כמות פיזית בפועל.
-  quantityOnHand    Int    @default(0)
+  quantityOnHand    Int     @default(0)
   /// כמות משוריינת להזמנות שטרם מולאו.
-  quantityReserved  Int    @default(0)
-  lowStockThreshold Int    @default(5)
+  quantityReserved  Int     @default(0)
+  lowStockThreshold Int     @default(5)
   /// האם לאפשר הזמנה כשאין מלאי.
   allowBackorder    Boolean @default(false)
 
@@ -493,6 +518,10 @@ model InventoryMovement {
 
   inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
 
+  // Double-deduction guard: a given order may write at most one movement of each
+  // reason against a given inventory item. PostgreSQL treats NULLs as distinct,
+  // so manual adjustments (orderId = null) are never constrained by this.
+  @@unique([orderId, inventoryItemId, reason], name: "uniq_movement_order_item_reason")
   @@index([inventoryItemId, createdAt])
   @@index([orderId])
 }
@@ -502,14 +531,14 @@ model InventoryMovement {
 // ===========================================================================
 
 model Cart {
-  id        String   @id @default(cuid())
+  id                 String   @id @default(cuid())
   /// מזהה אנונימי בעוגייה — מאפשר עגלה לאורח.
-  token     String   @unique
-  userId    String?
-  couponId  String?
+  token              String   @unique
+  userId             String?
+  couponId           String?
   convertedToOrderId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   user   User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   coupon Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
@@ -562,15 +591,15 @@ model WishlistItem {
 // ===========================================================================
 
 model Order {
-  id          String @id @default(cuid())
+  id             String @id @default(cuid())
   /// מספר הזמנה קריא ללקוח, למשל MK-2026-000123
-  orderNumber String @unique
+  orderNumber    String @unique
   /// מפתח ייחודי למניעת יצירת הזמנה כפולה בלחיצה חוזרת.
   idempotencyKey String @unique
 
-  userId      String?
-  guestEmail  String?
-  guestPhone  String?
+  userId     String?
+  guestEmail String?
+  guestPhone String?
 
   status            OrderStatus       @default(PENDING)
   paymentStatus     PaymentStatus     @default(PENDING)
@@ -581,16 +610,16 @@ model Order {
   deliveryMethod    DeliveryMethod @default(STANDARD_DELIVERY)
 
   // כל הסכומים באגורות, מחושבים בשרת בלבד.
-  subtotalAgorot    Int
-  discountAgorot    Int @default(0)
-  shippingAgorot    Int @default(0)
-  taxAgorot         Int @default(0)
-  totalAgorot       Int
+  subtotalAgorot Int
+  discountAgorot Int @default(0)
+  shippingAgorot Int @default(0)
+  taxAgorot      Int @default(0)
+  totalAgorot    Int
 
-  couponId       String?
-  couponCode     String?
-  customerNote   String?
-  internalNote   String?
+  couponId           String?
+  couponCode         String?
+  customerNote       String?
+  internalNote       String?
   /// true כאשר ההזמנה נוצרה במצב תשלום פיתוח (ללא חיוב אמיתי).
   isDevelopmentOrder Boolean @default(false)
 
@@ -599,10 +628,10 @@ model Order {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  shippingAddress Address?  @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
-  billingAddress  Address?  @relation("OrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
-  coupon          Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  shippingAddress Address? @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  billingAddress  Address? @relation("OrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  coupon          Coupon?  @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   items       OrderItem[]
   payments    Payment[]
@@ -617,7 +646,7 @@ model Order {
 }
 
 model OrderItem {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   orderId   String
   variantId String?
 
@@ -655,17 +684,17 @@ model OrderEvent {
 }
 
 model Payment {
-  id        String        @id @default(cuid())
-  orderId   String
-  provider  String
+  id                String        @id @default(cuid())
+  orderId           String
+  provider          String
   /// מזהה העסקה אצל הספק. לעולם לא נשמרים פרטי כרטיס.
   providerReference String?
-  status    PaymentStatus @default(PENDING)
-  amountAgorot Int
-  refundedAgorot Int @default(0)
-  failureReason String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  status            PaymentStatus @default(PENDING)
+  amountAgorot      Int
+  refundedAgorot    Int           @default(0)
+  failureReason     String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -694,20 +723,20 @@ model Shipment {
 // ===========================================================================
 
 model Coupon {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  descriptionHe String?
-  discountType  DiscountType
+  id                String       @id @default(cuid())
+  code              String       @unique
+  descriptionHe     String?
+  discountType      DiscountType
   /// באחוזים (1-100) כאשר PERCENTAGE, או באגורות כאשר FIXED_AMOUNT.
-  discountValue Int
+  discountValue     Int
   minSubtotalAgorot Int?
   maxDiscountAgorot Int?
   usageLimit        Int?
-  usageCount        Int      @default(0)
+  usageCount        Int          @default(0)
   perUserLimit      Int?
   startsAt          DateTime?
   endsAt            DateTime?
-  isActive          Boolean  @default(true)
+  isActive          Boolean      @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -756,18 +785,18 @@ model Review {
 }
 
 model Branch {
-  id            String  @id @default(cuid())
-  slug          String  @unique
-  nameHe        String
-  addressHe     String
-  cityHe        String
-  phone         String?
-  openingHoursHe String?
-  latitude      Float?
-  longitude     Float?
+  id              String  @id @default(cuid())
+  slug            String  @unique
+  nameHe          String
+  addressHe       String
+  cityHe          String
+  phone           String?
+  openingHoursHe  String?
+  latitude        Float?
+  longitude       Float?
   accessibilityHe String?
-  isPublished   Boolean @default(false)
-  position      Int     @default(0)
+  isPublished     Boolean @default(false)
+  position        Int     @default(0)
 }
 
 model JournalPost {
@@ -789,18 +818,18 @@ model JournalPost {
 }
 
 model ContentBlock {
-  id        String           @id @default(cuid())
-  key       String           @unique
-  kind      ContentBlockKind
-  titleHe   String?
-  bodyHe    String?
-  mediaUrl  String?
-  posterUrl String?
-  mobileUrl String?
-  ctaLabelHe String?
-  ctaHref    String?
-  isPublished Boolean @default(true)
-  position   Int     @default(0)
+  id          String           @id @default(cuid())
+  key         String           @unique
+  kind        ContentBlockKind
+  titleHe     String?
+  bodyHe      String?
+  mediaUrl    String?
+  posterUrl   String?
+  mobileUrl   String?
+  ctaLabelHe  String?
+  ctaHref     String?
+  isPublished Boolean          @default(true)
+  position    Int              @default(0)
 
   updatedAt DateTime @updatedAt
 }
@@ -824,26 +853,31 @@ model SiteSetting {
 
 enum ContactMessageStatus {
   NEW
-  READ
+  READ // legacy — kept for backward compatibility; new UI uses IN_PROGRESS
+  IN_PROGRESS
   RESOLVED
+  ARCHIVED
 }
 
 /// פניות מטופס "יצירת קשר". נשמרות לתיבת הפניות של הניהול.
 model ContactMessage {
-  id        String               @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   String
-  message   String
-  status    ContactMessageStatus @default(NEW)
-  adminNote String?
+  id              String               @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  subject         String
+  message         String
+  status          ContactMessageStatus @default(NEW)
+  adminNote       String?
   /// מקושר לחשבון הלקוח אם הפנייה נשלחה בזמן התחברות.
-  userId    String?
-  user      User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
-  ipAddress String?
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
+  userId          String?
+  user            User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress       String?
+  /// מטא-דאטה של טיפול: מתי סומנה כבטיפול/טופלה ומי הצוות שטיפל.
+  handledAt       DateTime?
+  handledByUserId String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   @@index([status, createdAt])
 }
@@ -863,4 +897,66 @@ model AuditLog {
 
   @@index([userId, createdAt])
   @@index([entityType, entityId])
+}
+
+// ===========================================================================
+// התראות: Web Push + "עדכנו אותי כשהמוצר חוזר למלאי"
+// ===========================================================================
+
+/// מנוי Web Push של דפדפן. שומר את ה-endpoint ומפתחות ההצפנה (p256dh/auth)
+/// שהדפדפן מנפיק. אלה אינם סודות אישיים אך משמשים אך ורק לשליחת התראות דחיפה.
+model PushSubscription {
+  id             String    @id @default(cuid())
+  /// כתובת ה-push endpoint הייחודית של הדפדפן. לעולם לא נחשפת לצד הלקוח.
+  endpoint       String    @unique
+  p256dh         String
+  auth           String
+  userId         String?
+  locale         String    @default("he")
+  userAgent      String?
+  /// מספר כשלים רצופים בשליחה. מעל סף מסוים המנוי נחשב פג-תוקף ומוסר.
+  failureCount   Int       @default(0)
+  lastNotifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user                 User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  restockSubscriptions RestockSubscription[]
+
+  @@index([userId])
+}
+
+/// בקשת "עדכנו אותי כשהמוצר חוזר למלאי". נוצרת כאשר מוצר/וריאנט אזל.
+/// אנו שומרים את המינימום הנדרש: מוצר/וריאנט, ואפיק יצירת קשר אחד (משתמש/אימייל/דחיפה).
+model RestockSubscription {
+  id                 String                      @id @default(cuid())
+  productId          String
+  /// null = מנוי ברמת המוצר (הוריאנט המוגדר כברירת מחדל).
+  variantId          String?
+  userId             String?
+  /// נשמר רק כאשר התבקשה התראת אימייל. ללקוח מחובר נגזר מהחשבון בעת השליחה.
+  email              String?
+  pushSubscriptionId String?
+  /// הערוצים שהתבקשו: EMAIL, PUSH, או שניהם.
+  channels           NotificationChannel[]
+  status             RestockSubscriptionStatus   @default(ACTIVE)
+  locale             String                      @default("he")
+  /// אסימון אקראי לביטול מנוי מקישור אימייל, ללא צורך בהתחברות.
+  unsubscribeToken   String                      @unique @default(cuid())
+  lastDeliveryStatus NotificationDeliveryStatus?
+  lastError          String?
+  createdAt          DateTime                    @default(now())
+  notifiedAt         DateTime?
+  unsubscribedAt     DateTime?
+
+  product          Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant          ProductVariant?   @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  user             User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  pushSubscription PushSubscription? @relation(fields: [pushSubscriptionId], references: [id], onDelete: SetNull)
+
+  // מאיצי השאילתה "מצא מנויים פעילים למוצר/וריאנט שחזר למלאי".
+  @@index([productId, status])
+  @@index([variantId, status])
+  @@index([userId])
+  @@index([email])
 }

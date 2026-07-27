@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: 'מלאי' };
 export default async function AdminInventoryPage() {
   await requireCapability('inventory.write');
 
-  const [items, movements] = await Promise.all([
+  const [items, movements, restockSubs] = await Promise.all([
     db.inventoryItem.findMany({
       include: { variant: { include: { product: true } } },
       orderBy: { quantityOnHand: 'asc' },
@@ -22,7 +22,45 @@ export default async function AdminInventoryPage() {
       take: 25,
       include: { inventoryItem: { include: { variant: { include: { product: true } } } } },
     }),
+    // Restock alert subscriptions (Part 11) — everything except cancelled ones.
+    db.restockSubscription.findMany({
+      where: { status: { not: 'UNSUBSCRIBED' } },
+      select: {
+        productId: true,
+        status: true,
+        notifiedAt: true,
+        product: { select: { nameHe: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
   ]);
+
+  // Aggregate restock subscriptions per product: active count, notified count,
+  // and the most recent notification date.
+  type RestockAgg = { nameHe: string; active: number; notified: number; lastNotifiedAt: Date | null };
+  const restockByProduct = new Map<string, RestockAgg>();
+  for (const sub of restockSubs) {
+    const entry = restockByProduct.get(sub.productId) ?? {
+      nameHe: sub.product.nameHe,
+      active: 0,
+      notified: 0,
+      lastNotifiedAt: null,
+    };
+    if (sub.status === 'ACTIVE') entry.active += 1;
+    if (sub.status === 'NOTIFIED') {
+      entry.notified += 1;
+      if (sub.notifiedAt && (!entry.lastNotifiedAt || sub.notifiedAt > entry.lastNotifiedAt)) {
+        entry.lastNotifiedAt = sub.notifiedAt;
+      }
+    }
+    restockByProduct.set(sub.productId, entry);
+  }
+  const activeByProduct = new Map<string, number>(
+    [...restockByProduct.entries()].map(([id, agg]) => [id, agg.active]),
+  );
+  const restockRows = [...restockByProduct.entries()]
+    .filter(([, agg]) => agg.active > 0 || agg.notified > 0)
+    .sort((a, b) => b[1].active - a[1].active);
 
   // Resolve actor names in one query rather than per-row.
   const actorIds = [...new Set(movements.map((m) => m.createdByUserId).filter(Boolean))] as string[];
@@ -52,10 +90,11 @@ export default async function AdminInventoryPage() {
           <EmptyState titleHe="אין פריטי מלאי" descriptionHe="צרו מוצר כדי לנהל מלאי." />
         </div>
       ) : (
-        <Table headers={['מוצר', 'מק״ט', 'במלאי', 'משוריין', 'זמין', 'סף', 'התאמה']}>
+        <Table headers={['מוצר', 'מק״ט', 'במלאי', 'משוריין', 'זמין', 'סף', 'מנויים', 'התאמה']}>
           {items.map((item) => {
             const available = item.quantityOnHand - item.quantityReserved;
             const low = available <= item.lowStockThreshold;
+            const activeSubs = activeByProduct.get(item.variant.productId) ?? 0;
             return (
               <Row key={item.id}>
                 <Cell labelHe="מוצר">
@@ -85,6 +124,15 @@ export default async function AdminInventoryPage() {
                 <Cell labelHe="סף">
                   <span className="ltr-nums text-muted">{item.lowStockThreshold}</span>
                 </Cell>
+                <Cell labelHe="מנויים">
+                  {activeSubs > 0 ? (
+                    <Badge tone={available <= 0 ? 'warning' : 'neutral'}>
+                      <span className="ltr-nums">{activeSubs}</span>
+                    </Badge>
+                  ) : (
+                    <span className="text-faint">—</span>
+                  )}
+                </Cell>
                 <Cell labelHe="התאמה">
                   <InventoryAdjustForm
                     inventoryItemId={item.id}
@@ -96,6 +144,47 @@ export default async function AdminInventoryPage() {
           })}
         </Table>
       )}
+
+      <div className="mt-10">
+        <Card
+          titleHe="בקשות עדכון חזרה למלאי"
+          descriptionHe="לקוחות שביקשו לקבל התראה כשמוצר יחזור למלאי. ההתראות נשלחות אוטומטית במעבר מ־0 לזמין."
+        >
+          {restockRows.length === 0 ? (
+            <EmptyState
+              titleHe="אין בקשות עדכון"
+              descriptionHe="כשמוצר יאזל, לקוחות יוכלו לבקש עדכון מעמוד המוצר."
+            />
+          ) : (
+            <Table headers={['מוצר', 'ממתינים', 'עודכנו', 'עדכון אחרון']}>
+              {restockRows.map(([productId, agg]) => (
+                <Row key={productId}>
+                  <Cell labelHe="מוצר">
+                    <span className="text-ivory">{agg.nameHe}</span>
+                  </Cell>
+                  <Cell labelHe="ממתינים">
+                    {agg.active > 0 ? (
+                      <Badge tone="gold">
+                        <span className="ltr-nums">{agg.active}</span>
+                      </Badge>
+                    ) : (
+                      <span className="text-faint">—</span>
+                    )}
+                  </Cell>
+                  <Cell labelHe="עודכנו">
+                    <span className="ltr-nums text-muted">{agg.notified}</span>
+                  </Cell>
+                  <Cell labelHe="עדכון אחרון">
+                    <span className="text-xs text-faint">
+                      {agg.lastNotifiedAt ? formatDateTimeHe(agg.lastNotifiedAt) : '—'}
+                    </span>
+                  </Cell>
+                </Row>
+              ))}
+            </Table>
+          )}
+        </Card>
+      </div>
 
       <div className="mt-10">
         <Card titleHe="היסטוריית תנועות" descriptionHe="25 התנועות האחרונות">

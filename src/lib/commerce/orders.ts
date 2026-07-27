@@ -1,8 +1,19 @@
 import 'server-only';
+import { Prisma } from '@/generated/prisma/client';
 import { db } from '@/lib/db';
 import { calculateCartTotals, type CouponRules, type DeliveryMethod } from './pricing';
 import { variantLabel } from './labels';
 import { getPaymentProvider } from './payment';
+import { reserveStock } from './inventory';
+
+/** True when `error` is a PostgreSQL unique-constraint violation touching `field`. */
+function isUniqueViolation(error: unknown, field: string): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === 'P2002' &&
+    JSON.stringify(error.meta?.target ?? '').includes(field)
+  );
+}
 
 /**
  * Order creation.
@@ -90,7 +101,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
 
   const provider = getPaymentProvider();
 
-  const created = await db.$transaction(async (tx) => {
+  const runOrderTransaction = () => db.$transaction(async (tx) => {
     const cart = await tx.cart.findUnique({
       where: { token: input.cartToken },
       include: {
@@ -236,16 +247,25 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       },
     });
 
-    // --- Reserve stock ----------------------------------------------------
+    // --- Reserve stock atomically -----------------------------------------
+    // The earlier per-line read above is a fast, friendly pre-check. The real
+    // guarantee is here: reserveStock is a conditional UPDATE that reserves only
+    // if the units are still available at commit time. Two checkouts racing for
+    // the last bottle serialize on the row lock; the loser matches zero rows and
+    // the whole order is rolled back. Stock can never go negative or oversell.
     for (const item of cart.items) {
       const inventory = item.variant.inventoryItem;
       if (!inventory) continue;
 
-      await tx.inventoryItem.update({
-        where: { id: inventory.id },
-        data: { quantityReserved: { increment: item.quantity } },
-      });
+      const reserved = await reserveStock(tx, inventory.id, item.quantity);
+      if (!reserved) {
+        throw new CheckoutError(
+          `המלאי של ${item.variant.product.nameHe} השתנה ואין מספיק יחידות זמינות. עדכנו את הכמות ונסו שוב.`,
+        );
+      }
 
+      // One movement per (order, item, reason); the DB unique constraint makes a
+      // repeated deduction for the same order impossible even under retries.
       await tx.inventoryMovement.create({
         data: {
           inventoryItemId: inventory.id,
@@ -300,6 +320,38 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
 
     return { order, totals };
   });
+
+  // Run the order transaction, tolerating the two concurrency races that can
+  // surface as unique-constraint violations.
+  let created: Awaited<ReturnType<typeof runOrderTransaction>>;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      created = await runOrderTransaction();
+      break;
+    } catch (error) {
+      // Same idempotency key won the race just before us — return that order
+      // rather than failing (double-click, retry, refresh, function retry).
+      if (isUniqueViolation(error, 'idempotencyKey')) {
+        const dup = await db.order.findUnique({
+          where: { idempotencyKey: input.idempotencyKey },
+          select: { id: true, orderNumber: true, totalAgorot: true, isDevelopmentOrder: true },
+        });
+        if (dup) {
+          return {
+            orderId: dup.id,
+            orderNumber: dup.orderNumber,
+            totalAgorot: dup.totalAgorot,
+            isDevelopmentOrder: dup.isDevelopmentOrder,
+          };
+        }
+      }
+      // Two different carts computed the same human order number simultaneously.
+      // The transaction rolled back (including its reservation); regenerate and
+      // retry a bounded number of times.
+      if (isUniqueViolation(error, 'orderNumber') && attempt < 4) continue;
+      throw error;
+    }
+  }
 
   // --- Authorise payment outside the transaction --------------------------
   // Network calls must not hold a database transaction open.

@@ -3,6 +3,8 @@
 import { db } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { clientIp, limitByIp } from '@/lib/rate-limit';
+import { sendContactNotification } from '@/lib/mail';
+import { SITE } from '@/lib/site';
 import { contactSchema, fieldErrors } from '@/lib/validation';
 import type { ContactState } from '@/lib/action-state';
 
@@ -20,6 +22,18 @@ export async function submitContact(
   const limit = await limitByIp('contact', { limit: 5, windowSeconds: 600 });
   if (!limit.ok) {
     return { status: 'error', messageHe: limit.errorHe, errors: {} };
+  }
+
+  // Honeypot: a hidden field real users never see. If a bot fills it, we drop the
+  // submission without writing a row, and return the ordinary success state so the
+  // bot gets no signal that it was blocked.
+  const honeypot = String(formData.get('company') ?? '').trim();
+  if (honeypot) {
+    return {
+      status: 'success',
+      messageHe: 'הפנייה התקבלה בהצלחה. נחזור אליכם בהקדם.',
+      errors: {},
+    };
   }
 
   const parsed = contactSchema.safeParse({
@@ -42,7 +56,7 @@ export async function submitContact(
 
   try {
     const [user, ip] = await Promise.all([getCurrentUser(), clientIp()]);
-    await db.contactMessage.create({
+    const created = await db.contactMessage.create({
       data: {
         name,
         email,
@@ -52,18 +66,27 @@ export async function submitContact(
         userId: user?.id ?? null,
         ipAddress: ip,
       },
+      select: { id: true },
     });
+
+    // Best-effort admin alert. Never blocks or fails the request — the row is
+    // already saved and visible in the admin regardless of email delivery.
+    void sendContactNotification({
+      name,
+      subject,
+      adminUrl: `${SITE.url}/admin/contact-requests/${created.id}`,
+    }).catch((error) => console.error('[contact] admin notification failed', error));
 
     return {
       status: 'success',
-      messageHe: 'תודה! הפנייה נשלחה. נחזור אליכם בהקדם.',
+      messageHe: 'הפנייה התקבלה בהצלחה. נחזור אליכם בהקדם.',
       errors: {},
     };
   } catch (error) {
     console.error('[contact] submit failed', error);
     return {
       status: 'error',
-      messageHe: 'אירעה תקלה בשליחת הפנייה. נסו שוב מאוחר יותר.',
+      messageHe: 'לא הצלחנו לשלוח את הפנייה כרגע. נסו שוב בעוד מספר רגעים.',
       errors: {},
     };
   }

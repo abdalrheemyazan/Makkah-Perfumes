@@ -57,3 +57,9 @@ next-env.d.ts
 
 # higgsfield raw generation candidates (temporary inputs, not shipped)
 /.cache
+
+# serwist / PWA generated service worker (built during `next build`)
+/public/sw.js
+/public/sw.js.map
+/public/swe-worker-*.js
+/public/swe-worker-*.js.map

@@ -8,9 +8,12 @@ import { CONCENTRATION_LABELS } from '@/lib/commerce/labels';
 import { Price } from '@/components/ui/price';
 import { AddToCartButton } from '@/components/product/add-to-cart-button';
 import { WishlistButton } from '@/components/product/wishlist-button';
+import { RestockNotify } from '@/components/product/restock-notify';
 import { ProductCard } from '@/components/product/product-card';
 import { cardSelect, toCard, type ProductCard as ProductCardData } from '@/lib/catalog';
 import { getCurrentUser } from '@/lib/auth';
+import { availableChannels, publicVapidKey } from '@/lib/notifications/env';
+import { findActiveSubscription } from '@/lib/notifications/restock';
 
 type Params = Promise<{ slug: string }>;
 
@@ -75,6 +78,19 @@ export default async function ProductPage({ params }: { params: Params }) {
     ? Math.max(0, inventory.quantityOnHand - inventory.quantityReserved)
     : 0;
   const inStock = available > 0 || (inventory?.allowBackorder ?? false);
+
+  // Restock-notification context (only meaningful when out of stock).
+  const restockChannels = availableChannels();
+  const restockVapidKey = publicVapidKey();
+  const alreadySubscribed =
+    !inStock && user && variant
+      ? await findActiveSubscription({
+          productId: product.id,
+          variantId: variant.id,
+          userId: user.id,
+          email: null,
+        })
+      : false;
 
   const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
 
@@ -187,7 +203,19 @@ export default async function ProductPage({ params }: { params: Params }) {
           <div className="mt-8 flex items-stretch gap-3">
             {variant && (
               <div className="flex-1">
-                <AddToCartButton variantId={variant.id} disabled={!inStock} size="lg" />
+                {inStock ? (
+                  <AddToCartButton variantId={variant.id} size="lg" />
+                ) : (
+                  <RestockNotify
+                    productId={product.id}
+                    variantId={variant.id}
+                    isLoggedIn={Boolean(user)}
+                    accountEmail={user?.email ?? null}
+                    emailAvailable={restockChannels.email}
+                    vapidPublicKey={restockVapidKey}
+                    alreadySubscribed={alreadySubscribed}
+                  />
+                )}
               </div>
             )}
             <div className="shrink-0 self-start pt-0.5">

@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  Inbox,
   Package,
   PackageCheck,
   PackagePlus,
@@ -54,6 +55,8 @@ export default async function AdminDashboard() {
     customerCount,
     lowStockItems,
     recentOrders,
+    newContactCount,
+    recentContact,
   ] = await Promise.all([
     db.product.count(),
     db.product.count({ where: { status: 'PUBLISHED' } }),
@@ -73,6 +76,13 @@ export default async function AdminDashboard() {
       orderBy: { placedAt: 'desc' },
       take: 6,
       include: { items: { select: { id: true } } },
+    }),
+    db.contactMessage.count({ where: { status: 'NEW' } }),
+    db.contactMessage.findMany({
+      where: { status: 'NEW' },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+      select: { id: true, name: true, subject: true, createdAt: true },
     }),
   ]);
 
@@ -213,6 +223,51 @@ export default async function AdminDashboard() {
           />
           <Kpi icon={UserRound} labelHe="מספר לקוחות" value={customerCount} tone="gold" />
         </div>
+      </section>
+
+      {/* ===== New contact requests ===== */}
+      <section aria-labelledby="contact-requests">
+        <SectionHeading id="contact-requests" titleHe="פניות" />
+        <Panel
+          titleHe="פניות חדשות"
+          subtitleHe={
+            newContactCount > 0
+              ? `${newContactCount} פניות ממתינות לטיפול`
+              : 'אין פניות חדשות'
+          }
+          cta={{ href: '/admin/contact-requests', labelHe: 'לכל הפניות' }}
+        >
+          {recentContact.length === 0 ? (
+            <PanelEmpty
+              icon={Inbox}
+              tone="success"
+              titleHe="אין פניות חדשות"
+              descriptionHe="פניות שיישלחו מטופס יצירת הקשר יופיעו כאן לטיפול."
+              cta={{ href: '/admin/contact-requests', labelHe: 'למסך הפניות' }}
+            />
+          ) : (
+            <ul className="flex flex-col">
+              {recentContact.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={`/admin/contact-requests/${item.id}`}
+                    className="group flex items-center justify-between gap-3 rounded-md px-3 py-3 transition-colors hover:bg-stone/40"
+                  >
+                    <div className="min-w-0">
+                      <span className="block truncate text-sm text-ivory transition-colors group-hover:text-gold">
+                        {item.subject}
+                      </span>
+                      <p className="mt-0.5 truncate text-xs text-faint">
+                        {item.name} · {formatDateHe(item.createdAt)}
+                      </p>
+                    </div>
+                    <Badge tone="gold">חדשה</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
       </section>
 
       {/* ===== Lower panels ===== */}

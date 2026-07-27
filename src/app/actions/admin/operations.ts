@@ -7,6 +7,8 @@ import { db } from '@/lib/db';
 import { requireCapability } from '@/lib/auth';
 import { logAudit } from '@/lib/admin/audit';
 import { getPaymentProvider } from '@/lib/commerce/payment';
+import { crossedIntoStock } from '@/lib/commerce/inventory';
+import { scheduleRestockNotifications } from '@/lib/notifications/trigger';
 import type { AdminActionState } from '@/lib/action-state';
 
 /**
@@ -58,6 +60,25 @@ export async function updateOrderStatus(
 
   if (order.status === parsed.data.status) {
     return { status: 'error', messageHe: 'ההזמנה כבר בסטטוס הזה.', errors: {} };
+  }
+
+  // Inventory-affecting transitions must not go through this generic setter,
+  // which does not touch stock. Cancelling must release the reservation (use the
+  // cancel action); reactivating a cancelled order would silently sell stock that
+  // was never re-reserved. Both are refused here (Part 17).
+  if (parsed.data.status === 'CANCELLED') {
+    return {
+      status: 'error',
+      messageHe: 'לביטול הזמנה יש להשתמש בפעולת הביטול, כדי לשחרר את המלאי המשוריין.',
+      errors: {},
+    };
+  }
+  if (order.status === 'CANCELLED') {
+    return {
+      status: 'error',
+      messageHe: 'לא ניתן להחזיר הזמנה מבוטלת לפעילות מכאן — המלאי שוחרר. יש ליצור הזמנה חדשה.',
+      errors: {},
+    };
   }
 
   await db.$transaction(async (tx) => {
@@ -199,6 +220,10 @@ export async function cancelOrder(
     };
   }
 
+  // Variants whose availability crosses back above zero when the reservation is
+  // released — subscribers to those get a "back in stock" notification.
+  const restockedVariantIds: string[] = [];
+
   await db.$transaction(async (tx) => {
     await tx.order.update({
       where: { id: order.id },
@@ -208,9 +233,15 @@ export async function cancelOrder(
     // Give the reserved units back to the sellable pool.
     for (const item of order.items) {
       const inventory = item.variant?.inventoryItem;
-      if (!inventory) continue;
+      if (!inventory || !item.variantId) continue;
       const release = Math.min(item.quantity, inventory.quantityReserved);
       if (release <= 0) continue;
+
+      const crossed = crossedIntoStock(
+        { quantityOnHand: inventory.quantityOnHand, quantityReserved: inventory.quantityReserved },
+        { quantityOnHand: inventory.quantityOnHand, quantityReserved: inventory.quantityReserved - release },
+      );
+      if (crossed) restockedVariantIds.push(item.variantId);
 
       await tx.inventoryItem.update({
         where: { id: inventory.id },
@@ -237,6 +268,11 @@ export async function cancelOrder(
       },
     });
   });
+
+  // Only after the release has committed: tell subscribers the item is back.
+  for (const variantId of new Set(restockedVariantIds)) {
+    scheduleRestockNotifications(variantId);
+  }
 
   await logAudit({
     userId: user.id,
@@ -399,6 +435,13 @@ export async function adjustInventory(
     };
   }
 
+  // Zero-to-positive restock transition (Part 10): reserved is unchanged by a
+  // manual adjustment, so only quantityOnHand moves.
+  const becameAvailable = crossedIntoStock(
+    { quantityOnHand: item.quantityOnHand, quantityReserved: item.quantityReserved },
+    { quantityOnHand: next, quantityReserved: item.quantityReserved },
+  );
+
   await db.$transaction(async (tx) => {
     await tx.inventoryItem.update({
       where: { id: item.id },
@@ -414,6 +457,12 @@ export async function adjustInventory(
       },
     });
   });
+
+  // Trigger notification processing exactly once, only on the true transition,
+  // and only after the stock write has committed.
+  if (becameAvailable) {
+    scheduleRestockNotifications(item.variantId);
+  }
 
   await logAudit({
     userId: user.id,
@@ -432,7 +481,9 @@ export async function adjustInventory(
 
   return {
     status: 'success',
-    messageHe: `המלאי של ${item.variant.product.nameHe} עודכן ל־${next}.`,
+    messageHe: becameAvailable
+      ? `המלאי של ${item.variant.product.nameHe} עודכן ל־${next}. המוצר חזר למלאי. עדכוני זמינות נשלחים לנרשמים.`
+      : `המלאי של ${item.variant.product.nameHe} עודכן ל־${next}.`,
     errors: {},
   };
 }

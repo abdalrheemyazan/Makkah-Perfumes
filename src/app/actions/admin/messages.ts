@@ -7,14 +7,17 @@ import { logAudit } from '@/lib/admin/audit';
 import type { AdminActionState } from '@/lib/action-state';
 
 /**
- * Contact-message moderation. Support agents and admins may read messages and
+ * Contact-request handling. Support agents and admins may read requests and
  * change their status / add an internal note. Every change is audited. The
  * capability is re-checked here on the server — hiding the sidebar link is not
  * access control.
  */
 
-const STATUSES = ['NEW', 'READ', 'RESOLVED'] as const;
+const STATUSES = ['NEW', 'IN_PROGRESS', 'RESOLVED', 'ARCHIVED'] as const;
 type Status = (typeof STATUSES)[number];
+
+// Statuses that represent active handling — they stamp who handled it and when.
+const HANDLED_STATUSES = new Set<Status>(['IN_PROGRESS', 'RESOLVED', 'ARCHIVED']);
 
 export async function updateMessageStatus(
   _previous: AdminActionState,
@@ -31,7 +34,15 @@ export async function updateMessageStatus(
   const message = await db.contactMessage.findUnique({ where: { id } });
   if (!message) return { status: 'error', messageHe: 'הפנייה לא נמצאה.', errors: {} };
 
-  await db.contactMessage.update({ where: { id }, data: { status: status as Status } });
+  const nextStatus = status as Status;
+  await db.contactMessage.update({
+    where: { id },
+    data: {
+      status: nextStatus,
+      handledAt: HANDLED_STATUSES.has(nextStatus) ? new Date() : message.handledAt,
+      handledByUserId: HANDLED_STATUSES.has(nextStatus) ? user.id : message.handledByUserId,
+    },
+  });
 
   await logAudit({
     userId: user.id,
@@ -39,10 +50,12 @@ export async function updateMessageStatus(
     entityType: 'ContactMessage',
     entityId: id,
     before: { status: message.status },
-    after: { status },
+    after: { status: nextStatus },
   });
 
-  revalidatePath('/admin/messages');
+  revalidatePath('/admin/contact-requests');
+  revalidatePath(`/admin/contact-requests/${id}`);
+  revalidatePath('/admin');
   return { status: 'success', messageHe: 'הפנייה עודכנה.', errors: {} };
 }
 
@@ -69,6 +82,6 @@ export async function addMessageNote(
     entityId: id,
   });
 
-  revalidatePath('/admin/messages');
+  revalidatePath(`/admin/contact-requests/${id}`);
   return { status: 'success', messageHe: 'ההערה נשמרה.', errors: {} };
 }

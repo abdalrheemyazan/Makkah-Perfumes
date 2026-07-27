@@ -257,6 +257,7 @@ export type InventoryMovementOrderByWithRelationInput = {
 
 export type InventoryMovementWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  uniq_movement_order_item_reason?: Prisma.InventoryMovementUniq_movement_order_item_reasonCompoundUniqueInput
   AND?: Prisma.InventoryMovementWhereInput | Prisma.InventoryMovementWhereInput[]
   OR?: Prisma.InventoryMovementWhereInput[]
   NOT?: Prisma.InventoryMovementWhereInput | Prisma.InventoryMovementWhereInput[]
@@ -268,7 +269,7 @@ export type InventoryMovementWhereUniqueInput = Prisma.AtLeast<{
   createdByUserId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
   inventoryItem?: Prisma.XOR<Prisma.InventoryItemScalarRelationFilter, Prisma.InventoryItemWhereInput>
-}, "id">
+}, "id" | "uniq_movement_order_item_reason">
 
 export type InventoryMovementOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -384,6 +385,12 @@ export type InventoryMovementListRelationFilter = {
 
 export type InventoryMovementOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type InventoryMovementUniq_movement_order_item_reasonCompoundUniqueInput = {
+  orderId: string
+  inventoryItemId: string
+  reason: $Enums.InventoryMovementReason
 }
 
 export type InventoryMovementCountOrderByAggregateInput = {

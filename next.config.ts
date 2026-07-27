@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import withSerwistInit from '@serwist/next';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -29,6 +30,9 @@ const csp = [
   "form-action 'self'",
   "base-uri 'self'",
   "object-src 'none'",
+  // The service worker is same-origin; the manifest is served from /manifest.webmanifest.
+  "worker-src 'self'",
+  "manifest-src 'self'",
   ...(isProduction ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
@@ -59,6 +63,13 @@ const nextConfig: NextConfig = {
   // corner clear for the real control.
   devIndicators: false,
 
+  // Serwist (classic mode) injects a webpack config even when disabled. `next
+  // dev` uses Turbopack, which errors on a webpack config unless a Turbopack
+  // config is also present. This empty object satisfies that check; dev runs on
+  // Turbopack (SW disabled) and the production build uses `next build --webpack`
+  // so Serwist compiles the service worker.
+  turbopack: {},
+
   images: {
     // The site serves only local assets; no remote patterns are allowed.
     formats: ['image/avif', 'image/webp'],
@@ -88,4 +99,19 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Serwist (PWA) wrapper.
+ *
+ * The service worker source is src/app/sw.ts, compiled to /public/sw.js. It is
+ * disabled in development so hot-reload is never intercepted by a cache; the SW
+ * only runs in a production build (`next build && next start`) and on Netlify.
+ * `register: true` (default) injects the registration script automatically.
+ */
+const withSerwist = withSerwistInit({
+  swSrc: 'src/app/sw.ts',
+  swDest: 'public/sw.js',
+  disable: !isProduction,
+  reloadOnOnline: true,
+});
+
+export default withSerwist(nextConfig);

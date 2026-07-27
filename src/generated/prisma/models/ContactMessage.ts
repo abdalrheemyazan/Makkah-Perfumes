@@ -35,6 +35,8 @@ export type ContactMessageMinAggregateOutputType = {
   adminNote: string | null
   userId: string | null
   ipAddress: string | null
+  handledAt: Date | null
+  handledByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +52,8 @@ export type ContactMessageMaxAggregateOutputType = {
   adminNote: string | null
   userId: string | null
   ipAddress: string | null
+  handledAt: Date | null
+  handledByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,6 +69,8 @@ export type ContactMessageCountAggregateOutputType = {
   adminNote: number
   userId: number
   ipAddress: number
+  handledAt: number
+  handledByUserId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -82,6 +88,8 @@ export type ContactMessageMinAggregateInputType = {
   adminNote?: true
   userId?: true
   ipAddress?: true
+  handledAt?: true
+  handledByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -97,6 +105,8 @@ export type ContactMessageMaxAggregateInputType = {
   adminNote?: true
   userId?: true
   ipAddress?: true
+  handledAt?: true
+  handledByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +122,8 @@ export type ContactMessageCountAggregateInputType = {
   adminNote?: true
   userId?: true
   ipAddress?: true
+  handledAt?: true
+  handledByUserId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -200,6 +212,8 @@ export type ContactMessageGroupByOutputType = {
   adminNote: string | null
   userId: string | null
   ipAddress: string | null
+  handledAt: Date | null
+  handledByUserId: string | null
   createdAt: Date
   updatedAt: Date
   _count: ContactMessageCountAggregateOutputType | null
@@ -236,6 +250,8 @@ export type ContactMessageWhereInput = {
   adminNote?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   userId?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"ContactMessage"> | Date | string | null
+  handledByUserId?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContactMessage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContactMessage"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -252,6 +268,8 @@ export type ContactMessageOrderByWithRelationInput = {
   adminNote?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -271,6 +289,8 @@ export type ContactMessageWhereUniqueInput = Prisma.AtLeast<{
   adminNote?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   userId?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"ContactMessage"> | Date | string | null
+  handledByUserId?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContactMessage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContactMessage"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -287,6 +307,8 @@ export type ContactMessageOrderByWithAggregationInput = {
   adminNote?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ContactMessageCountOrderByAggregateInput
@@ -308,6 +330,8 @@ export type ContactMessageScalarWhereWithAggregatesInput = {
   adminNote?: Prisma.StringNullableWithAggregatesFilter<"ContactMessage"> | string | null
   userId?: Prisma.StringNullableWithAggregatesFilter<"ContactMessage"> | string | null
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"ContactMessage"> | string | null
+  handledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ContactMessage"> | Date | string | null
+  handledByUserId?: Prisma.StringNullableWithAggregatesFilter<"ContactMessage"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ContactMessage"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ContactMessage"> | Date | string
 }
@@ -322,6 +346,8 @@ export type ContactMessageCreateInput = {
   status?: $Enums.ContactMessageStatus
   adminNote?: string | null
   ipAddress?: string | null
+  handledAt?: Date | string | null
+  handledByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutContactMessagesInput
@@ -338,6 +364,8 @@ export type ContactMessageUncheckedCreateInput = {
   adminNote?: string | null
   userId?: string | null
   ipAddress?: string | null
+  handledAt?: Date | string | null
+  handledByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -352,6 +380,8 @@ export type ContactMessageUpdateInput = {
   status?: Prisma.EnumContactMessageStatusFieldUpdateOperationsInput | $Enums.ContactMessageStatus
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutContactMessagesNestedInput
@@ -368,6 +398,8 @@ export type ContactMessageUncheckedUpdateInput = {
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -383,6 +415,8 @@ export type ContactMessageCreateManyInput = {
   adminNote?: string | null
   userId?: string | null
   ipAddress?: string | null
+  handledAt?: Date | string | null
+  handledByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -397,6 +431,8 @@ export type ContactMessageUpdateManyMutationInput = {
   status?: Prisma.EnumContactMessageStatusFieldUpdateOperationsInput | $Enums.ContactMessageStatus
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -412,6 +448,8 @@ export type ContactMessageUncheckedUpdateManyInput = {
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -437,6 +475,8 @@ export type ContactMessageCountOrderByAggregateInput = {
   adminNote?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
+  handledByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -452,6 +492,8 @@ export type ContactMessageMaxOrderByAggregateInput = {
   adminNote?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
+  handledByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -467,6 +509,8 @@ export type ContactMessageMinOrderByAggregateInput = {
   adminNote?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
+  handledByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -527,6 +571,8 @@ export type ContactMessageCreateWithoutUserInput = {
   status?: $Enums.ContactMessageStatus
   adminNote?: string | null
   ipAddress?: string | null
+  handledAt?: Date | string | null
+  handledByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -541,6 +587,8 @@ export type ContactMessageUncheckedCreateWithoutUserInput = {
   status?: $Enums.ContactMessageStatus
   adminNote?: string | null
   ipAddress?: string | null
+  handledAt?: Date | string | null
+  handledByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -585,6 +633,8 @@ export type ContactMessageScalarWhereInput = {
   adminNote?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   userId?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"ContactMessage"> | Date | string | null
+  handledByUserId?: Prisma.StringNullableFilter<"ContactMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContactMessage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContactMessage"> | Date | string
 }
@@ -599,6 +649,8 @@ export type ContactMessageCreateManyUserInput = {
   status?: $Enums.ContactMessageStatus
   adminNote?: string | null
   ipAddress?: string | null
+  handledAt?: Date | string | null
+  handledByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -613,6 +665,8 @@ export type ContactMessageUpdateWithoutUserInput = {
   status?: Prisma.EnumContactMessageStatusFieldUpdateOperationsInput | $Enums.ContactMessageStatus
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -627,6 +681,8 @@ export type ContactMessageUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumContactMessageStatusFieldUpdateOperationsInput | $Enums.ContactMessageStatus
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -641,6 +697,8 @@ export type ContactMessageUncheckedUpdateManyWithoutUserInput = {
   status?: Prisma.EnumContactMessageStatusFieldUpdateOperationsInput | $Enums.ContactMessageStatus
   adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -658,6 +716,8 @@ export type ContactMessageSelect<ExtArgs extends runtime.Types.Extensions.Intern
   adminNote?: boolean
   userId?: boolean
   ipAddress?: boolean
+  handledAt?: boolean
+  handledByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.ContactMessage$userArgs<ExtArgs>
@@ -674,6 +734,8 @@ export type ContactMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   adminNote?: boolean
   userId?: boolean
   ipAddress?: boolean
+  handledAt?: boolean
+  handledByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.ContactMessage$userArgs<ExtArgs>
@@ -690,6 +752,8 @@ export type ContactMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   adminNote?: boolean
   userId?: boolean
   ipAddress?: boolean
+  handledAt?: boolean
+  handledByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.ContactMessage$userArgs<ExtArgs>
@@ -706,11 +770,13 @@ export type ContactMessageSelectScalar = {
   adminNote?: boolean
   userId?: boolean
   ipAddress?: boolean
+  handledAt?: boolean
+  handledByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ContactMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "subject" | "message" | "status" | "adminNote" | "userId" | "ipAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["contactMessage"]>
+export type ContactMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "subject" | "message" | "status" | "adminNote" | "userId" | "ipAddress" | "handledAt" | "handledByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["contactMessage"]>
 export type ContactMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.ContactMessage$userArgs<ExtArgs>
 }
@@ -740,6 +806,11 @@ export type $ContactMessagePayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     userId: string | null
     ipAddress: string | null
+    /**
+     * מטא-דאטה של טיפול: מתי סומנה כבטיפול/טופלה ומי הצוות שטיפל.
+     */
+    handledAt: Date | null
+    handledByUserId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["contactMessage"]>
@@ -1176,6 +1247,8 @@ export interface ContactMessageFieldRefs {
   readonly adminNote: Prisma.FieldRef<"ContactMessage", 'String'>
   readonly userId: Prisma.FieldRef<"ContactMessage", 'String'>
   readonly ipAddress: Prisma.FieldRef<"ContactMessage", 'String'>
+  readonly handledAt: Prisma.FieldRef<"ContactMessage", 'DateTime'>
+  readonly handledByUserId: Prisma.FieldRef<"ContactMessage", 'String'>
   readonly createdAt: Prisma.FieldRef<"ContactMessage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ContactMessage", 'DateTime'>
 }

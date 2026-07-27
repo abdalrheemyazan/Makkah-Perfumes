@@ -435,7 +435,9 @@ export const ModelName = {
   NewsletterSubscriber: 'NewsletterSubscriber',
   SiteSetting: 'SiteSetting',
   ContactMessage: 'ContactMessage',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  PushSubscription: 'PushSubscription',
+  RestockSubscription: 'RestockSubscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -451,7 +453,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "userRole" | "session" | "passwordResetToken" | "address" | "product" | "productRelation" | "productVariant" | "productImage" | "productMedia" | "productModel" | "category" | "collection" | "productCollection" | "fragranceFamily" | "fragranceNote" | "productFragranceNote" | "inventoryItem" | "inventoryMovement" | "cart" | "cartItem" | "wishlist" | "wishlistItem" | "order" | "orderItem" | "orderEvent" | "payment" | "shipment" | "coupon" | "couponRedemption" | "review" | "branch" | "journalPost" | "contentBlock" | "newsletterSubscriber" | "siteSetting" | "contactMessage" | "auditLog"
+    modelProps: "user" | "role" | "userRole" | "session" | "passwordResetToken" | "address" | "product" | "productRelation" | "productVariant" | "productImage" | "productMedia" | "productModel" | "category" | "collection" | "productCollection" | "fragranceFamily" | "fragranceNote" | "productFragranceNote" | "inventoryItem" | "inventoryMovement" | "cart" | "cartItem" | "wishlist" | "wishlistItem" | "order" | "orderItem" | "orderEvent" | "payment" | "shipment" | "coupon" | "couponRedemption" | "review" | "branch" | "journalPost" | "contentBlock" | "newsletterSubscriber" | "siteSetting" | "contactMessage" | "auditLog" | "pushSubscription" | "restockSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3341,6 +3343,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PushSubscription: {
+      payload: Prisma.$PushSubscriptionPayload<ExtArgs>
+      fields: Prisma.PushSubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PushSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PushSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.PushSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PushSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.PushSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.PushSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.PushSubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PushSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.PushSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>
+        }
+        update: {
+          args: Prisma.PushSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PushSubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PushSubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PushSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PushSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushSubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.PushSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePushSubscription>
+        }
+        groupBy: {
+          args: Prisma.PushSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PushSubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PushSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PushSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RestockSubscription: {
+      payload: Prisma.$RestockSubscriptionPayload<ExtArgs>
+      fields: Prisma.RestockSubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RestockSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RestockSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.RestockSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RestockSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.RestockSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.RestockSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.RestockSubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RestockSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.RestockSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>
+        }
+        update: {
+          args: Prisma.RestockSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.RestockSubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RestockSubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RestockSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.RestockSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RestockSubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.RestockSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRestockSubscription>
+        }
+        groupBy: {
+          args: Prisma.RestockSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RestockSubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RestockSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RestockSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3929,6 +4079,8 @@ export const ContactMessageScalarFieldEnum = {
   adminNote: 'adminNote',
   userId: 'userId',
   ipAddress: 'ipAddress',
+  handledAt: 'handledAt',
+  handledByUserId: 'handledByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3948,6 +4100,44 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userId: 'userId',
+  locale: 'locale',
+  userAgent: 'userAgent',
+  failureCount: 'failureCount',
+  lastNotifiedAt: 'lastNotifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+export const RestockSubscriptionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  userId: 'userId',
+  email: 'email',
+  pushSubscriptionId: 'pushSubscriptionId',
+  channels: 'channels',
+  status: 'status',
+  locale: 'locale',
+  unsubscribeToken: 'unsubscribeToken',
+  lastDeliveryStatus: 'lastDeliveryStatus',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  notifiedAt: 'notifiedAt',
+  unsubscribedAt: 'unsubscribedAt'
+} as const
+
+export type RestockSubscriptionScalarFieldEnum = (typeof RestockSubscriptionScalarFieldEnum)[keyof typeof RestockSubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4266,6 +4456,48 @@ export type EnumContactMessageStatusFieldRefInput<$PrismaModel> = FieldRefInputT
 export type ListEnumContactMessageStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactMessageStatus[]'>
     
 
+
+/**
+ * Reference to a field of type 'NotificationChannel[]'
+ */
+export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationChannel'
+ */
+export type EnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel'>
+    
+
+
+/**
+ * Reference to a field of type 'RestockSubscriptionStatus'
+ */
+export type EnumRestockSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RestockSubscriptionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RestockSubscriptionStatus[]'
+ */
+export type ListEnumRestockSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RestockSubscriptionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationDeliveryStatus'
+ */
+export type EnumNotificationDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationDeliveryStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationDeliveryStatus[]'
+ */
+export type ListEnumNotificationDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationDeliveryStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4456,6 +4688,8 @@ export type GlobalOmitConfig = {
   siteSetting?: Prisma.SiteSettingOmit
   contactMessage?: Prisma.ContactMessageOmit
   auditLog?: Prisma.AuditLogOmit
+  pushSubscription?: Prisma.PushSubscriptionOmit
+  restockSubscription?: Prisma.RestockSubscriptionOmit
 }
 
 /* Types for Logging */

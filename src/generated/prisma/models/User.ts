@@ -248,6 +248,8 @@ export type UserWhereInput = {
   auditLogs?: Prisma.AuditLogListRelationFilter
   passwordResets?: Prisma.PasswordResetTokenListRelationFilter
   contactMessages?: Prisma.ContactMessageListRelationFilter
+  pushSubscriptions?: Prisma.PushSubscriptionListRelationFilter
+  restockSubscriptions?: Prisma.RestockSubscriptionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -273,6 +275,8 @@ export type UserOrderByWithRelationInput = {
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   passwordResets?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
   contactMessages?: Prisma.ContactMessageOrderByRelationAggregateInput
+  pushSubscriptions?: Prisma.PushSubscriptionOrderByRelationAggregateInput
+  restockSubscriptions?: Prisma.RestockSubscriptionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -301,6 +305,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   auditLogs?: Prisma.AuditLogListRelationFilter
   passwordResets?: Prisma.PasswordResetTokenListRelationFilter
   contactMessages?: Prisma.ContactMessageListRelationFilter
+  pushSubscriptions?: Prisma.PushSubscriptionListRelationFilter
+  restockSubscriptions?: Prisma.RestockSubscriptionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -362,6 +368,8 @@ export type UserCreateInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -387,6 +395,8 @@ export type UserUncheckedCreateInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -412,6 +422,8 @@ export type UserUpdateInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -437,6 +449,8 @@ export type UserUncheckedUpdateInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -711,6 +725,38 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutPushSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushSubscriptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutPushSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushSubscriptionsInput
+  upsert?: Prisma.UserUpsertWithoutPushSubscriptionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPushSubscriptionsInput, Prisma.UserUpdateWithoutPushSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
+}
+
+export type UserCreateNestedOneWithoutRestockSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRestockSubscriptionsInput, Prisma.UserUncheckedCreateWithoutRestockSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRestockSubscriptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutRestockSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRestockSubscriptionsInput, Prisma.UserUncheckedCreateWithoutRestockSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRestockSubscriptionsInput
+  upsert?: Prisma.UserUpsertWithoutRestockSubscriptionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRestockSubscriptionsInput, Prisma.UserUpdateWithoutRestockSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutRestockSubscriptionsInput>
+}
+
 export type UserCreateWithoutRolesInput = {
   id?: string
   email: string
@@ -733,6 +779,8 @@ export type UserCreateWithoutRolesInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -757,6 +805,8 @@ export type UserUncheckedCreateWithoutRolesInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -797,6 +847,8 @@ export type UserUpdateWithoutRolesInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -821,6 +873,8 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -845,6 +899,8 @@ export type UserCreateWithoutSessionsInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -869,6 +925,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -909,6 +967,8 @@ export type UserUpdateWithoutSessionsInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -933,6 +993,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetsInput = {
@@ -957,6 +1019,8 @@ export type UserCreateWithoutPasswordResetsInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetsInput = {
@@ -981,6 +1045,8 @@ export type UserUncheckedCreateWithoutPasswordResetsInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetsInput = {
@@ -1021,6 +1087,8 @@ export type UserUpdateWithoutPasswordResetsInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetsInput = {
@@ -1045,6 +1113,8 @@ export type UserUncheckedUpdateWithoutPasswordResetsInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAddressesInput = {
@@ -1069,6 +1139,8 @@ export type UserCreateWithoutAddressesInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAddressesInput = {
@@ -1093,6 +1165,8 @@ export type UserUncheckedCreateWithoutAddressesInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAddressesInput = {
@@ -1133,6 +1207,8 @@ export type UserUpdateWithoutAddressesInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAddressesInput = {
@@ -1157,6 +1233,8 @@ export type UserUncheckedUpdateWithoutAddressesInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCartsInput = {
@@ -1181,6 +1259,8 @@ export type UserCreateWithoutCartsInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCartsInput = {
@@ -1205,6 +1285,8 @@ export type UserUncheckedCreateWithoutCartsInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCartsInput = {
@@ -1245,6 +1327,8 @@ export type UserUpdateWithoutCartsInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCartsInput = {
@@ -1269,6 +1353,8 @@ export type UserUncheckedUpdateWithoutCartsInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWishlistInput = {
@@ -1293,6 +1379,8 @@ export type UserCreateWithoutWishlistInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWishlistInput = {
@@ -1317,6 +1405,8 @@ export type UserUncheckedCreateWithoutWishlistInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWishlistInput = {
@@ -1357,6 +1447,8 @@ export type UserUpdateWithoutWishlistInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWishlistInput = {
@@ -1381,6 +1473,8 @@ export type UserUncheckedUpdateWithoutWishlistInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOrdersInput = {
@@ -1405,6 +1499,8 @@ export type UserCreateWithoutOrdersInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrdersInput = {
@@ -1429,6 +1525,8 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrdersInput = {
@@ -1469,6 +1567,8 @@ export type UserUpdateWithoutOrdersInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -1493,6 +1593,8 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReviewsInput = {
@@ -1517,6 +1619,8 @@ export type UserCreateWithoutReviewsInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewsInput = {
@@ -1541,6 +1645,8 @@ export type UserUncheckedCreateWithoutReviewsInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewsInput = {
@@ -1581,6 +1687,8 @@ export type UserUpdateWithoutReviewsInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsInput = {
@@ -1605,6 +1713,8 @@ export type UserUncheckedUpdateWithoutReviewsInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutContactMessagesInput = {
@@ -1629,6 +1739,8 @@ export type UserCreateWithoutContactMessagesInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutContactMessagesInput = {
@@ -1653,6 +1765,8 @@ export type UserUncheckedCreateWithoutContactMessagesInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutContactMessagesInput = {
@@ -1693,6 +1807,8 @@ export type UserUpdateWithoutContactMessagesInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutContactMessagesInput = {
@@ -1717,6 +1833,8 @@ export type UserUncheckedUpdateWithoutContactMessagesInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1741,6 +1859,8 @@ export type UserCreateWithoutAuditLogsInput = {
   reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1765,6 +1885,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1805,6 +1927,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1829,6 +1953,248 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPushSubscriptionsInput = {
+  id?: string
+  email: string
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  acceptsMarketing?: boolean
+  isActive?: boolean
+  deletionRequestedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutUserInput
+  carts?: Prisma.CartCreateNestedManyWithoutUserInput
+  wishlist?: Prisma.WishlistCreateNestedOneWithoutUserInput
+  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
+  id?: string
+  email: string
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  acceptsMarketing?: boolean
+  isActive?: boolean
+  deletionRequestedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutUserInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutUserInput
+  wishlist?: Prisma.WishlistUncheckedCreateNestedOneWithoutUserInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPushSubscriptionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+}
+
+export type UserUpsertWithoutPushSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPushSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPushSubscriptionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPushSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
+}
+
+export type UserUpdateWithoutPushSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptsMarketing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutUserNestedInput
+  carts?: Prisma.CartUpdateManyWithoutUserNestedInput
+  wishlist?: Prisma.WishlistUpdateOneWithoutUserNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptsMarketing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutUserNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutUserNestedInput
+  wishlist?: Prisma.WishlistUncheckedUpdateOneWithoutUserNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  restockSubscriptions?: Prisma.RestockSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutRestockSubscriptionsInput = {
+  id?: string
+  email: string
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  acceptsMarketing?: boolean
+  isActive?: boolean
+  deletionRequestedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutUserInput
+  carts?: Prisma.CartCreateNestedManyWithoutUserInput
+  wishlist?: Prisma.WishlistCreateNestedOneWithoutUserInput
+  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutRestockSubscriptionsInput = {
+  id?: string
+  email: string
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  acceptsMarketing?: boolean
+  isActive?: boolean
+  deletionRequestedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutUserInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutUserInput
+  wishlist?: Prisma.WishlistUncheckedCreateNestedOneWithoutUserInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  contactMessages?: Prisma.ContactMessageUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutRestockSubscriptionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRestockSubscriptionsInput, Prisma.UserUncheckedCreateWithoutRestockSubscriptionsInput>
+}
+
+export type UserUpsertWithoutRestockSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRestockSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutRestockSubscriptionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRestockSubscriptionsInput, Prisma.UserUncheckedCreateWithoutRestockSubscriptionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRestockSubscriptionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRestockSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutRestockSubscriptionsInput>
+}
+
+export type UserUpdateWithoutRestockSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptsMarketing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutUserNestedInput
+  carts?: Prisma.CartUpdateManyWithoutUserNestedInput
+  wishlist?: Prisma.WishlistUpdateOneWithoutUserNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRestockSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptsMarketing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutUserNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutUserNestedInput
+  wishlist?: Prisma.WishlistUncheckedUpdateOneWithoutUserNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  contactMessages?: Prisma.ContactMessageUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1846,6 +2212,8 @@ export type UserCountOutputType = {
   auditLogs: number
   passwordResets: number
   contactMessages: number
+  pushSubscriptions: number
+  restockSubscriptions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1858,6 +2226,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   passwordResets?: boolean | UserCountOutputTypeCountPasswordResetsArgs
   contactMessages?: boolean | UserCountOutputTypeCountContactMessagesArgs
+  pushSubscriptions?: boolean | UserCountOutputTypeCountPushSubscriptionsArgs
+  restockSubscriptions?: boolean | UserCountOutputTypeCountRestockSubscriptionsArgs
 }
 
 /**
@@ -1933,6 +2303,20 @@ export type UserCountOutputTypeCountContactMessagesArgs<ExtArgs extends runtime.
   where?: Prisma.ContactMessageWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushSubscriptionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRestockSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RestockSubscriptionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1957,6 +2341,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
   contactMessages?: boolean | Prisma.User$contactMessagesArgs<ExtArgs>
+  pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
+  restockSubscriptions?: boolean | Prisma.User$restockSubscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2017,6 +2403,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
   contactMessages?: boolean | Prisma.User$contactMessagesArgs<ExtArgs>
+  pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
+  restockSubscriptions?: boolean | Prisma.User$restockSubscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2035,6 +2423,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     passwordResets: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
     contactMessages: Prisma.$ContactMessagePayload<ExtArgs>[]
+    pushSubscriptions: Prisma.$PushSubscriptionPayload<ExtArgs>[]
+    restockSubscriptions: Prisma.$RestockSubscriptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2453,6 +2843,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResets<T extends Prisma.User$passwordResetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contactMessages<T extends Prisma.User$contactMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$contactMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContactMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pushSubscriptions<T extends Prisma.User$pushSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pushSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  restockSubscriptions<T extends Prisma.User$restockSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$restockSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RestockSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3119,6 +3511,54 @@ export type User$contactMessagesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ContactMessageScalarFieldEnum | Prisma.ContactMessageScalarFieldEnum[]
+}
+
+/**
+ * User.pushSubscriptions
+ */
+export type User$pushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushSubscription
+   */
+  select?: Prisma.PushSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushSubscription
+   */
+  omit?: Prisma.PushSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.PushSubscriptionWhereInput
+  orderBy?: Prisma.PushSubscriptionOrderByWithRelationInput | Prisma.PushSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.PushSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushSubscriptionScalarFieldEnum | Prisma.PushSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * User.restockSubscriptions
+ */
+export type User$restockSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RestockSubscription
+   */
+  select?: Prisma.RestockSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RestockSubscription
+   */
+  omit?: Prisma.RestockSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RestockSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.RestockSubscriptionWhereInput
+  orderBy?: Prisma.RestockSubscriptionOrderByWithRelationInput | Prisma.RestockSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.RestockSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RestockSubscriptionScalarFieldEnum | Prisma.RestockSubscriptionScalarFieldEnum[]
 }
 
 /**

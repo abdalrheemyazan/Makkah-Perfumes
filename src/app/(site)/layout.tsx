@@ -1,6 +1,7 @@
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { AccessibilitySettings } from '@/components/a11y/accessibility-settings';
+import { InstallPrompt } from '@/components/pwa/install-prompt';
 import { PageTransition } from '@/components/layout/page-transition';
 import { readCartSummary } from '@/lib/commerce/cart';
 import { getCurrentUser, isAdmin } from '@/lib/auth';
@@ -30,6 +31,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </main>
       <SiteFooter />
       <AccessibilitySettings />
+      <InstallPrompt />
     </>
   );
 }

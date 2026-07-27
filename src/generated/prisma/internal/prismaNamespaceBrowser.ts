@@ -89,7 +89,9 @@ export const ModelName = {
   NewsletterSubscriber: 'NewsletterSubscriber',
   SiteSetting: 'SiteSetting',
   ContactMessage: 'ContactMessage',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  PushSubscription: 'PushSubscription',
+  RestockSubscription: 'RestockSubscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -657,6 +659,8 @@ export const ContactMessageScalarFieldEnum = {
   adminNote: 'adminNote',
   userId: 'userId',
   ipAddress: 'ipAddress',
+  handledAt: 'handledAt',
+  handledByUserId: 'handledByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -676,6 +680,44 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userId: 'userId',
+  locale: 'locale',
+  userAgent: 'userAgent',
+  failureCount: 'failureCount',
+  lastNotifiedAt: 'lastNotifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+export const RestockSubscriptionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  userId: 'userId',
+  email: 'email',
+  pushSubscriptionId: 'pushSubscriptionId',
+  channels: 'channels',
+  status: 'status',
+  locale: 'locale',
+  unsubscribeToken: 'unsubscribeToken',
+  lastDeliveryStatus: 'lastDeliveryStatus',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  notifiedAt: 'notifiedAt',
+  unsubscribedAt: 'unsubscribedAt'
+} as const
+
+export type RestockSubscriptionScalarFieldEnum = (typeof RestockSubscriptionScalarFieldEnum)[keyof typeof RestockSubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {
