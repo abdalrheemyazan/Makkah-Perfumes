@@ -126,25 +126,21 @@ export default async function CartPage() {
                   accent="success"
                 />
               )}
-              <Row
-                label="משלוח"
-                value={
-                  cart.totals.shippingAgorot === 0
-                    ? 'חינם'
-                    : formatPrice(cart.totals.shippingAgorot)
-                }
-              />
+              <div className="flex items-center justify-between">
+                <dt className="text-muted">משלוח</dt>
+                <dd className="text-cream">יחושב בתהליך ההזמנה</dd>
+              </div>
             </dl>
 
             <div className="mt-5 flex items-baseline justify-between border-t border-gold/15 pt-5">
-              <span className="font-serif text-lg text-ivory">סה״כ לתשלום</span>
+              <span className="font-serif text-lg text-ivory">סה״כ ביניים</span>
               <span className="ltr-nums font-serif text-2xl text-gold">
                 {formatPrice(cart.totals.totalAgorot)}
               </span>
             </div>
 
             <p className="mt-3 text-xs text-faint">
-              אופן וזמני המשלוח הסופיים יתואמו עם אישור ההזמנה.
+              עלות המשלוח תחושב לפי הבחירה בתהליך ההזמנה.
             </p>
 
             <div className="mt-6">

@@ -81,4 +81,79 @@ describe('Checkout Validation & Logic', () => {
     expect(expressTotals.shippingAgorot).toBe(5000);
     expect(expressTotals.totalAgorot).toBe(15000);
   });
+
+  it('verifies cart totals do not include shipping charge when deliveryMethod is not provided', () => {
+    const lines = [{ variantId: 'v1', unitPriceAgorot: 44900, quantity: 1 }]; // 449.00 ₪
+
+    // 1. Cart with no coupon contains no shipping charge.
+    const cartNoCoupon = calculateCartTotals({ lines, deliveryMethod: null });
+    expect(cartNoCoupon.shippingAgorot).toBe(0);
+    expect(cartNoCoupon.totalAgorot).toBe(44900);
+
+    // 2. Cart with a coupon contains no shipping charge.
+    const percentCoupon = {
+      code: 'LAUNCH10',
+      discountType: 'PERCENTAGE' as const,
+      discountValue: 10,
+      minSubtotalAgorot: null,
+      maxDiscountAgorot: null,
+      usageLimit: null,
+      usageCount: 0,
+      perUserLimit: null,
+      startsAt: null,
+      endsAt: null,
+      isActive: true,
+    };
+    const cartWithCoupon = calculateCartTotals({ lines, coupon: percentCoupon, deliveryMethod: null });
+    expect(cartWithCoupon.shippingAgorot).toBe(0);
+
+    // 3. The example total is exactly 404.10 ₪.
+    expect(cartWithCoupon.discountAgorot).toBe(4490); // 44.90 ₪
+    expect(cartWithCoupon.totalAgorot).toBe(40410); // 404.10 ₪
+
+    // 4. Cart never defaults to REGULAR.
+    expect(cartNoCoupon.shippingAgorot).not.toBe(2500);
+  });
+
+  it('verifies checkout shipping selection updates correctly', () => {
+    const lines = [{ variantId: 'v1', unitPriceAgorot: 44900, quantity: 1 }]; // 449.00 ₪
+    const percentCoupon = {
+      code: 'LAUNCH10',
+      discountType: 'PERCENTAGE' as const,
+      discountValue: 10,
+      minSubtotalAgorot: null,
+      maxDiscountAgorot: null,
+      usageLimit: null,
+      usageCount: 0,
+      perUserLimit: null,
+      startsAt: null,
+      endsAt: null,
+      isActive: true,
+    };
+
+    // 5. Checkout still shows all three delivery methods.
+    expect(SHIPPING_METHODS.SELF_PICKUP).toBeDefined();
+    expect(SHIPPING_METHODS.REGULAR).toBeDefined();
+    expect(SHIPPING_METHODS.EXPRESS).toBeDefined();
+
+    // 6. Selecting regular in checkout adds 25 ₪.
+    const checkoutRegular = calculateCartTotals({ lines, coupon: percentCoupon, deliveryMethod: 'STANDARD_DELIVERY' });
+    expect(checkoutRegular.shippingAgorot).toBe(2500);
+    expect(checkoutRegular.totalAgorot).toBe(42910); // 404.10 + 25.00
+
+    // 7. Selecting express in checkout adds 50 ₪.
+    const checkoutExpress = calculateCartTotals({ lines, coupon: percentCoupon, deliveryMethod: 'EXPRESS_DELIVERY' });
+    expect(checkoutExpress.shippingAgorot).toBe(5000);
+    expect(checkoutExpress.totalAgorot).toBe(45410); // 404.10 + 50.00
+
+    // 8. Selecting pickup in checkout adds 0 ₪.
+    const checkoutPickup = calculateCartTotals({ lines, coupon: percentCoupon, deliveryMethod: 'STORE_PICKUP' });
+    expect(checkoutPickup.shippingAgorot).toBe(0);
+    expect(checkoutPickup.totalAgorot).toBe(40410); // 404.10 + 0
+
+    // 9. Cart and checkout totals use the same product subtotal and coupon discount.
+    const cartTotals = calculateCartTotals({ lines, coupon: percentCoupon, deliveryMethod: null });
+    expect(cartTotals.subtotalAgorot).toBe(checkoutRegular.subtotalAgorot);
+    expect(cartTotals.discountAgorot).toBe(checkoutRegular.discountAgorot);
+  });
 });

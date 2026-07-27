@@ -173,7 +173,7 @@ export type CartTotals = {
 export function calculateCartTotals(input: {
   lines: readonly PriceableLine[];
   coupon?: CouponRules | null;
-  deliveryMethod: DeliveryMethod;
+  deliveryMethod?: DeliveryMethod | null;
   now?: Date;
   userRedemptionCount?: number;
 }): CartTotals {
@@ -200,9 +200,9 @@ export function calculateCartTotals(input: {
   }
 
   const subtotalAfterDiscount = clampToZero(subtotalAgorot - discountAgorot);
-  const shippingAgorot = shippingFor(input.deliveryMethod, subtotalAfterDiscount, {
-    freeShipping,
-  });
+  const shippingAgorot = input.deliveryMethod
+    ? shippingFor(input.deliveryMethod, subtotalAfterDiscount, { freeShipping })
+    : 0;
   const taxAgorot = 0;
   const totalAgorot = clampToZero(subtotalAfterDiscount + shippingAgorot + taxAgorot);
 

@@ -120,7 +120,7 @@ function toCouponRules(coupon: CartRow['coupon']): CouponRules | null {
 /** Projects a database cart row into the shape the UI consumes. */
 export function projectCart(
   cart: CartRow,
-  deliveryMethod: DeliveryMethod = 'STANDARD_DELIVERY',
+  deliveryMethod?: DeliveryMethod | null,
 ): CartView {
   const lines: CartLine[] = cart.items.map((item) => {
     const { variant } = item;
@@ -205,7 +205,7 @@ export async function readCartSummary(): Promise<CartSummary> {
  * a cookie, so a visitor without a cart simply gets the empty view.
  */
 export async function readCart(
-  deliveryMethod: DeliveryMethod = 'STANDARD_DELIVERY',
+  deliveryMethod?: DeliveryMethod | null,
 ): Promise<CartView> {
   const store = await cookies();
   const token = store.get(CART_COOKIE)?.value;
