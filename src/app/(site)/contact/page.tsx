@@ -30,14 +30,11 @@ export default function Page() {
           </div>
 
           <aside className="flex flex-col gap-4">
-            <div
-              role="note"
-              className="rounded-lg border border-warning/40 bg-warning/10 p-5 text-sm leading-relaxed text-warning"
-            >
-              <p className="font-medium">פרטי יצירת קשר טרם התקבלו</p>
+            <div className="rounded-lg border border-gold/15 bg-charcoal/60 p-5 text-sm leading-relaxed text-cream/80">
+              <p className="font-medium text-ivory">איך נוכל לעזור?</p>
               <p className="mt-1.5">
-                טלפון, כתובת דוא״ל ושעות מענה יתעדכנו כאן עם קבלתם. בינתיים אפשר
-                לפנות דרך הטופס.
+                אפשר לפנות בנוגע לבחירת ניחוח, להזמנה קיימת, למשלוח או להחזרה.
+                בנוגע להזמנה קיימת, מומלץ לצרף את מספר ההזמנה.
               </p>
             </div>
             <div className="rounded-lg border border-gold/15 bg-charcoal/60 p-5 text-sm leading-relaxed text-cream/80">

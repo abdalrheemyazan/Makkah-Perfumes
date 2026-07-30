@@ -1,6 +1,8 @@
-import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import sharp from 'sharp';
 import manifest from '@/app/manifest';
 
 /**
@@ -62,4 +64,37 @@ describe('generated icon files', () => {
       expect(existsSync(join(root, file))).toBe(true);
     });
   }
+
+  it('replaces the known Next.js starter ICO and contains all required frames', () => {
+    const ico = readFileSync(join(root, 'src/app/favicon.ico'));
+    const sha256 = createHash('sha256').update(ico).digest('hex');
+    expect(sha256).not.toBe('2b8ad2d33455a8f736fc3a8ebf8f0bdea8848ad4c0db48a2833bd0f9cd775932');
+    expect(ico.readUInt16LE(0)).toBe(0);
+    expect(ico.readUInt16LE(2)).toBe(1);
+    const count = ico.readUInt16LE(4);
+    expect(count).toBe(4);
+    const sizes = Array.from({ length: count }, (_, index) => {
+      const raw = ico[6 + index * 16];
+      return raw === 0 ? 256 : raw;
+    });
+    expect(sizes).toEqual([16, 32, 48, 256]);
+  });
+
+  it('serves correctly sized monogram PNGs for browser, Apple and PWA use', async () => {
+    const expected = new Map([
+      ['public/icons/favicon-16.png', 16],
+      ['public/icons/favicon-32.png', 32],
+      ['public/icons/favicon-48.png', 48],
+      ['public/icons/icon-192.png', 192],
+      ['public/icons/icon-512.png', 512],
+      ['public/icons/maskable-512.png', 512],
+      ['src/app/apple-icon.png', 180],
+    ]);
+    for (const [file, size] of expected) {
+      const metadata = await sharp(join(root, file)).metadata();
+      expect(metadata.width, file).toBe(size);
+      expect(metadata.height, file).toBe(size);
+      expect(metadata.format, file).toBe('png');
+    }
+  });
 });

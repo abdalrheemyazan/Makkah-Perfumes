@@ -1,9 +1,8 @@
 /**
  * Site-wide constants and navigation.
  *
- * Anything here that would be a factual claim about the business (address,
- * phone, founding story) is deliberately left empty until the client supplies
- * it — see docs/MISSING_BUSINESS_DATA.md.
+ * Business contact and legal-entity details stay out of public copy until they
+ * are verified. Public support flows through the contact page.
  */
 
 export const SITE = {
@@ -29,7 +28,6 @@ export const MAIN_NAV: readonly NavItem[] = [
   { href: '/frankincense-and-incense', labelHe: 'קטורת ולבונה' },
   { href: '/fragrance-finder', labelHe: 'התאמת ניחוח' },
   { href: '/about', labelHe: 'הסיפור שלנו' },
-  { href: '/stores', labelHe: 'סניפים' },
   { href: '/contact', labelHe: 'יצירת קשר' },
 ] as const;
 
@@ -48,7 +46,6 @@ export const FOOTER_NAV: readonly { titleHe: string; items: readonly NavItem[] }
     items: [
       { href: '/contact', labelHe: 'יצירת קשר' },
       { href: '/shipping-and-returns', labelHe: 'משלוחים והחזרות' },
-      { href: '/stores', labelHe: 'סניפים' },
       { href: '/account/orders', labelHe: 'מעקב הזמנות' },
     ],
   },
@@ -56,7 +53,6 @@ export const FOOTER_NAV: readonly { titleHe: string; items: readonly NavItem[] }
     titleHe: 'מידע',
     items: [
       { href: '/about', labelHe: 'הסיפור שלנו' },
-      { href: '/journal', labelHe: 'מגזין' },
       { href: '/frankincense-and-incense', labelHe: 'עולם הלבונה' },
     ],
   },

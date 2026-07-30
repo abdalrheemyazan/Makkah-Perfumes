@@ -59,7 +59,7 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/_next/static/'),
       handler: new CacheFirst({
-        cacheName: 'static-assets-v2',
+        cacheName: 'static-assets-v3',
         plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 })],
       }),
     },
@@ -67,7 +67,7 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/_next/image'),
       handler: new StaleWhileRevalidate({
-        cacheName: 'next-image-v2',
+        cacheName: 'next-image-v3',
         plugins: [new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 })],
       }),
     },
@@ -76,7 +76,7 @@ const serwist = new Serwist({
       matcher: ({ url, sameOrigin }) =>
         sameOrigin && /^\/(brand-reference|generated|icons)\//.test(url.pathname),
       handler: new StaleWhileRevalidate({
-        cacheName: 'public-media-v2',
+        cacheName: 'public-media-v3',
         plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 })],
       }),
     },
@@ -84,13 +84,13 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) =>
         sameOrigin && /^\/(manifest\.webmanifest|favicon\.ico|apple-touch-icon\.png)$/.test(url.pathname),
-      handler: new StaleWhileRevalidate({ cacheName: 'meta-v2' }),
+      handler: new StaleWhileRevalidate({ cacheName: 'meta-v3' }),
     },
     // 7. Public page navigations: network-first, fall back to the offline page.
     {
       matcher: ({ request, sameOrigin }) => sameOrigin && request.mode === 'navigate',
       handler: new NetworkFirst({
-        cacheName: 'pages-v2',
+        cacheName: 'pages-v3',
         networkTimeoutSeconds: 3,
         plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 })],
       }),
@@ -124,8 +124,8 @@ self.addEventListener('push', (event) => {
 
   const options: NotificationOptions = {
     body: payload.body,
-    icon: payload.icon || '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: payload.icon || '/icons/icon-192.png?v=20260730',
+    badge: '/icons/icon-192.png?v=20260730',
     dir: 'rtl',
     lang: 'he',
     tag: payload.tag,

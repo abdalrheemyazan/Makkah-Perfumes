@@ -14,6 +14,7 @@ import { cardSelect, toCard, type ProductCard as ProductCardData } from '@/lib/c
 import { getCurrentUser } from '@/lib/auth';
 import { availableChannels, publicVapidKey } from '@/lib/notifications/env';
 import { findActiveSubscription } from '@/lib/notifications/restock';
+import { FRAGRANCE_CONTENT_BY_SLUG, type FragranceSourceNote } from '@/lib/fragrance-content';
 
 type Params = Promise<{ slug: string }>;
 
@@ -50,9 +51,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   if (!product) return { title: 'המוצר לא נמצא' };
 
+  const sourceContent = FRAGRANCE_CONTENT_BY_SLUG.get(slug);
+
   return {
     title: product.nameHe,
-    description: product.seoDescriptionHe ?? product.descriptionHe ?? SITE.descriptionHe,
+    description: sourceContent?.descriptionHe ?? product.seoDescriptionHe ?? product.descriptionHe ?? SITE.descriptionHe,
     alternates: { canonical: `${SITE.url}/shop/${slug}` },
   };
 }
@@ -93,13 +96,8 @@ export default async function ProductPage({ params }: { params: Params }) {
       : false;
 
   const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
-
-  // The pyramid is only rendered once the notes have been verified with the
-  // brand. We do not invent fragrance notes — see docs/MISSING_BUSINESS_DATA.md.
-  const showPyramid = product.notesVerified && product.notes.length > 0;
-  const topNotes = product.notes.filter((entry) => entry.tier === 'TOP');
-  const heartNotes = product.notes.filter((entry) => entry.tier === 'HEART');
-  const baseNotes = product.notes.filter((entry) => entry.tier === 'BASE');
+  const sourceContent = FRAGRANCE_CONTENT_BY_SLUG.get(product.slug);
+  const descriptionHe = sourceContent?.descriptionHe ?? product.descriptionHe;
 
   const related = await loadRelated(product.id, product.fragranceFamilyId);
 
@@ -227,37 +225,25 @@ export default async function ProductPage({ params }: { params: Params }) {
             </div>
           </div>
 
-          {product.descriptionHe && (
-            <div className="mt-10">
-              <h2 className="font-serif text-xl text-ivory">על הבושם</h2>
-              <p className="mt-3 text-sm leading-relaxed text-cream/80">{product.descriptionHe}</p>
-            </div>
-          )}
-
-          {/* Fragrance pyramid — verified notes only */}
-          {showPyramid ? (
-            <div className="mt-10">
-              <h2 className="font-serif text-xl text-ivory">פירמידת הניחוח</h2>
-              <dl className="mt-4 flex flex-col gap-4">
-                <NoteTier titleHe="תווי פתיחה" notes={topNotes} />
-                <NoteTier titleHe="תווי לב" notes={heartNotes} />
-                <NoteTier titleHe="תווי בסיס" notes={baseNotes} />
-              </dl>
-            </div>
-          ) : (
-            <p className="mt-10 rounded-sm border border-gold/15 bg-charcoal p-4 text-xs leading-relaxed text-muted">
-              פירמידת הניחוח הרשמית של המוצר טרם התקבלה מהמותג ולכן אינה מוצגת.
-            </p>
-          )}
-
           <div className="mt-8 flex flex-col gap-2 text-xs text-faint">
-            <p>זמני האספקה יימסרו בעת אישור ההזמנה.</p>
+            <p>פרטי המסירה והזמינות יאושרו לאחר קבלת ההזמנה.</p>
             <Link href="/shipping-and-returns" className="underline underline-offset-2 hover:text-cream">
               מדיניות משלוחים והחזרות
             </Link>
           </div>
         </div>
       </div>
+
+      {sourceContent && descriptionHe && (
+        <FragranceProfile
+          descriptionHe={descriptionHe}
+          familyHe={sourceContent.family.nameHe}
+          launchYear={sourceContent.launchYear}
+          perfumers={sourceContent.perfumers}
+          noteStructure={sourceContent.noteStructure}
+          notes={sourceContent.notes}
+        />
+      )}
 
       {/* Reviews — approved only, never fabricated */}
       <section aria-labelledby="reviews-heading" className="mt-24 border-t border-gold/15 pt-12">
@@ -307,26 +293,100 @@ export default async function ProductPage({ params }: { params: Params }) {
         priceAgorot={variant?.priceAgorot ?? null}
         inStock={inStock}
         imageUrl={primaryImage?.url ?? null}
+        descriptionHe={descriptionHe}
       />
     </div>
   );
 }
 
-function NoteTier({
+function FragranceProfile({
+  descriptionHe,
+  familyHe,
+  launchYear,
+  perfumers,
+  noteStructure,
+  notes,
+}: {
+  descriptionHe: string;
+  familyHe: string;
+  launchYear: number;
+  perfumers: readonly string[];
+  noteStructure: 'PYRAMID' | 'KEY';
+  notes: readonly FragranceSourceNote[];
+}) {
+  const top = notes.filter((note) => note.tier === 'TOP');
+  const heart = notes.filter((note) => note.tier === 'HEART');
+  const base = notes.filter((note) => note.tier === 'BASE');
+
+  return (
+    <section aria-labelledby="fragrance-profile-heading" className="mt-24 border-y border-gold/15 py-14">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.6fr)] lg:gap-20">
+        <div>
+          <p className="text-xs font-medium tracking-[0.16em] text-gold">פרופיל הניחוח</p>
+          <h2 id="fragrance-profile-heading" className="mt-3 text-3xl text-ivory">הקומפוזיציה</h2>
+          <p className="mt-5 text-base leading-[1.9] text-cream/80">{descriptionHe}</p>
+
+          <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-gold/15 pt-6 text-sm">
+            <div>
+              <dt className="text-faint">משפחת ניחוח</dt>
+              <dd className="mt-1 text-cream">{familyHe}</dd>
+            </div>
+            <div>
+              <dt className="text-faint">שנת השקה</dt>
+              <dd className="ltr-nums mt-1 text-cream">{launchYear}</dd>
+            </div>
+            {perfumers.length > 0 && (
+              <div className="col-span-2">
+                <dt className="text-faint">הבשמים</dt>
+                <dd className="mt-1 text-cream" dir="ltr" lang="en">{perfumers.join(', ')}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+
+        {noteStructure === 'KEY' ? (
+          <div>
+            <h3 className="text-lg text-ivory">תווי מפתח</h3>
+            <NoteChips notes={notes} />
+          </div>
+        ) : (
+          <div className="grid gap-px overflow-hidden rounded-sm border border-gold/15 bg-gold/15 md:grid-cols-3">
+            <NoteColumn titleHe="תווי פתיחה" notes={top} />
+            <NoteColumn titleHe="תווי לב" notes={heart} />
+            <NoteColumn titleHe="תווי בסיס" notes={base} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function NoteColumn({
   titleHe,
   notes,
 }: {
   titleHe: string;
-  notes: { note: { nameHe: string } }[];
+  notes: readonly FragranceSourceNote[];
 }) {
   if (notes.length === 0) return null;
   return (
-    <div>
-      <dt className="text-sm text-gold">{titleHe}</dt>
-      <dd className="mt-1 text-sm text-cream/85">
-        {notes.map((entry) => entry.note.nameHe).join(' · ')}
-      </dd>
+    <div className="bg-ink-raised p-5 sm:p-6">
+      <h3 className="text-sm font-semibold text-gold">{titleHe}</h3>
+      <NoteChips notes={notes} />
     </div>
+  );
+}
+
+function NoteChips({ notes }: { notes: readonly FragranceSourceNote[] }) {
+  return (
+    <ul className="mt-4 flex flex-wrap gap-2">
+      {notes.map((note) => (
+        <li key={`${note.tier}-${note.slug}`} className="rounded-full border border-gold/20 bg-charcoal/65 px-3 py-2">
+          <span className="text-sm text-cream">{note.nameHe}</span>
+          <span className="ms-1.5 text-[0.68rem] text-faint" dir="ltr" lang="en">{note.nameEn}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -390,11 +450,13 @@ function ProductJsonLd({
   priceAgorot,
   inStock,
   imageUrl,
+  descriptionHe,
 }: {
   product: { nameHe: string; nameEn: string; slug: string; descriptionHe: string | null; pricingVerified: boolean };
   priceAgorot: number | null;
   inStock: boolean;
   imageUrl: string | null;
+  descriptionHe: string | null;
 }) {
   const data: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -405,7 +467,7 @@ function ProductJsonLd({
     url: `${SITE.url}/shop/${product.slug}`,
   };
 
-  if (product.descriptionHe) data.description = product.descriptionHe;
+  if (descriptionHe) data.description = descriptionHe;
   if (imageUrl) data.image = `${SITE.url}${imageUrl}`;
 
   if (product.pricingVerified && priceAgorot !== null) {

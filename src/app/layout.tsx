@@ -42,10 +42,18 @@ export const metadata: Metadata = {
     title: SITE.nameEn,
     statusBarStyle: 'black-translucent',
   },
-  // Favicon / tab icon comes from the App Router file conventions —
-  // src/app/icon.png, src/app/apple-icon.png, src/app/favicon.ico — which Next
-  // serves with content-hashed, cache-busted URLs. No manual `icons` block, so
-  // there is a single source of truth and no stale /icons/* reference.
+  icons: {
+    icon: [
+      { url: '/favicon.ico?v=20260730', type: 'image/x-icon' },
+      { url: '/icons/favicon-16.png?v=20260730', type: 'image/png', sizes: '16x16' },
+      { url: '/icons/favicon-32.png?v=20260730', type: 'image/png', sizes: '32x32' },
+      { url: '/icons/favicon-48.png?v=20260730', type: 'image/png', sizes: '48x48' },
+    ],
+    shortcut: [{ url: '/favicon.ico?v=20260730', type: 'image/x-icon' }],
+    apple: [{ url: '/apple-icon.png?v=20260730', type: 'image/png', sizes: '180x180' }],
+  },
+  // Explicit, versioned favicon/shortcut/Apple links evict the former starter
+  // icon. Every referenced file is generated from the same official monogram.
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

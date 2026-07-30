@@ -18,9 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/fragrance-finder`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/frankincense-and-incense`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${base}/about`, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${base}/stores`, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${base}/contact`, changeFrequency: 'monthly', priority: 0.4 },
-    { url: `${base}/journal`, changeFrequency: 'weekly', priority: 0.4 },
     { url: `${base}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${base}/terms`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${base}/shipping-and-returns`, changeFrequency: 'yearly', priority: 0.2 },
@@ -28,16 +26,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/cookies`, changeFrequency: 'yearly', priority: 0.2 },
   ];
 
-  const [products, collections, posts] = await Promise.all([
+  const [products, collections] = await Promise.all([
     db.product.findMany({
       where: { status: 'PUBLISHED' },
       select: { slug: true, updatedAt: true },
     }),
     db.collection.findMany({ where: { isPublished: true }, select: { slug: true } }),
-    db.journalPost.findMany({
-      where: { isPublished: true },
-      select: { slug: true, updatedAt: true },
-    }),
   ]);
 
   return [
@@ -52,12 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}/collections/${collection.slug}`,
       changeFrequency: 'weekly' as const,
       priority: 0.6,
-    })),
-    ...posts.map((post) => ({
-      url: `${base}/journal/${post.slug}`,
-      lastModified: post.updatedAt,
-      changeFrequency: 'monthly' as const,
-      priority: 0.4,
     })),
   ];
 }

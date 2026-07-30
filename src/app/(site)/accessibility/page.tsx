@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PageIdentity } from '@/components/layout/page-identity';
 
 export const metadata: Metadata = { title: 'הצהרת נגישות' };
@@ -88,17 +89,14 @@ export default function Page() {
             נגישות שתתגלה.
           </Section>
 
-          <div
-            role="note"
-            className="mt-10 rounded-lg border border-warning/40 bg-warning/10 p-5 text-sm leading-relaxed text-warning"
-          >
-            <p className="font-semibold">פרטי רכז הנגישות ודרכי הפנייה טרם התקבלו</p>
-            <p className="mt-1.5">
-              לפי תקנות הנגישות בישראל יש לפרסם כאן שם רכז נגישות ואמצעי יצירת קשר
-              לפניות בנושא. הפרטים ינוהלו דרך הגדרות מערכת הניהול ויעודכנו עם
-              קבלתם. איננו ממציאים פרטי קשר שלא נמסרו.
-            </p>
-          </div>
+          <Section titleHe="פנייה בנושא נגישות">
+            אם נתקלתם בקושי בשימוש באתר, אפשר לשלוח לנו תיאור של הפעולה שניסיתם
+            לבצע, העמוד שבו נתקלתם בקושי והדפדפן או טכנולוגיית הסיוע שבהם השתמשתם.{' '}
+            <Link href="/contact" className="text-gold underline underline-offset-2 hover:text-cream">
+              לפנייה דרך עמוד יצירת הקשר
+            </Link>
+            .
+          </Section>
 
           <p className="mt-8 text-xs text-faint">עודכן לאחרונה: {LAST_REVIEW}</p>
         </div>

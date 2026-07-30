@@ -7,9 +7,14 @@ import {
   ContentBlockKind,
   DiscountType,
   InventoryMovementReason,
+  NoteTier,
   ProductStatus,
   RoleName,
 } from '../src/generated/prisma/enums';
+import {
+  FRAGRANCE_CONTENT_BY_SLUG,
+  FRAGRANCE_FAMILIES,
+} from '../src/lib/fragrance-content';
 
 /**
  * Development seed.
@@ -23,14 +28,12 @@ import {
  * WHAT IS DEVELOPMENT DATA (every row below carries isDevelopmentData = true):
  *   - Prices, SKUs, stock levels, fragrance-family assignment.
  *
- * WHAT IS DELIBERATELY ABSENT:
- *   - Fragrance notes (never invented — notesVerified stays false, so the
- *     pyramid does not render).
+ * VERIFIED EDITORIAL CONTENT:
+ *   - Original Hebrew descriptions plus factual fragrance family, launch year,
+ *     perfumer and note structures documented in PRODUCT_CONTENT_SOURCES.md.
  *   - Reviews (no fabricated testimonials).
  *   - Branches (no invented addresses).
- *   - Any company-history claim presented as fact.
- *
- * See docs/MISSING_BUSINESS_DATA.md.
+ *   - Any business contact or legal-entity detail that has not been verified.
  */
 
 const connectionString = process.env.DATABASE_URL;
@@ -52,7 +55,6 @@ type SeedProduct = {
   /** Development price in agorot — NOT a real retail price. */
   devPriceAgorot: number;
   devCompareAtAgorot: number | null;
-  familySlug: string;
   /** Mould group, derived from the packshot. */
   mould: 'decanter' | 'marble' | 'clear-flacon' | 'cylinder' | 'standalone';
   altHe: string;
@@ -69,7 +71,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 44900,
     devCompareAtAgorot: null,
-    familySlug: 'leather-incense',
     mould: 'decanter',
     altHe: 'בקבוק הבושם Royal Leather — דקנטר זכוכית מסותת בגוון חום־ענבר עם פקק זהב מעוטר ותווית שחורה־זהובה',
     isFeatured: true,
@@ -83,7 +84,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 39900,
     devCompareAtAgorot: 45900,
-    familySlug: 'vanilla-sweet',
     mould: 'decanter',
     altHe: 'בקבוק הבושם Blossom Candy — דקנטר זכוכית מסותת במדרג שחור לאדום עם פקק זהב מעוטר',
     isFeatured: true,
@@ -97,7 +97,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 49900,
     devCompareAtAgorot: null,
-    familySlug: 'oriental',
     mould: 'cylinder',
     altHe: 'בקבוק הבושם Oud Embrace — גליל קריסטל מסותת בגוון ענבר עם פקק זהב גדול בצורת כתר ומדליון זהב עגול',
     isFeatured: true,
@@ -111,7 +110,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 32900,
     devCompareAtAgorot: null,
-    familySlug: 'leather-incense',
     mould: 'standalone',
     altHe: 'בקבוק הבושם Luban — בקבוק מלבני במדרג ירוק לזהב עם איור עץ לבונה וכיתוב בערבית, פקק זהב מלבני',
     isFeatured: true,
@@ -125,7 +123,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.EAU_DE_PARFUM,
     devPriceAgorot: 29900,
     devCompareAtAgorot: null,
-    familySlug: 'amber-musk',
     mould: 'marble',
     altHe: 'בקבוק הבושם Amber Incense — בקבוק מלבני מעוגל בגימור שיש חום עם מונוגרם זהב ופקק זהב מחורץ',
     isFeatured: true,
@@ -139,7 +136,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.EAU_DE_PARFUM,
     devPriceAgorot: 27900,
     devCompareAtAgorot: null,
-    familySlug: 'woody',
     mould: 'marble',
     altHe: 'בקבוק הבושם Pure Essence — בקבוק מלבני מעוגל בגימור שיש טורקיז כהה עם מונוגרם זהב ופקק זהב מחורץ',
     isFeatured: true,
@@ -153,7 +149,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.EAU_DE_PARFUM,
     devPriceAgorot: 29900,
     devCompareAtAgorot: null,
-    familySlug: 'floral',
     mould: 'marble',
     altHe: 'בקבוק הבושם Luxe Rose — בקבוק מלבני מעוגל בגימור שיש סגול עם מונוגרם זהב ופקק זהב מחורץ',
     isFeatured: false,
@@ -167,7 +162,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.EAU_DE_PARFUM,
     devPriceAgorot: 29900,
     devCompareAtAgorot: null,
-    familySlug: 'floral',
     mould: 'marble',
     altHe: 'בקבוק הבושם Amour Touch — בקבוק מלבני מעוגל בגימור שיש כחול עם מונוגרם זהב ופקק זהב מחורץ',
     isFeatured: false,
@@ -181,7 +175,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 24900,
     devCompareAtAgorot: null,
-    familySlug: 'fresh',
     mould: 'clear-flacon',
     altHe: 'בקבוק הבושם Adventure — פלקון זכוכית שקוף מלבני עם תווית זהב ופקק זהב גלילי מדורג',
     isFeatured: false,
@@ -195,7 +188,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 24900,
     devCompareAtAgorot: null,
-    familySlug: 'fresh',
     mould: 'clear-flacon',
     altHe: 'בקבוק הבושם Storm Blue — פלקון זכוכית שקוף עם קצוות בגוון כחול כהה, תווית זהב ופקק זהב גלילי',
     isFeatured: false,
@@ -209,7 +201,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 22900,
     devCompareAtAgorot: null,
-    familySlug: 'fresh',
     mould: 'standalone',
     altHe: 'בקבוק הבושם Courage — בקבוק מלבני מט בגוון תכלת עם פקק זהב מחורץ רחב',
     isFeatured: false,
@@ -223,7 +214,6 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 26900,
     devCompareAtAgorot: null,
-    familySlug: 'woody',
     mould: 'standalone',
     altHe: 'בקבוק הבושם Atheel — בקבוק גלילי מט במדרג טורקיז לירוק עם פקק זהב מחוספס',
     isFeatured: false,
@@ -237,29 +227,11 @@ const PRODUCTS: SeedProduct[] = [
     concentration: Concentration.UNSPECIFIED,
     devPriceAgorot: 25900,
     devCompareAtAgorot: null,
-    familySlug: 'vanilla-sweet',
     mould: 'standalone',
     altHe: 'בקבוק הבושם Precious Vanilla — בקבוק מלבני מעוגל בשחור מט עם לוגו כסוף ופקק כסוף',
     isFeatured: false,
     isNewArrival: false,
   },
-];
-
-const FAMILIES = [
-  { slug: 'oriental', nameHe: 'ניחוחות מזרחיים', accentColor: '#9A542E', position: 1,
-    descriptionHe: 'עוד, שרפים וחומרים כבדים — הלב של הבישום הערבי המסורתי.' },
-  { slug: 'woody', nameHe: 'ניחוחות עציים', accentColor: '#6B5334', position: 2,
-    descriptionHe: 'עצי ארז, סנדל ווטיבר — יובש אצילי ושקט.' },
-  { slug: 'floral', nameHe: 'ניחוחות פרחוניים', accentColor: '#8C4A57', position: 3,
-    descriptionHe: 'ורד, יסמין ופריחה — נשיות קלאסית בפרשנות מודרנית.' },
-  { slug: 'fresh', nameHe: 'ניחוחות רעננים', accentColor: '#4A6B72', position: 4,
-    descriptionHe: 'הדרים, אקווטיים ותווים ארומטיים — קלילות יומיומית.' },
-  { slug: 'amber-musk', nameHe: 'ענבר ומושק', accentColor: '#B38A52', position: 5,
-    descriptionHe: 'חום, עוטף וקטיפתי — החתימה החמה של הבית.' },
-  { slug: 'leather-incense', nameHe: 'עור וקטורת', accentColor: '#4A2023', position: 6,
-    descriptionHe: 'לבונה, קטורת ועור — עשן אציל ונוכחות עמוקה.' },
-  { slug: 'vanilla-sweet', nameHe: 'וניל ומתוקים', accentColor: '#A8763F', position: 7,
-    descriptionHe: 'וניל, קרמל ותווים גורמה — מתיקות מרוסנת.' },
 ];
 
 const COLLECTIONS = [
@@ -278,7 +250,7 @@ async function main() {
   const roleDescriptions: Record<RoleName, string> = {
     SUPER_ADMIN: 'הרשאה מלאה, כולל ניהול משתמשים והגדרות מערכת',
     ADMIN: 'ניהול כללי של החנות',
-    CONTENT_MANAGER: 'ניהול תוכן, מגזין ועמודי מידע',
+    CONTENT_MANAGER: 'ניהול תוכן ועמודי מידע',
     ORDER_MANAGER: 'ניהול הזמנות ומשלוחים',
     INVENTORY_MANAGER: 'ניהול מלאי ומוצרים',
     SUPPORT_AGENT: 'צפייה בהזמנות ומענה ללקוחות',
@@ -314,7 +286,7 @@ async function main() {
   });
 
   console.log('→ seeding fragrance families');
-  for (const family of FAMILIES) {
+  for (const family of FRAGRANCE_FAMILIES) {
     await db.fragranceFamily.upsert({
       where: { slug: family.slug },
       update: family,
@@ -351,32 +323,57 @@ async function main() {
 
   console.log('→ seeding products');
   for (const [index, product] of PRODUCTS.entries()) {
+    const content = FRAGRANCE_CONTENT_BY_SLUG.get(product.slug);
+    if (!content) throw new Error(`Missing verified fragrance content for ${product.slug}`);
     const family = await db.fragranceFamily.findUniqueOrThrow({
-      where: { slug: product.familySlug },
+      where: { slug: content.family.slug },
     });
 
     const created = await db.product.upsert({
       where: { slug: product.slug },
-      update: {},
+      update: {
+        ...(content.publicTitleHe ? { nameHe: content.publicTitleHe } : {}),
+        descriptionHe: content.descriptionHe,
+        fragranceFamilyId: family.id,
+        notesVerified: true,
+        seoDescriptionHe: content.descriptionHe,
+      },
       create: {
         slug: product.slug,
         nameHe: product.nameHe,
         nameEn: product.nameEn,
-        // Neutral, factual copy. No invented history, notes, or performance claims.
-        descriptionHe:
-          'תיאור רשמי טרם התקבל מהמותג. הפרטים המוצגים כאן מבוססים על תצלום המוצר בלבד.',
+        descriptionHe: content.descriptionHe,
         status: ProductStatus.PUBLISHED,
         publishedAt: new Date(),
         isFeatured: product.isFeatured,
         isNewArrival: product.isNewArrival,
         categoryId: category.id,
         fragranceFamilyId: family.id,
-        notesVerified: false,
+        notesVerified: true,
         pricingVerified: true,
         isDevelopmentData: false,
         seoTitleHe: `${product.nameHe} — ${product.nameEn} | מכה פרפיומס`,
+        seoDescriptionHe: content.descriptionHe,
       },
     });
+
+    // The current schema has three storage tiers. Flat source lists are stored
+    // in TOP for relational consistency, while the public renderer uses the
+    // verified KEY presentation from fragrance-content.ts and never invents a
+    // public top/heart/base pyramid.
+    for (const [position, sourceNote] of content.notes.entries()) {
+      const noteRow = await db.fragranceNote.upsert({
+        where: { slug: sourceNote.slug },
+        update: { nameHe: sourceNote.nameHe, nameEn: sourceNote.nameEn },
+        create: { slug: sourceNote.slug, nameHe: sourceNote.nameHe, nameEn: sourceNote.nameEn },
+      });
+      const tier = sourceNote.tier === 'KEY' ? NoteTier.TOP : NoteTier[sourceNote.tier];
+      await db.productFragranceNote.upsert({
+        where: { productId_noteId_tier: { productId: created.id, noteId: noteRow.id, tier } },
+        update: { position },
+        create: { productId: created.id, noteId: noteRow.id, tier, position },
+      });
+    }
 
     // Image — the real packshot, three formats.
     await db.productImage.upsert({
@@ -483,9 +480,8 @@ async function main() {
       titleHe: 'מהמסורת העומאנית אל הניחוח המודרני',
       // Deliberately free of unverifiable historical claims. Editable in admin.
       bodyHe:
-        'לבונה, עוד וענבר הם חומרי הגלם שעליהם נבנתה מסורת הבישום של דרום ערב. ' +
-        'מכה פרפיומס נושאת על תוויותיה את הכיתוב SINCE 1976. ' +
-        'סיפור המותג המלא יתעדכן כאן לאחר אישור המותג.',
+        'המסע של Makkah Perfumes החל בשנת 1976 בסולטנות עומאן, מתוך תשוקה ' +
+        'ליצירת ניחוחות המחברים בין מסורת הבישום הערבית והעומאנית לבין גישה מודרנית ומדויקת.',
     },
   ];
   for (const [position, block] of blocks.entries()) {
@@ -511,8 +507,7 @@ async function main() {
 
   // NOT seeded, deliberately:
   //   reviews   — no real reviews exist; fabricating them is forbidden.
-  //   branches  — no verified addresses; the page shows an empty state.
-  //   notes     — no verified fragrance pyramids.
+  //   branches  — no public branch details are maintained by this website.
 
   const counts = {
     products: await db.product.count(),

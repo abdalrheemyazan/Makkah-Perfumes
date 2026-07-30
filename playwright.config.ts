@@ -16,6 +16,8 @@ import { defineConfig, devices } from '@playwright/test';
  * create/seed that database.
  */
 const TEST_DB = process.env.TEST_DATABASE_URL;
+const E2E_PORT = Number(process.env.E2E_PORT ?? 3000);
+const E2E_ORIGIN = process.env.E2E_BASE_URL ?? `http://localhost:${E2E_PORT}`;
 (function assertIsolatedTestDb() {
   if (!TEST_DB) {
     throw new Error(
@@ -48,7 +50,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
 
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
+    baseURL: E2E_ORIGIN,
     locale: 'he-IL',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -92,13 +94,17 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
+    command: `npm run dev -- -p ${E2E_PORT}`,
+    url: E2E_ORIGIN,
     // Never reuse a server that might be pointed at the development database —
     // always start a fresh one bound to the isolated test database.
     reuseExistingServer: false,
     timeout: 120_000,
     // Next.js does not override already-set env vars from .env, so this wins.
-    env: { ...process.env, DATABASE_URL: TEST_DB! },
+    env: {
+      ...process.env,
+      DATABASE_URL: TEST_DB!,
+      NEXT_DIST_DIR: process.env.NEXT_DIST_DIR ?? '.next-e2e',
+    },
   },
 });

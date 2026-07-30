@@ -238,6 +238,7 @@ export async function searchProducts(filters: ShopFilters): Promise<ShopResult> 
 export async function getShopFacets() {
   const [families, collections, variants] = await Promise.all([
     db.fragranceFamily.findMany({
+      where: { products: { some: { status: 'PUBLISHED' } } },
       orderBy: { position: 'asc' },
       select: {
         slug: true,

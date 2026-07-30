@@ -57,13 +57,10 @@ export function SiteFooter() {
 
         <div className="rule-brass mt-14" />
 
-        <div className="mt-6 flex flex-col gap-3 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 text-xs text-faint">
           <p>
             © {year} {SITE.nameEn}. כל הזכויות שמורות.
           </p>
-          {/* Legal entity details are withheld until the client supplies them —
-              see docs/MISSING_BUSINESS_DATA.md §1.5. */}
-          <p>פרטי החברה ותנאי המסחר יתעדכנו עם השלמת המידע העסקי.</p>
         </div>
       </div>
     </footer>

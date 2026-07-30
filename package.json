@@ -26,6 +26,7 @@
     "launch:reset-data": "tsx scripts/launch-reset-data.ts",
     "admin:update-profile": "tsx scripts/update-admin-profile.ts",
     "db:cleanup-test-products": "tsx scripts/cleanup-test-products.mjs",
+    "products:update-fragrance-content": "tsx scripts/update-fragrance-content.ts",
     "db:test-setup": "node scripts/setup-test-db.mjs",
     "admin:create": "tsx scripts/create-admin.ts",
     "db:studio": "prisma studio",

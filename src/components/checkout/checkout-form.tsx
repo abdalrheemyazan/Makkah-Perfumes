@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useActionState, useEffect, useId, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { placeOrder } from '@/app/actions/checkout';
@@ -27,10 +28,10 @@ const CHECKOUT_FIELDS: { key: string; name: string; labelHe: string }[] = [
 
 type ShippingMethod = 'SELF_PICKUP' | 'REGULAR' | 'EXPRESS';
 
-const SHIPPING_OPTIONS: { value: ShippingMethod; labelHe: string; priceHe: string }[] = [
-  { value: 'SELF_PICKUP', labelHe: 'איסוף עצמי', priceHe: 'חינם' },
-  { value: 'REGULAR', labelHe: 'משלוח רגיל', priceHe: formatPrice(SHIPPING_PRICES.REGULAR) },
-  { value: 'EXPRESS', labelHe: 'משלוח מהיר', priceHe: formatPrice(SHIPPING_PRICES.EXPRESS) },
+const SHIPPING_OPTIONS: { value: ShippingMethod; labelHe: string; priceHe: string; descriptionHe: string }[] = [
+  { value: 'SELF_PICKUP', labelHe: 'איסוף עצמי', priceHe: 'חינם', descriptionHe: 'האיסוף יתואם לאחר אישור ההזמנה.' },
+  { value: 'REGULAR', labelHe: 'משלוח רגיל', priceHe: formatPrice(SHIPPING_PRICES.REGULAR), descriptionHe: 'נדרשת כתובת מלאה; פרטי המסירה יתואמו לאחר האישור.' },
+  { value: 'EXPRESS', labelHe: 'משלוח מהיר', priceHe: formatPrice(SHIPPING_PRICES.EXPRESS), descriptionHe: 'הזמינות ופרטי המסירה יאושרו לאחר קבלת ההזמנה.' },
 ];
 
 /**
@@ -101,107 +102,136 @@ export function CheckoutForm({
   }, [state]);
 
   return (
-    <form ref={formRef} action={formAction} noValidate className="flex flex-col gap-10">
+    <form
+      ref={formRef}
+      action={formAction}
+      noValidate
+      data-testid="checkout-layout"
+      className="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,1.85fr)_minmax(20rem,1fr)] lg:gap-12"
+    >
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="shippingMethod" value={method} />
 
-      {state.status === 'error' && (state.messageHe || invalidFields.length > 0) && (
-        <div
-          ref={bannerRef}
-          role="alert"
-          className="rounded-sm border border-danger/40 bg-danger/10 p-4 text-sm text-danger"
-        >
-          {state.messageHe && <p className="font-medium">{state.messageHe}</p>}
-          {invalidFields.length > 0 && (
-            <>
-              <p className={state.messageHe ? 'mt-2 font-medium' : 'font-medium'}>יש לתקן את הפרטים הבאים:</p>
-              <ul className="mt-1.5 flex flex-col gap-1">
-                {invalidFields.map((field) => (
-                  <li key={field.key}>
-                    <button
-                      type="button"
-                      onClick={() => focusField(field.name)}
-                      className="text-start underline underline-offset-2 hover:text-ivory"
-                    >
-                      {field.labelHe} — {state.errors[field.key]}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* 1 — Contact (always required) */}
-      <Step number={1} titleHe="פרטי התקשרות">
-        <Field name="email" labelHe="דוא״ל" type="email" autoComplete="email" dir="ltr" defaultValue={defaultEmail} error={state.errors.email} required />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field name="firstName" labelHe="שם פרטי" autoComplete="given-name" defaultValue={defaultFirstName} error={state.errors['address.firstName']} required />
-          <Field name="lastName" labelHe="שם משפחה" autoComplete="family-name" defaultValue={defaultLastName} error={state.errors['address.lastName']} required />
-        </div>
-        <Field name="phone" labelHe="טלפון" type="tel" autoComplete="tel" dir="ltr" placeholder="050-123-4567" defaultValue={defaultPhone} error={state.errors['address.phone']} required />
-      </Step>
-
-      {/* 2 — Shipping method (single source of truth) */}
-      <Step number={2} titleHe="אופן קבלת ההזמנה">
-        <fieldset className="flex flex-col gap-3">
-          <legend className="sr-only">בחירת אופן קבלת ההזמנה</legend>
-          {SHIPPING_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              className="flex cursor-pointer items-center justify-between gap-3 rounded-sm border border-gold/20 p-4 text-sm text-cream hover:border-gold/45"
-            >
-              <span className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  name="shippingMethodChoice"
-                  value={option.value}
-                  checked={method === option.value}
-                  onChange={() => setMethod(option.value)}
-                  className="h-4 w-4 accent-[var(--color-gold)]"
-                />
-                <span>{option.labelHe}</span>
-              </span>
-              <span className="ltr-nums text-gold">{option.priceHe}</span>
-            </label>
-          ))}
-        </fieldset>
-        {!needsAddress && (
-          <p className="text-xs text-faint">באיסוף עצמי אין צורך בכתובת. פרטי האיסוף יתואמו לאחר אישור ההזמנה.</p>
+      <div data-testid="checkout-main" className="min-w-0 flex flex-col gap-8">
+        {state.status === 'error' && (state.messageHe || invalidFields.length > 0) && (
+          <div
+            ref={bannerRef}
+            role="alert"
+            className="rounded-sm border border-danger/40 bg-danger/10 p-4 text-sm text-danger"
+          >
+            {state.messageHe && <p className="font-medium">{state.messageHe}</p>}
+            {invalidFields.length > 0 && (
+              <>
+                <p className={state.messageHe ? 'mt-2 font-medium' : 'font-medium'}>יש לתקן את הפרטים הבאים:</p>
+                <ul className="mt-1.5 flex flex-col gap-1">
+                  {invalidFields.map((field) => (
+                    <li key={field.key}>
+                      <button type="button" onClick={() => focusField(field.name)} className="text-start underline underline-offset-2 hover:text-ivory">
+                        {field.labelHe} — {state.errors[field.key]}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
         )}
-      </Step>
 
-      {/* 3 — Address (only for delivery; not rendered → not submitted → not validated) */}
-      {needsAddress && (
-        <Step number={3} titleHe="כתובת למשלוח">
-          <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
-            <Field name="street" labelHe="רחוב" autoComplete="address-line1" error={state.errors['address.street']} required />
-            <Field name="houseNumber" labelHe="מספר בית" error={state.errors['address.houseNumber']} required />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field name="entrance" labelHe="כניסה" error={state.errors['address.entrance']} />
-            <Field name="floor" labelHe="קומה" error={state.errors['address.floor']} />
-            <Field name="apartment" labelHe="דירה" error={state.errors['address.apartment']} />
-          </div>
+        <Step number={1} titleHe="פרטי התקשרות">
+          <Field name="email" labelHe="דוא״ל" type="email" autoComplete="email" dir="ltr" defaultValue={defaultEmail} error={state.errors.email} required />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field name="city" labelHe="עיר" autoComplete="address-level2" error={state.errors['address.city']} required />
-            <Field name="postalCode" labelHe="מיקוד (רשות)" autoComplete="postal-code" dir="ltr" error={state.errors['address.postalCode']} />
+            <Field name="firstName" labelHe="שם פרטי" autoComplete="given-name" defaultValue={defaultFirstName} error={state.errors['address.firstName']} required />
+            <Field name="lastName" labelHe="שם משפחה" autoComplete="family-name" defaultValue={defaultLastName} error={state.errors['address.lastName']} required />
           </div>
-          <Field name="notes" labelHe="הערות לשליח (רשות)" error={state.errors['address.notes']} />
+          <Field name="phone" labelHe="טלפון" type="tel" autoComplete="tel" dir="ltr" placeholder="050-123-4567" defaultValue={defaultPhone} error={state.errors['address.phone']} required />
         </Step>
-      )}
 
-      {/* 4 — Payment */}
-      <Step number={needsAddress ? 4 : 3} titleHe="תשלום">
-        <p className="text-sm leading-relaxed text-cream/80">פרטי התשלום והמשלוח יתואמו לאחר אישור ההזמנה.</p>
-      </Step>
+        <Step number={2} titleHe="אופן קבלת ההזמנה">
+          <fieldset className="grid gap-3 sm:grid-cols-3">
+            <legend className="sr-only">בחירת אופן קבלת ההזמנה</legend>
+            {SHIPPING_OPTIONS.map((option) => {
+              const selected = method === option.value;
+              return (
+                <label
+                  key={option.value}
+                  className={`flex min-h-36 cursor-pointer flex-col rounded-sm border p-4 motion-safe:transition-[border-color,background-color,box-shadow] ${
+                    selected
+                      ? 'border-gold bg-gold/10 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--color-gold)_25%,transparent)]'
+                      : 'border-gold/20 bg-charcoal/35 hover:border-gold/50'
+                  }`}
+                >
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="font-medium text-ivory">{option.labelHe}</span>
+                    <input
+                      type="radio"
+                      name="shippingMethodChoice"
+                      value={option.value}
+                      checked={selected}
+                      onChange={() => setMethod(option.value)}
+                      className="h-5 w-5 shrink-0 accent-[var(--color-gold)]"
+                    />
+                  </span>
+                  <span className="ltr-nums mt-3 text-sm text-gold">{option.priceHe}</span>
+                  <span className="mt-2 text-xs leading-relaxed text-muted">{option.descriptionHe}</span>
+                </label>
+              );
+            })}
+          </fieldset>
+          {!needsAddress && <p className="text-xs text-faint">באיסוף עצמי אין צורך להזין כתובת.</p>}
+        </Step>
 
-      {/* 5 — Summary + submit */}
-      <Step number={needsAddress ? 5 : 4} titleHe="סיכום ואישור">
-        <Field name="customerNote" labelHe="הערה להזמנה (רשות)" error={state.errors.customerNote} />
+        {needsAddress && (
+          <Step number={3} titleHe="כתובת למשלוח">
+            <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
+              <Field name="street" labelHe="רחוב" autoComplete="address-line1" error={state.errors['address.street']} required />
+              <Field name="houseNumber" labelHe="מספר בית" error={state.errors['address.houseNumber']} required />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field name="entrance" labelHe="כניסה" error={state.errors['address.entrance']} />
+              <Field name="floor" labelHe="קומה" error={state.errors['address.floor']} />
+              <Field name="apartment" labelHe="דירה" error={state.errors['address.apartment']} />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field name="city" labelHe="עיר" autoComplete="address-level2" error={state.errors['address.city']} required />
+              <Field name="postalCode" labelHe="מיקוד (רשות)" autoComplete="postal-code" dir="ltr" error={state.errors['address.postalCode']} />
+            </div>
+            <Field name="notes" labelHe="הערות לשליח (רשות)" error={state.errors['address.notes']} />
+          </Step>
+        )}
 
-        <dl className="flex flex-col gap-2 rounded-sm border border-gold/15 bg-charcoal p-4 text-sm">
+        <Step number={needsAddress ? 4 : 3} titleHe="הערה להזמנה">
+          <TextAreaField name="customerNote" labelHe="מידע שחשוב שנדע (רשות)" error={state.errors.customerNote} />
+        </Step>
+
+        <Step number={needsAddress ? 5 : 4} titleHe="אישור">
+          <p className="rounded-sm border border-gold/15 bg-charcoal/45 p-4 text-sm leading-relaxed text-cream/80">
+            פרטי התשלום והמסירה יתואמו לאחר אישור ההזמנה.
+          </p>
+        </Step>
+      </div>
+
+      <aside data-testid="order-summary" aria-labelledby="order-summary-heading" className="self-start lg:sticky lg:top-28">
+        <div className="rounded-sm border border-gold/20 bg-charcoal/75 p-5 sm:p-6">
+          <h2 id="order-summary-heading" className="text-xl text-ivory">סיכום ההזמנה</h2>
+          <ul className="mt-5 flex flex-col gap-4 border-b border-gold/15 pb-5">
+            {cart.lines.map((line) => (
+              <li key={line.itemId} className="grid grid-cols-[4rem_minmax(0,1fr)_auto] gap-3">
+                <div className="relative aspect-4/5 overflow-hidden rounded-sm border border-gold/10 bg-ink">
+                  {line.imageUrl ? (
+                    <Image src={line.imageUrl} alt={line.imageAltHe} fill sizes="64px" className="object-contain p-1.5" />
+                  ) : null}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ivory">{line.productNameHe}</p>
+                  <p className="mt-1 text-xs text-faint">{line.variantLabel}</p>
+                  <p className="ltr-nums mt-1 text-xs text-muted">כמות: {line.quantity}</p>
+                </div>
+                <p className="ltr-nums text-sm text-cream">{formatPrice(line.lineTotalAgorot)}</p>
+              </li>
+            ))}
+          </ul>
+
+          <dl className="mt-5 flex flex-col gap-2.5 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted">סכום ביניים</dt>
             <dd className="ltr-nums text-cream">{formatPrice(subtotalAgorot)}</dd>
@@ -209,21 +239,23 @@ export function CheckoutForm({
           {discountAgorot > 0 && (
             <div className="flex justify-between">
               <dt className="text-muted">הנחת קופון</dt>
-              <dd className="ltr-nums text-success">−{formatPrice(discountAgorot)}</dd>
+              <dd className="ltr-nums text-success">−{formatPrice(discountAgorot)}{cart.couponCode ? ` (${cart.couponCode})` : ''}</dd>
             </div>
           )}
           <div className="flex justify-between">
             <dt className="text-muted">משלוח</dt>
-            <dd className="ltr-nums text-cream">{shippingAgorot === 0 ? 'חינם' : formatPrice(shippingAgorot)}</dd>
+            <dd data-testid="shipping-total" className="ltr-nums text-cream">{shippingAgorot === 0 ? 'חינם' : formatPrice(shippingAgorot)}</dd>
           </div>
-          <div className="mt-1 flex items-baseline justify-between border-t border-gold/15 pt-2">
+          <div className="mt-2 flex items-baseline justify-between border-t border-gold/15 pt-4">
             <dt className="font-serif text-base text-ivory">סה״כ</dt>
-            <dd className="ltr-nums font-serif text-lg text-gold">{formatPrice(totalAgorot)}</dd>
+            <dd data-testid="order-total" className="ltr-nums font-serif text-xl text-gold">{formatPrice(totalAgorot)}</dd>
           </div>
         </dl>
 
-        <SubmitButton />
-      </Step>
+          <div className="mt-6"><SubmitButton /></div>
+          <p className="mt-3 text-center text-xs leading-relaxed text-faint">הסכום הסופי נבדק שוב בשרת בעת שליחת ההזמנה.</p>
+        </div>
+      </aside>
     </form>
   );
 }
@@ -281,6 +313,25 @@ function Field({
   );
 }
 
+function TextAreaField({ name, labelHe, error }: { name: string; labelHe: string; error?: string }) {
+  const id = useId();
+  const errorId = `${id}-error`;
+  return (
+    <div>
+      <label htmlFor={id} className="block text-sm text-cream">{labelHe}</label>
+      <textarea
+        id={id}
+        name={name}
+        rows={4}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className="mt-1.5 w-full resize-y rounded-sm border border-gold/25 bg-ink px-3 py-2.5 text-sm text-ivory placeholder:text-faint focus:border-gold focus:outline-none aria-[invalid=true]:border-danger"
+      />
+      {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-danger">{error}</p>}
+    </div>
+  );
+}
+
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
@@ -289,7 +340,7 @@ function SubmitButton() {
       disabled={pending}
       className="h-13 w-full rounded-sm bg-gold px-7 text-base font-medium text-ink transition-colors hover:bg-cream disabled:opacity-60"
     >
-      {pending ? 'שולח…' : 'אישור הזמנה'}
+      {pending ? 'ההזמנה נשלחת...' : 'אישור הזמנה'}
     </button>
   );
 }

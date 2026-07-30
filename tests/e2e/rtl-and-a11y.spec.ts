@@ -90,12 +90,27 @@ test.describe('Hebrew RTL and layout integrity', () => {
     await expect(page.getByText('מחיר לדוגמה')).not.toBeVisible();
   });
 
-  test('no fabricated reviews or branches are shown', async ({ page }) => {
+  test('no fabricated reviews are shown and the retired branch URL redirects', async ({ page }) => {
     await page.goto('/shop/royal-leather');
     await expect(page.getByText('עדיין אין ביקורות למוצר זה.')).toBeVisible();
 
     await page.goto('/stores');
-    await expect(page.getByText('כתובות הסניפים טרם נמסרו')).toBeVisible();
+    await expect(page).toHaveURL(/\/contact$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'יצירת קשר' })).toBeVisible();
+  });
+
+  test('retired branch and magazine links are absent and legacy routes redirect permanently', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('link', { name: 'סניפים', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'מגזין', exact: true })).toHaveCount(0);
+
+    const stores = await page.request.get('/stores', { maxRedirects: 0 });
+    expect(stores.status()).toBe(308);
+    expect(stores.headers().location).toBe('/contact');
+
+    const journal = await page.request.get('/journal', { maxRedirects: 0 });
+    expect(journal.status()).toBe(308);
+    expect(journal.headers().location).toBe('/about');
   });
 
   test('reduced motion still renders all content', async ({ page }) => {
@@ -116,6 +131,8 @@ test.describe('Hebrew RTL and layout integrity', () => {
 
   test('the header shows a login link when signed out', async ({ page }) => {
     await page.goto('/');
+    const menuButton = page.getByRole('button', { name: 'פתיחת תפריט' });
+    if (await menuButton.isVisible().catch(() => false)) await menuButton.click();
     await expect(page.getByRole('link', { name: 'התחברות' }).first()).toBeVisible();
     // A signed-out visitor must not see the account greeting or store admin.
     await expect(page.getByText('שלום,')).toHaveCount(0);

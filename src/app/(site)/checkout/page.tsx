@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { CheckoutForm } from '@/components/checkout/checkout-form';
 import { db } from '@/lib/db';
 
-export const metadata: Metadata = { title: 'תשלום', robots: { index: false } };
+export const metadata: Metadata = { title: 'השלמת הזמנה', robots: { index: false } };
 
 export default async function CheckoutPage() {
   const [cart, user] = await Promise.all([readCart(), getCurrentUser()]);
@@ -34,7 +34,11 @@ export default async function CheckoutPage() {
 
   return (
     <div className="container-editorial pt-32 pb-24">
-      <h1 className="font-serif text-4xl text-ivory">תשלום</h1>
+      <p className="text-xs font-medium tracking-[0.16em] text-gold">שלב אחרון</p>
+      <h1 className="mt-3 font-serif text-4xl text-ivory">השלמת הזמנה</h1>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream/70">
+        בחרו אופן קבלה, בדקו את הסיכום ושלחו את בקשת ההזמנה לאישור החנות.
+      </p>
 
       <CheckoutForm
         cart={cart}

@@ -127,6 +127,7 @@ export async function getFeaturedProducts(limit = 6): Promise<ProductCard[]> {
 export const getFragranceFamilies = unstable_cache(
   async () =>
     db.fragranceFamily.findMany({
+      where: { products: { some: { status: 'PUBLISHED' } } },
       orderBy: { position: 'asc' },
       select: {
         id: true,

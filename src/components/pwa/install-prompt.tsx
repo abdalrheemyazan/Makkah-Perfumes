@@ -131,7 +131,7 @@ export function InstallPrompt() {
       className="fixed inset-x-0 bottom-4 z-50 mx-auto w-[min(92%,26rem)] rounded-lg border border-gold/25 bg-charcoal/95 p-4 shadow-xl shadow-black/50 backdrop-blur"
     >
       <div className="flex items-start gap-3">
-        <Image src="/icons/icon-192.png" alt="" width={44} height={44} className="rounded-md" />
+        <Image src="/icons/icon-192.png?v=20260730" alt="" width={44} height={44} className="rounded-md" />
         <div className="min-w-0 flex-1">
           <p className="font-serif text-sm text-ivory">התקנת Makkah Perfumes</p>
           <p className="mt-0.5 text-xs leading-relaxed text-cream/80">

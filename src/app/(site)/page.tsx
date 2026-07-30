@@ -24,7 +24,7 @@ export const metadata: Metadata = { title: 'בית', alternates: { canonical: '/
  *   3. Shop            — featured products
  *   4. Discovery       — guided route into the catalogue
  *   5. Frankincense    — heritage context
- *   6. Reviews/Stores  — one quiet honest band
+ *   6. Reviews         — verified customer voices only
  *
  * Sections alternate between the base ink surface and the raised charcoal
  * surface so the eye gets a rhythm instead of one long dark scroll.
@@ -75,11 +75,10 @@ const STORY_CHAPTERS: StoryChapter[] = [
 ];
 
 export default async function HomePage() {
-  const [featured, families, heroBlock, storyBlock] = await Promise.all([
+  const [featured, families, heroBlock] = await Promise.all([
     getFeaturedProducts(6),
     getFragranceFamilies(),
     db.contentBlock.findUnique({ where: { key: 'home.hero' } }),
-    db.contentBlock.findUnique({ where: { key: 'home.brand-story' } }),
   ]);
 
   const hero = featured.find((product) => product.slug === 'royal-leather') ?? featured[0] ?? null;
@@ -110,8 +109,8 @@ export default async function HomePage() {
 
       {/* ===== 2 · STORY ===== */}
       <StorySequence
-        headingHe={storyBlock?.titleHe ?? 'מהמסורת העומאנית אל הניחוח המודרני'}
-        introHe={storyBlock?.bodyHe ?? ''}
+        headingHe="מהמסורת העומאנית אל הניחוח המודרני"
+        introHe="המסע של Makkah Perfumes החל בשנת 1976 בסולטנות עומאן, מתוך תשוקה ליצירת ניחוחות המחברים בין מסורת הבישום הערבית והעומאנית לבין גישה מודרנית ומדויקת."
         chapters={STORY_CHAPTERS}
       />
 
@@ -204,36 +203,28 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== 6 · REVIEWS + STORES ===== */}
-      <CommunityBand />
+      {/* ===== 6 · VERIFIED REVIEWS ===== */}
+      <CustomerVoices />
     </>
   );
 }
 
 /**
- * Reviews and branches, side by side.
- *
- * Both are honest empty states — there are no approved reviews and no verified
- * branch addresses yet, and neither will be invented. As two full-width
- * sections they read as two apologies in a row; paired in one quiet band they
- * read as a single status note and the page stops feeling stacked.
+ * Approved store reviews only. No source-site ratings or imported opinions are
+ * used anywhere in this section.
  */
-async function CommunityBand() {
-  const [reviews, branches] = await Promise.all([
-    db.review.findMany({
-      where: { status: 'APPROVED' },
-      take: 2,
-      orderBy: { createdAt: 'desc' },
-      include: { product: { select: { nameHe: true, slug: true } } },
-    }),
-    db.branch.findMany({ where: { isPublished: true }, orderBy: { position: 'asc' }, take: 3 }),
-  ]);
+async function CustomerVoices() {
+  const reviews = await db.review.findMany({
+    where: { status: 'APPROVED' },
+    take: 3,
+    orderBy: { createdAt: 'desc' },
+    include: { product: { select: { nameHe: true, slug: true } } },
+  });
 
   return (
     <section className="border-t border-gold/10 bg-charcoal py-24 lg:py-28">
-      <div className="mx-auto grid w-full max-w-[110rem] gap-14 px-5 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:px-12">
-        {/* Reviews */}
-        <div>
+      <div className="mx-auto w-full max-w-[110rem] px-5 sm:px-8 lg:px-12">
+        <div className="max-w-4xl">
           <h2 id="reviews-heading" className="font-serif text-2xl text-ivory sm:text-3xl">
             מה אומרים הלקוחות
           </h2>
@@ -243,9 +234,9 @@ async function CommunityBand() {
               לא נכתבו כאן המלצות לדוגמה.
             </p>
           ) : (
-            <ul className="mt-6 flex flex-col gap-5">
+            <ul className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {reviews.map((review) => (
-                <li key={review.id}>
+                <li key={review.id} className="border-s border-gold/15 ps-5">
                   <p className="ltr-nums text-gold" aria-label={`דירוג ${review.rating} מתוך 5`}>
                     {'★'.repeat(review.rating)}
                   </p>
@@ -256,40 +247,6 @@ async function CommunityBand() {
                   >
                     {review.product.nameHe}
                   </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Branches */}
-        <div className="lg:border-s lg:border-gold/10 lg:ps-20">
-          <h2 id="branches-heading" className="font-serif text-2xl text-ivory sm:text-3xl">
-            הסניפים שלנו
-          </h2>
-          {branches.length === 0 ? (
-            <>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-                פרטי הסניפים יתעדכנו בקרוב. בינתיים נשמח לענות על כל שאלה.
-              </p>
-              <Link
-                href="/contact"
-                className="mt-6 inline-flex h-11 items-center rounded-sm border border-gold/40 px-5 text-sm text-cream transition-colors hover:border-gold hover:text-ivory"
-              >
-                ליצירת קשר
-              </Link>
-            </>
-          ) : (
-            <ul className="mt-6 flex flex-col gap-5">
-              {branches.map((branch) => (
-                <li key={branch.id}>
-                  <h3 className="font-serif text-lg text-ivory">{branch.nameHe}</h3>
-                  <p className="mt-1 text-sm text-muted">
-                    {branch.addressHe}, {branch.cityHe}
-                  </p>
-                  {branch.openingHoursHe && (
-                    <p className="text-xs text-faint">{branch.openingHoursHe}</p>
-                  )}
                 </li>
               ))}
             </ul>
